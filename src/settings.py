@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -123,3 +124,15 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Add the path to your React frontend build files
+# If you created the React app in a 'frontend' directory, this should be the path
+REACT_APP_DIR = os.path.join(BASE_DIR, 'frontend', 'build')
+
+# Add the path to the frontend's static files
+STATICFILES_DIRS = [
+    os.path.join(REACT_APP_DIR, 'static'),
+]
+
+# Update the 'TEMPLATES' setting to include the React app's template
+TEMPLATES[0]['DIRS'].append(REACT_APP_DIR)
