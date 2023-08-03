@@ -57,7 +57,7 @@ ROOT_URLCONF = 'src.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'frontend', 'build')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -115,24 +115,15 @@ USE_I18N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/4.2/howto/static-files/
+# # Static files (CSS, JavaScript, Images)
+# # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = 'static/'
+
+#configure react static files 
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'frontend', 'build', 'static')]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-# Add the path to your React frontend build files
-# If you created the React app in a 'frontend' directory, this should be the path
-REACT_APP_DIR = os.path.join(BASE_DIR, 'frontend', 'build')
-
-# Add the path to the frontend's static files
-STATICFILES_DIRS = [
-    os.path.join(REACT_APP_DIR, 'static'),
-]
-
-# Update the 'TEMPLATES' setting to include the React app's template
-TEMPLATES[0]['DIRS'].append(REACT_APP_DIR)
