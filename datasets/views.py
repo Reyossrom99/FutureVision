@@ -9,4 +9,4 @@ class DatasetsPrueba(APIView):
     #     return Response(data)
     def get(self, request): 
         context = {}
-        return render(request, 'datasets/index_datasets.html')
+        return render(request, 'index.html')
