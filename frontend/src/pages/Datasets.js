@@ -1,17 +1,41 @@
 import React, {useEffect, useState} from 'react'; 
 import axios from 'axios'; 
+import Cookies from 'csrf-cookie'; 
 
 
 //make http request to /datasets when enter the page 
 function Datasets(){
-    const [datasets, setDatasets] = useState([]); 
+    const [datasets, setDatasets] = useState([]); //get the data from the backend
+    const [postResponse, setPostRequest] = useState(null); //send and recive post from the backend
+
 
     useEffect(() => {
-        axios.get('/datasets')
+        axios.get('/datasets/')
         .then(response => setDatasets(response.data))
         .catch(error => console.error(error))
-    }, []
-        ); 
+    }, []); 
+    const postData = {
+      id: '0', 
+      name: 'prueba_1', 
+      description: 'descripcion', 
+      formatedDate : '2023-08-10 15:30:00'
+    }; 
+    const handlePostRequest = () => {
+      // const csrfToken = Cookies.get('csrftoken'); 
+      const csrfToken = window.csrfToken;
+      // axios.post('/datasets/', { data: postData})
+      // .then(response => postResponse(response.data))
+      // .catch(error => console.error(error))
+      try {
+        const response = axios.post('/datasets/', postData, {
+          headers: {
+            'X-CSRFToken': csrfToken,  // Include the csrf token in headers
+          }
+        }); 
+      }catch(error){
+        console.error(error); 
+      }
+    }
 
     return (
         <div>
@@ -29,6 +53,7 @@ function Datasets(){
         ) : (
           <p>No datasets available.</p>
         )}
+        <button onClick={handlePostRequest}>SEND POST</button>
       </div>
     ); 
 }
