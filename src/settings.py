@@ -78,11 +78,24 @@ WSGI_APPLICATION = 'src.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
+#version antigua creada para sql
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
 
+
+#version nueva de database usando postgres en docker
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+    'default' : {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'yoloVision',
+        'USER': 'root',
+        'PASSWORD': 'root',
+        'HOST': 'localhost',  # Use the host of your Docker container
+        'PORT': '5432',       # Port exposed in the container
     }
 }
 
