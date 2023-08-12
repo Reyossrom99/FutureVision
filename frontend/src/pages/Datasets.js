@@ -1,13 +1,13 @@
 import React, {useEffect, useState} from 'react'; 
 import axios from 'axios'; 
-import Cookies from 'csrf-cookie'; 
+import FormDialog from '../components/newDatasetForm';
 
 
 //make http request to /datasets when enter the page 
 function Datasets(){
     const [datasets, setDatasets] = useState([]); //get the data from the backend
     const [postResponse, setPostRequest] = useState(null); //send and recive post from the backend
-
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
 
     useEffect(() => {
         axios.get('/datasets/')
@@ -51,9 +51,13 @@ function Datasets(){
             </div>
           ))
         ) : (
-          <p>No datasets available.</p>
+          //there are no datasets avariable so we put a botton to create a new one
+          <p>No datasets avariable</p>
+          
         )}
         <button onClick={handlePostRequest}>SEND POST</button>
+        <button onClick={() => setIsDialogOpen(true)}>Open Form Dialog</button>
+        <FormDialog isOpen={isDialogOpen} onRequestClose={() => setIsDialogOpen(false)} />
       </div>
     ); 
 }
