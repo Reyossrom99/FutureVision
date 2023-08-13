@@ -1,31 +1,29 @@
 
-import SettingsRoundedIcon from '@mui/icons-material/SettingsRounded';
-import CollectionsTwoToneIcon from '@mui/icons-material/CollectionsTwoTone';
-import EqualizerRoundedIcon from '@mui/icons-material/EqualizerRounded';
-import ModelTrainingRoundedIcon from '@mui/icons-material/ModelTrainingRounded';
 export const navData = [
     {
         id: 0,
-        icon: <CollectionsTwoToneIcon/>,
+        text: "YoloVision",
+      
+    },
+    {
+        id: 1,
         text: "Datasets",
         link: "datasets"
     },
     {
-        id: 1,
-        icon: <ModelTrainingRoundedIcon/>,
-        text: "Models",
-        link: "models"
-    },
-    {
         id: 2,
-        icon: <EqualizerRoundedIcon/>,
-        text: "Statistics",
-        link: "statistics"
+     
+        text: "Proyects",
+        link: "proyects"
     },
     {
         id: 3,
-        icon: <SettingsRoundedIcon/>,
         text: "Settings",
         link: "settings"
+    },
+    {
+        id: 4,
+        text: "Profile",
+        link: "profile"
     },
 ]

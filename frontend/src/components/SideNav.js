@@ -1,6 +1,6 @@
 import React from 'react'; 
 import { navData } from '../lib/navData';
-import styles from './sideNav.module.css'; 
+import styles from './sideNavNew.module.css'; 
 import { NavLink } from "react-router-dom";
 
 
