@@ -13,7 +13,7 @@
   }
 }
 
-.App-header {
+/* .App-header {
   background-color: #282c34;
   min-height: 100vh;
   display: flex;
@@ -22,8 +22,15 @@
   justify-content: center;
   font-size: calc(10px + 2vmin);
   color: white;
+} */
+.App-header {
+  background-color: #282c34;
+  display: flex;
+  align-items: center;
+  padding: 20px; /* Add some padding for spacing */
+  font-size: calc(10px + 2vmin);
+  color: white;
 }
-
 .App-link {
   color: #61dafb;
 }

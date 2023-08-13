@@ -1,0 +1,42 @@
+/* datasets.css */
+.datasets-container {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  
+  .dataset-card {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    margin: 10px;
+    padding: 10px;
+    width: 300px;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .dataset-image {
+    max-width: 100%;
+    height: auto;
+    border-radius: 4px;
+  }
+  
+  .dataset-info {
+    margin-top: 10px;
+  }
+  
+  .dataset-name {
+    font-weight: bold;
+  }
+  
+  .dataset-description {
+    font-size: 14px;
+  }
+  .page-container {
+    display: flex;
+  }
+  
+  .content-container {
+    margin-left: 200px; /* Adjust this value to match the width of your navbar */
+    flex-grow: 1; /* Allow the content to take up remaining space */
+    padding: 20px; /* Add some padding to the content */
+  }
