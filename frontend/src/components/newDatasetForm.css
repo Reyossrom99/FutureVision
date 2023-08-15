@@ -1,0 +1,105 @@
+/* Styling for the Modal */
+.ReactModal__Overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .ReactModal__Content {
+    position: relative;
+    padding: 30px;
+    max-width: 400px; /* Limiting the width */
+    background-color:#F2F2F2;
+    border-radius: 4px;
+  }
+  
+  /* Styling for the form */
+  form {
+    display: flex;
+    flex-direction: column;
+  }
+  #header-label{
+    margin-top: 8px;
+    margin-bottom: 20px;
+    font-family: 'Work Sans', sans-serif; 
+    color: #080808; 
+    font-size: 20px;
+    display: flex;
+    justify-content: center;
+  }
+  label {
+    margin-bottom: 8px;
+    font-size: 18px;
+    /* font-family: monospace; */
+    font-family: 'Work Sans', sans-serif; 
+    color: #080808; 
+
+  }
+  /* #name-label{
+    display: flex;
+    justify-content: center;
+   }
+   #description-label{
+    display: flex;
+    justify-content: center;
+   }
+   #cover-label{
+    display: flex;
+    justify-content: center;
+   } */
+  
+  input[type="text"],
+  input[type="file"] {
+    padding: 8px;
+    margin-bottom: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  #description-input{
+    display:flex; 
+    height: 100px; /* Set the desired height */
+  }
+
+
+  /* Styling for the buttons container */
+.button-container {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+   
+    
+  }
+  
+  /* Styling for the buttons */
+  /* it also styles the open form button*/
+  button {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-right: 20px; 
+  }
+  
+  /* Styling for the specific buttons */
+  button[type="button"] {
+    color: white;
+  }
+  
+  button[type="button"]:first-child {
+    background-color: red;
+    width: 30%;
+  }
+  
+  button[type="button"]:last-child {
+    background-color: blue;
+    width: 30%;
+  }

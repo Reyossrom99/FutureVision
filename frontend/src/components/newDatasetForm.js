@@ -1,6 +1,7 @@
 import React, {useState} from "react";
 import Modal from 'react-modal'; 
 import axios from 'axios'; 
+import "./newDatasetForm.css";
 
 const FormDialog = ( {isOpen, onRequestClose}) => {
     const [name, setName] = useState(''); 
@@ -45,15 +46,20 @@ return (
     onRequestClose={onRequestClose}
     contentLabel="Form Modal"
     >
-        <h2> Formulacion de datasets</h2>
+        <h2 id="header-label">Create new dataset</h2>
         <form>
-        <label htmlFor="name">Name:</label>
-        <input type="text" id="name" name="name" value={name} onChange={(e) => setName(e.target.value)} /><br /><br />
-        <label htmlFor="description">Description:</label>
-        <input type="text" id="description" name="description" value={description} onChange={(e) => setDescription(e.target.value)} /><br /><br />
+        
+        <label htmlFor="name" id="name-label">Name</label>
+        <input type="text" id="name-input" name="name" value={name} onChange={(e) => setName(e.target.value)} /><br /><br />
+        <label htmlFor="description" id ="description-label">Description</label>
+        <input type="text" id="description-input" name="description" value={description} onChange={(e) => setDescription(e.target.value)} /><br /><br />
+        <label htmlFor="cover" id ="cover-label">Select the cover</label>
         <input type="file" id="cover" name="cover" onChange= {(e) => setCover(e.target.files[0])}/> <br /><br />
-        <button type="button" onClick={() => handleAccept()}>Accept</button>
+        <div class="button-container">
         <button type="button" onClick={onRequestClose}>Close</button>
+        <button type="button" onClick={() => handleAccept()}>Accept</button>
+       
+        </div>
         </form>
     </Modal>
 ); 
