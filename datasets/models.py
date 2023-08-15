@@ -1,5 +1,7 @@
 from django.db import models
 
+def upload_cover_path(instance, filename): 
+    return "/".join(['covers', str(instance.name), filename])
 """ 
     Nota: 
         Esta operacion crea o migra una tabla del tipo que se esta modelando a la base de datos de sql
@@ -12,10 +14,9 @@ class Datasets(models.Model):
     description = models.TextField(blank=True, null=True)
     uploaded_date = models.DateTimeField(auto_now_add=True)
     url = models.URLField(blank=True, null=True)
+    cover = models.ImageField(blank=True, null=True, upload_to=upload_cover_path)
 
     def __str__(self):
         return self.name
 
-# class Prueba(models.Model): 
-#     prueba_id = models.AutoField(primary_key=True)
-#     prueba_name = models.CharField(max_length=255)
+

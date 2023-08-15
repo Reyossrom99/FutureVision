@@ -136,8 +136,14 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+#Creating media and media root folder 
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
+
+DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
+
 #configure react static files 
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'frontend', 'build', 'static')]
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'frontend', 'build', 'static') ]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field

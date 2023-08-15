@@ -16,29 +16,7 @@ function Datasets(){
         .then(response => setDatasets(response.data))
         .catch(error => console.error(error))
     }, []); 
-    const postData = {
-      id: '0', 
-      name: 'prueba_1', 
-      description: 'descripcion', 
-      formatedDate : '2023-08-10 15:30:00'
-    }; 
-    const handlePostRequest = () => {
-      // const csrfToken = Cookies.get('csrftoken'); 
-      const csrfToken = window.csrfToken;
-      // axios.post('/datasets/', { data: postData})
-      // .then(response => postResponse(response.data))
-      // .catch(error => console.error(error))
-      try {
-        const response = axios.post('/datasets/', postData, {
-          headers: {
-            'X-CSRFToken': csrfToken,  // Include the csrf token in headers
-          }
-        }); 
-      }catch(error){
-        console.error(error); 
-      }
-    }
-
+ 
     return (
       <div className='page-container'>
         <div className="sidenav">
@@ -51,7 +29,7 @@ function Datasets(){
             datasets.map(dataset => (
               <div key={dataset.id} className="dataset-card">
                 <img
-                  src={"C:7Users/reyes/Pictures/fondo_naranja.jpg"} // Replace with the actual image URL from your dataset
+                  src={dataset.cover} //dataset url
                   alt={dataset.name}
                   className="dataset-image"
                 />
@@ -65,7 +43,6 @@ function Datasets(){
             <p>No datasets available</p>
           )}
         </div>
-        <button onClick={handlePostRequest}>SEND POST</button>
         <button onClick={() => setIsDialogOpen(true)}>Open Form Dialog</button>
         <FormDialog isOpen={isDialogOpen} onRequestClose={() => setIsDialogOpen(false)} />
       </div>

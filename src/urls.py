@@ -17,9 +17,15 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from . import views
+from django.conf import settings
+#allow django to server files from media folder
+from django.conf.urls.static import static
 
 urlpatterns = [
     # path('admin/', admin.site.urls),
     path('datasets/', include('datasets.urls')),
     path('', views.basic_web_page)
 ]
+#allow static media files folder
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

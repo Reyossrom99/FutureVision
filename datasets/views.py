@@ -8,6 +8,7 @@ from datasets.models import Datasets
 from datetime import datetime
 
 
+
 @api_view(["GET", "POST"])
 def query_table(request):
     if request.method == "GET":
@@ -16,8 +17,12 @@ def query_table(request):
         #returns the data if it is there
         if datasets.exists(): 
             # Convert the queryset to a list of dictionaries
-            data = [{"id": dataset.dataset_id, "name": dataset.name, "description": dataset.description,
-                    "uploaded_date": dataset.uploaded_date, "url": dataset.url}
+            data = [{"id": dataset.dataset_id, 
+                     "name": dataset.name, 
+                     "description": dataset.description,
+                    "uploaded_date": dataset.uploaded_date, 
+                    "url": dataset.url, 
+                    'cover': dataset.cover.url if dataset.cover else None}
                     for dataset in datasets]
         else: 
             # Return a custom response when no datasets are found
@@ -29,12 +34,13 @@ def query_table(request):
         recived_data = request.data
         #adding data to the model 
         name = recived_data.get('name')
-        id = recived_data.get('id')
         description = recived_data.get('description')
-    
+        cover = recived_data.get('cover')
+        print(cover)
         dataset = Datasets(
             name=name, 
-            description=description
+            description=description,
+            cover=cover
         )
         dataset.save()
         return Response({"message": "Dataset created successfully"})
