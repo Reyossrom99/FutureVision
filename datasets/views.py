@@ -6,6 +6,7 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 from datasets.models import Datasets
 from datetime import datetime
+from django.shortcuts import get_object_or_404
 
 
 
@@ -44,4 +45,17 @@ def query_table(request):
         )
         dataset.save()
         return Response({"message": "Dataset created successfully"})
-
+@api_view(["GET"])
+def get_dataset_info_by_id(request, dataset_id): 
+  
+    if request.method == "GET": 
+        # dataset = get_object_or_404(Datasets, id=dataset_id) #obtiene el dataset por id o manda error 404
+        dataset = Datasets.objects.get(dataset_id=dataset_id)
+        #añadir metodo que compruebe si el dataset que estoy obteniendo es correcto
+        dataset_data = {
+                'dataset_id': dataset.dataset_id,
+                'name': dataset.name,
+                'description': dataset.description,
+                # Add more fields as needed
+            }
+        return Response(dataset_data)

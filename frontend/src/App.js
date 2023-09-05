@@ -7,6 +7,7 @@ import {
 import './App.css';
 import SideNav from './components/SideNav'; 
 import Datasets from './pages/Datasets';
+import DatasetsDetails from './pages/DatasetsDetails'
 
 
 function App() {
@@ -16,9 +17,8 @@ function App() {
       <main>
         <Routes>
           <Route path="/datasets" element = {<Datasets/>}/>
-          {/* <Route path="/models" element = {<Models/>}/>
-          <Route path="/statistics" element = {<Statistics/>}/>
-          <Route path="/settings" element = {<Settings/>}/> */}
+          <Route path="/datasets/:id" element={<DatasetsDetails/>} />
+       
         </Routes>
       </main>
      

@@ -25,6 +25,7 @@ urlpatterns = [
     # path('admin/', admin.site.urls),
     path('datasets/', include('datasets.urls')),
     path('', views.basic_web_page)
+  
 ]
 #allow static media files folder
 if settings.DEBUG:
