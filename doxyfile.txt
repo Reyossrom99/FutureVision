@@ -1,7 +1,0 @@
-DOXYFILE_ENCODING      = UTF-8
-PROJECT_NAME           = "TFG"
-INPUT                  = C:/Users/reyes/TFG
-RECURSIVE              = YES
-FILE_PATTERNS          = *.py
-OUTPUT_DIRECTORY       = C:/Users/reyes/TFG/documentacion
-GENERATE_HTML          = YES
