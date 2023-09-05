@@ -1,6 +1,6 @@
 #Ignore doxygen 
 doxyfile.txt
-/documentation/
+/documentacion
 
 #ignore media files 
-/media/
+/media
