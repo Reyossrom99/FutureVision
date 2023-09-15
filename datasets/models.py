@@ -1,7 +1,8 @@
 from django.db import models
 
-def upload_cover_path(instance, filename): 
-    return "/".join(['covers', str(instance.name), filename])
+#Saves the saved file to /media/zip_data/name_dataset/name_zipFile
+def upload_zip_file(instance,filename): 
+    return "/".join(['zip_data', str(instance.name), filename])
 """ 
     Nota: 
         Esta operacion crea o migra una tabla del tipo que se esta modelando a la base de datos de sql
@@ -13,8 +14,8 @@ class Datasets(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
     uploaded_date = models.DateTimeField(auto_now_add=True)
-    url = models.URLField(blank=True, null=True)
-    cover = models.ImageField(blank=True, null=True, upload_to=upload_cover_path)
+    url = models.FileField(blank= True, null=True, upload_to=upload_zip_file)
+ 
 
     def __str__(self):
         return self.name

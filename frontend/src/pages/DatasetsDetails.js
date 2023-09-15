@@ -19,6 +19,7 @@ function DatasetsDetails() {
           {/* Render the detailed information of the dataset */}
           <h1>{dataset.name}</h1>
           <p>{dataset.description}</p>
+          <p>{dataset.url}</p>
           {/* Other dataset details */}
         </div>
       ) : (

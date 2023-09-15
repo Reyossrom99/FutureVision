@@ -50,3 +50,6 @@
   button{
     margin-top: 100px;
   }
+  a:link, a:visited, a:active {
+    text-decoration:none;
+}
