@@ -32,11 +32,11 @@ function Datasets(){
             datasets.map(dataset => (
               <Link to={`/datasets/${dataset.id}`} key={dataset.id} className="dataset-card-link">
                 <div key={dataset.id} className="dataset-card">
-                  {/* <img
-                    src={dataset.cover} //dataset url
+                  <img
+                    src={dataset.cover_url} //dataset url
                     alt={dataset.name}
                     className="dataset-image"
-                  /> */}
+                  />
                   <div className="dataset-info">
                     <h2 className="dataset-name">{dataset.name}</h2>
                     <p className="dataset-description">{dataset.description}</p>
