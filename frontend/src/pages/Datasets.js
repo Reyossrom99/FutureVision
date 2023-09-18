@@ -21,9 +21,7 @@ function Datasets(){
  
     return (
       <div className='page-container'>
-        <div className="sidenav">
-        <SideNav /> {/* Use the SideNav component */}
-        </div>
+        
         <div className='content-container'>
         <h1>Dataset Information</h1>
         

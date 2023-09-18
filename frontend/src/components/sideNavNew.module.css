@@ -1,6 +1,6 @@
 .sidenav{
     width: 200px;
-    background-color:  #F2F2F2; 
+    background-color:  #D2D2D2; 
     position: fixed;  /* Change 'absolute' to 'fixed' */
     top: 0;          /* Align the top edge with the top of the screen */
     left: 0;         /* Align the left edge with the left of the screen */

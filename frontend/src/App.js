@@ -6,6 +6,7 @@ import {
 
 import './App.css';
 import SideNav from './components/SideNav'; 
+import TopNav from "./components/topNav";
 import Datasets from './pages/Datasets';
 import DatasetsDetails from './pages/DatasetsDetails'
 
@@ -13,7 +14,8 @@ import DatasetsDetails from './pages/DatasetsDetails'
 function App() {
   return (
     <div className="App">
-      <SideNav/>
+      <SideNav></SideNav>
+      <TopNav></TopNav>
       <main>
         <Routes>
           <Route path="/datasets" element = {<Datasets/>}/>
