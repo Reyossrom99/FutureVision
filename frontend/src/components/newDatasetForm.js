@@ -9,29 +9,29 @@ const FormDialog = ( {isOpen, onRequestClose}) => {
     const [description, setDescription] = useState(''); 
     // const [cover, setCover] = useState(); 
     const [dir, setDir] = useState(); //set the url directory of the dataset
+    const [type, setType] = useState("splits"); 
 
-    //peticion asincrona
+  
     const handleAccept = () => {
-        //this methods works to send the cover url to the backend
-    const uploadData = new FormData(); 
-    uploadData.append('name', name); 
-    uploadData.append('description', description); 
-    // uploadData.append('cover', cover); 
-    uploadData.append('url', dir); 
-    const csrfToken = window.csrfToken; 
-    try{
-        const response =  axios.post('/datasets/', uploadData, {
-        headers: {
-            'X-CSRFToken': csrfToken,  // Include the csrf token in headers
-        }
-        }); 
-        console.log(response); 
+        const uploadData = new FormData(); 
+        uploadData.append('name', name); 
+        uploadData.append('description', description);
+        uploadData.append('url', dir); 
+        uploadData.append('type', type); 
+        
+        const csrfToken = window.csrfToken; 
 
-        //cerrar la ventana despues de recibir la peticion correcta
-        onRequestClose(); 
-    }catch(error){
-            console.log(error); 
-    }
+        try{
+            const response =  axios.post('/datasets/', uploadData, {
+            headers: {
+                'X-CSRFToken': csrfToken,  // Include the csrf token in headers
+            }
+            }); 
+            console.log(response); 
+            onRequestClose(); 
+        }catch(error){
+                console.log(error); 
+        }
     }; 
 
     const handleDirectoryInput = (e) =>{
@@ -47,9 +47,12 @@ const FormDialog = ( {isOpen, onRequestClose}) => {
             console.log("Input a directory url"); 
         }
     }; 
+
+    const handleTypeChange = (e) => {
+        setType(e.target.value); 
+    }; 
+
 return (
-    //Modal is a library for handling the pop-up 
-    //in a way that is not blocked by the web server
     <Modal
     isOpen = {isOpen}
     onRequestClose={onRequestClose}
@@ -62,9 +65,12 @@ return (
         <input type="text" id="name-input" name="name" value={name} onChange={(e) => setName(e.target.value)} /><br /><br />
         <label htmlFor="description" id ="description-label">Description</label>
         <input type="text" id="description-input" name="description" value={description} onChange={(e) => setDescription(e.target.value)} /><br /><br />
+        <label htmlFor='type' id='type-label'>Select the type of the dataset</label>
+        <select htmlFor='type-select' id='type-select' onChange={handleTypeChange}>
+            <option value="splits"> splits created</option>
+            <option value="no-splits"> no splits</option>
+        </select> <br /><br/> 
         <label htmlFor="dir" id ="dir-label">Select the dataset directory</label>
-        {/* <input type="file" id="cover" name="cover" onChange= {(e) => setCover(e.target.files[0])}/> <br /><br /> */}
-        {/* <input directory="" webkitdirectory="" type="file" id="dir" name="dir"  onChange= {handleDirectoryInput}/><br /><br/> Allows to select directorys as inputs */}
         <input type="file" id="dir" name="dir" accept=".zip" onChange={handleDirectoryInput}/><br /><br/> 
         <div class="button-container">
         <button type="button" onClick={onRequestClose}>Close</button>
@@ -75,5 +81,6 @@ return (
     </Modal>
 ); 
 }; 
+
 export default FormDialog; 
 

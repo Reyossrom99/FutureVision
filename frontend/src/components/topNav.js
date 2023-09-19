@@ -1,7 +1,8 @@
-import './topNav.module.css';
+
 
 import React, { useState } from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
+import './topNav.css'; 
 
 function TopNav() {
   const location = useLocation();
@@ -15,7 +16,7 @@ function TopNav() {
   return (
     <nav className='topnav'>
       {location.pathname === '/datasets' && (
-        <Link to="/datasets">Create New</Link>
+        <Link to="/datasets" className='navContainer'>Create New</Link>
       )}
       {location.pathname.startsWith('/datasets/') && (
         <select

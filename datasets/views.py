@@ -1,56 +1,12 @@
+from django.db import IntegrityError
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from datasets.models import Datasets
 from django.http import JsonResponse 
-
-import zipfile
-import os 
 from django.conf import settings
-import tempfile
-import shutil
+import os
 
-"""
-    Hay que modificarlo para que se busque correctamente dependiendo del tipo 
-    de dataset que estamos exportando
-"""
-def extract_cover_from_zip(zip_path, dataset_name): 
-     # Create a temporary directory to extract the zip file
-    temp_dir = tempfile.mkdtemp()
-
-    try:
-        # Extract the zip file to the temporary directory
-        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-            zip_ref.extractall(temp_dir)
-
-        # Search for image files in the temporary directory and select the first one
-        for root, _, files in os.walk(temp_dir):
-            for filename in files:
-                if filename.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.bmp')):
-                    image_path = os.path.join(root, filename)
-                
-                   
-                    image_path_striped = image_path.split("/")
-                    image_name = image_path_striped[len(image_path_striped) - 1]
-                 
-                   
-                    if os.path.exists(os.path.join(settings.MEDIA_ROOT, "covers", str(dataset_name))) == False: 
-                        os.mkdir(os.path.join(settings.MEDIA_ROOT, "covers", str(dataset_name)))
-                        shutil.copy(image_path, os.path.join(settings.MEDIA_ROOT, "covers", str(dataset_name)))
-
-                    print(settings.MEDIA_ROOT)
-                    print(str(dataset_name))
-                    print(str(image_name))
-
-                    image_media_path = os.path.join("/media", "covers",str(dataset_name), str(image_name))
-                    print(f"Image final path: {image_media_path}" )
-
-                    return image_media_path # Return the path to the first image found
-
-        return None  # No image files found
-    finally:
-        # Clean up the temporary directory
-       
-        shutil.rmtree(temp_dir)
+from . import utils 
 
 """
     se me va a guardar una archivo temporal de la imagen o me lo tendria que crear yo
@@ -87,7 +43,7 @@ def query_table(request):
                    
                     zip_path = os.path.join(settings.MEDIA_ROOT, str(dataset.url))
 
-                    image_path = extract_cover_from_zip(zip_path, dataset.name)
+                    image_path = utils.extract_cover_from_zip(zip_path, dataset.name)
                     if image_path:
                         # Construct the image URL from the extracted path
                         image_url = os.path.join(settings.MEDIA_URL, str(dataset.url), os.path.basename(image_path))
@@ -99,9 +55,32 @@ def query_table(request):
 
         else:
             return JsonResponse({"message": "No datasets found"})
-    else:
-        return JsonResponse({"message": "Method Not Allowed"}, status=405)
-   
+    
+    elif request.method == "POST": 
+        #data is in json format
+        recived_data = request.data
+        #adding data to the model 
+        name = recived_data.get('name')
+        description = recived_data.get('description')
+        url = recived_data.get('url')
+        type = recived_data.get('type')
+        
+        print(f"Recived type for dataset: {type}")
+
+        print(f"Checking if type is correct")
+        utils.check_correct_form(url, type)
+        try:
+
+            dataset = Datasets(
+                name=name, 
+                description=description,
+                url = url, 
+                type = type
+            )
+            dataset.save()
+            return Response({"message": "Dataset created successfully"})
+        except IntegrityError as e:
+            return Response({"message" : "Error ocurred when saving dataset"})
     
 @api_view(["GET"])
 def get_dataset_info_by_id(request, dataset_id): 
@@ -109,7 +88,7 @@ def get_dataset_info_by_id(request, dataset_id):
     if request.method == "GET": 
         
         dataset = Datasets.objects.get(dataset_id=dataset_id)
-        
+       
         dataset_data = {
                 'dataset_id': dataset.dataset_id,
                 'name': dataset.name,
