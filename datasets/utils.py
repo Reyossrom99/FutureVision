@@ -7,27 +7,30 @@ ERROR_CODE = 400
 OK_CODE = 200
 
 """
+    Checks whether the dataset is structure in yolo format corretly
+"""
+def check_yolo_format(temp_dir,type): 
+    subdirectories = []
+    for root, dirs, files in os.walk(temp_dir): 
+        #get to the second labels of subdirectories
+        if root.counts(os.path.sep) - temp_dir.count(os.path.sep) == 2: 
+            subdirectories.extend(dirs)
+
+    for subdirectory in subdirectories: 
+        print(subdirectory)
+
+
+"""
     Check whether the dataset is saved in the type that is indicated in the type file of it
 """
-def check_correct_form(zip_path, type,): 
+def check_correct_form(zip_path, type, format): 
+    temp_dir = tempfile.mkdtemp()
     try: 
-        with zipfile.ZipFile(zip_path): 
-            temp_dir = tempfile.mkdtemp()
-            for root, directories, files, in os.walk(temp_dir): 
-                if directories: 
-                    if type=="splits": 
-                        for dir in directories: 
-                            print(f"Directories found: {dir}")
-                        return OK_CODE                                           
-                    else: 
-                        return ERROR_CODE
-                elif  directories == False: 
-                    if type=="splits": 
-                        return ERROR_CODE
-                    else: 
-                        print("No directories are found")
-                        return OK_CODE
-                
+        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+            zip_ref.extractall(temp_dir)
+        if format == "yolo": 
+            check_yolo_format(temp_dir, type)
+        return OK_CODE
                 
     finally: 
         shutil.rmtree(temp_dir)

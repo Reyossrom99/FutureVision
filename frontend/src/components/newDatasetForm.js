@@ -10,6 +10,7 @@ const FormDialog = ( {isOpen, onRequestClose}) => {
     // const [cover, setCover] = useState(); 
     const [dir, setDir] = useState(); //set the url directory of the dataset
     const [type, setType] = useState("splits"); 
+    const [format, setFormat] = useState("yolo"); 
 
   
     const handleAccept = () => {
@@ -18,6 +19,7 @@ const FormDialog = ( {isOpen, onRequestClose}) => {
         uploadData.append('description', description);
         uploadData.append('url', dir); 
         uploadData.append('type', type); 
+        uploadData.append('format', format); 
         
         const csrfToken = window.csrfToken; 
 
@@ -52,6 +54,10 @@ const FormDialog = ( {isOpen, onRequestClose}) => {
         setType(e.target.value); 
     }; 
 
+    const handleFormatChange = (e) => {
+        setFormat(e.target.value); 
+    }; 
+
 return (
     <Modal
     isOpen = {isOpen}
@@ -70,8 +76,13 @@ return (
             <option value="splits"> splits created</option>
             <option value="no-splits"> no splits</option>
         </select> <br /><br/> 
+        <label htmlFor="format" id="format-label">Select the format of the dataset</label>
+        <select htmlFor="format-select" id="format-select" onChange={handleFormatChange}>
+            <option value="yolo"> Yolo </option>
+            <option value ="coco"> CoCo</option>
+        </select><br /><br/> 
         <label htmlFor="dir" id ="dir-label">Select the dataset directory</label>
-        <input type="file" id="dir" name="dir" accept=".zip" onChange={handleDirectoryInput}/><br /><br/> 
+        <input type="file" id="dir" name="dir" accept=".zip" onChange={handleDirectoryInput}/><br />
         <div class="button-container">
         <button type="button" onClick={onRequestClose}>Close</button>
         <button type="button" onClick={() => handleAccept()}>Accept</button>

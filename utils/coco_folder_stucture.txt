@@ -1,0 +1,32 @@
+project_root/
+|-- train/
+|   |-- image1.jpg
+|   |-- image2.jpg
+|   |-- ...
+|   |-- annotations_train.json
+|
+|-- val/
+|   |-- image1.jpg
+|   |-- image2.jpg
+|   |-- ...
+|   |-- annotations_val.json
+|
+|-- test/
+|   |-- image1.jpg
+|   |-- image2.jpg
+|   |-- ...
+|   |-- annotations_test.json
+|
+|-- dataset_metadata.json
+
+
+______________________________________________
+
+project_root/
+|-- annotations/
+|   |-- instances.json
+|-- images/
+|   |-- image1.jpg
+|   |-- image2.jpg
+|   |-- ...
+|-- dataset_metadata.txt (optional)

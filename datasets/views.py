@@ -64,18 +64,22 @@ def query_table(request):
         description = recived_data.get('description')
         url = recived_data.get('url')
         type = recived_data.get('type')
+        format = recived_data.get('format')
         
         print(f"Recived type for dataset: {type}")
+        print(f"Recived dataset format {format}")
 
         print(f"Checking if type is correct")
-        utils.check_correct_form(url, type)
+        check = utils.check_correct_form(url, type)
+        print(f"FORMAT CHECK: {check}")
         try:
 
             dataset = Datasets(
                 name=name, 
                 description=description,
                 url = url, 
-                type = type
+                type = type, 
+                format = format
             )
             dataset.save()
             return Response({"message": "Dataset created successfully"})
