@@ -1,0 +1,17 @@
+{
+    "project_root": {
+        "train": {
+            "images": true,
+            "annotations_train.json": true
+        },
+        "val": {
+            "images": true,
+            "annotations_val.json": true
+        },
+        "test": {
+            "images": true,
+            "annotations_test.json": true
+        },
+        "dataset_metadata.json": false
+    }
+}

@@ -1,0 +1,9 @@
+{
+    "project_root": {
+        "annotations": {
+            "instances.json": true
+        },
+        "images": true,
+        "dataset_metadata.txt": false
+    }
+}

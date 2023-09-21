@@ -1,0 +1,7 @@
+{
+    "project_root": {
+        "images": true,
+        "labels": true,
+        "dataset_metadata.txt": false
+    }
+}

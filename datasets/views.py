@@ -5,12 +5,12 @@ from datasets.models import Datasets
 from django.http import JsonResponse 
 from django.conf import settings
 import os
+import src.types.messages as msg
+
 
 from . import utils 
 
-"""
-    se me va a guardar una archivo temporal de la imagen o me lo tendria que crear yo
-"""
+
 @api_view(["GET", "POST"])
 def query_table(request):
     if request.method == "GET":
@@ -35,7 +35,7 @@ def query_table(request):
                             #rerturn this file name
                             dataset_info["cover_url"] = os.path.join("/media", "covers", dataset.name, filename)
                         else: 
-                            print("NO AÑADO NADA")
+                            print("ERROR IN COVER")
                             #return error no image found in folder media/covers for dataset
                             pass
                 #no tenemos creada la carpeta del dataset
@@ -50,11 +50,13 @@ def query_table(request):
                         dataset_info["cover_url"] = image_url
 
                 data.append(dataset_info)
-
+            
             return JsonResponse(data, safe=False)
 
         else:
-            return JsonResponse({"message": "No datasets found"})
+            key = "sucess" #no hay datasets en la base de datos, pero no ha habido ningun fallo
+            response_data = msg.get_predefined_message(key)
+            return JsonResponse(response_data)
     
     elif request.method == "POST": 
         #data is in json format
@@ -66,26 +68,32 @@ def query_table(request):
         type = recived_data.get('type')
         format = recived_data.get('format')
         
-        print(f"Recived type for dataset: {type}")
-        print(f"Recived dataset format {format}")
-
-        print(f"Checking if type is correct")
-        check = utils.check_correct_form(url, type)
-        print(f"FORMAT CHECK: {check}")
-        try:
-
-            dataset = Datasets(
-                name=name, 
-                description=description,
-                url = url, 
-                type = type, 
-                format = format
-            )
-            dataset.save()
-            return Response({"message": "Dataset created successfully"})
-        except IntegrityError as e:
-            return Response({"message" : "Error ocurred when saving dataset"})
     
+        # check = utils.check_correct_form(url, type, format)
+        control_structure = utils.extract_and_verify_zip(url, type, format)
+        if control_structure: 
+            try:
+                dataset = Datasets(
+                    name=name, 
+                    description=description,
+                    url = url, 
+                    type = type, 
+                    format = format
+                )
+                dataset.save()
+                key = "sucess" #no hay datasets en la base de datos, pero no ha habido ningun fallo
+                response_data = msg.get_predefined_message(key)
+                return JsonResponse(response_data)
+                
+            except IntegrityError as e:
+                key = "error" #no hay datasets en la base de datos, pero no ha habido ningun fallo
+                response_data = msg.get_predefined_message(key)
+                return JsonResponse(response_data)
+        else: 
+                key = "invalid" #no hay datasets en la base de datos, pero no ha habido ningun fallo
+                response_data = msg.get_predefined_message(key)
+                return JsonResponse(response_data)
+        
 @api_view(["GET"])
 def get_dataset_info_by_id(request, dataset_id): 
   

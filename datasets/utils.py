@@ -3,38 +3,54 @@ import zipfile
 from django.conf import settings
 import tempfile
 import shutil
-ERROR_CODE = 400
-OK_CODE = 200
+import json 
 
-"""
-    Checks whether the dataset is structure in yolo format corretly
-"""
-def check_yolo_format(temp_dir,type): 
-    subdirectories = []
-    for root, dirs, files in os.walk(temp_dir): 
-        #get to the second labels of subdirectories
-        if root.counts(os.path.sep) - temp_dir.count(os.path.sep) == 2: 
-            subdirectories.extend(dirs)
-
-    for subdirectory in subdirectories: 
-        print(subdirectory)
 
 
 """
-    Check whether the dataset is saved in the type that is indicated in the type file of it
+    Format -> indica si es YOLO o Coco
+    type -> indica si tiene splits o no
 """
-def check_correct_form(zip_path, type, format): 
+
+def extract_and_verify_zip(zip_path, format, type): 
+    #leemos del archivo json que nos interesa la estructura
+    structured_file = "datasets/fileStructure" + "/" + type + "_" + format + ".json"
+    print(f"Fichero de estructura leido: {structured_file}")
+
+    with open(structured_file, 'r') as file: 
+        expected_structure = json.load(file)
+    file.close()
+
     temp_dir = tempfile.mkdtemp()
     try: 
-        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+        with zipfile.ZipFile(zip_path, 'r') as zip_ref: 
             zip_ref.extractall(temp_dir)
-        if format == "yolo": 
-            check_yolo_format(temp_dir, type)
-        return OK_CODE
-                
-    finally: 
-        shutil.rmtree(temp_dir)
 
+        #miramos recursivamente sobre el directorio para comprobar si son correctos los valores
+        def check_directory_structure(root, structure): 
+            for item, value in structure.items(): 
+                item_path = os.path.join(root, item)
+                
+                if isinstance(value, dict): 
+                    #si hay un diccionario entonces miramos de forma recursiva dentro de este 
+                    if not check_directory_structure(item_path,  value): 
+                        return False
+                elif isinstance(value, bool): 
+                    #estamos en el final del directorio y tnemos que mirar si concuerda
+                    if value and not os.path.exists(item_path): 
+                        return False
+                else: #no sabemos cual es la estructura 
+                    return False 
+            return True 
+        
+        if not check_directory_structure(temp_dir, expected_structure['project_root']): 
+            return False
+        return True 
+    
+    finally:
+        # Clean up the temporary directory
+        shutil.rmtree(temp_dir)     
+      
 
 def extract_cover_from_zip(zip_path, dataset_name): 
      # Create a temporary directory to extract the zip file

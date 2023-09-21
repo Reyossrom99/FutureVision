@@ -1,0 +1,17 @@
+{
+    "project_root": {
+        "train": {
+            "images": true,
+            "labels": true
+        },
+        "val": {
+            "images": true,
+            "labels": true
+        },
+        "test": {
+            "images": true,
+            "labels": true
+        },
+        "dataset_metadata.txt": false
+    }
+}
