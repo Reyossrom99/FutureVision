@@ -14,10 +14,10 @@ function Datasets(){
     const [isDialogOpen, setIsDialogOpen] = useState(false);
 
     useEffect(() => {
-        axios.get('/datasets/')
-        .then(response => setDatasets(response.data))
-        .catch(error => console.error(error))
-    }, []); 
+      axios.get('/datasets/')
+      .then(response => setDatasets(response.data))
+      .catch(error => console.error(error))
+  }, []); 
  
     return (
       <div className='page-container'>
@@ -50,7 +50,7 @@ function Datasets(){
         </div>
        
         <button onClick={() => setIsDialogOpen(true)}>Create new</button>
-        <FormDialog isOpen={isDialogOpen} onRequestClose={() => setIsDialogOpen(false)} />
+        <FormDialog isOpen={isDialogOpen} onRequestClose={() => setIsDialogOpen(false)}/>
       </div>
       </div>
     ); 

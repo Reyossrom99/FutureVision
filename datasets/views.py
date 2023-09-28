@@ -26,28 +26,12 @@ def query_table(request):
                     "description": dataset.description,
                     "uploaded_date": dataset.uploaded_date
                 }
-                #select the fisrt image of the dataset file folder so it can be view in the frontend
-                
-               #Solo necesito extraer los datos en el caso de que no haya alguna cover ya guardada de la imagen 
                 if os.path.exists(os.path.join(settings.MEDIA_ROOT, "covers", dataset.name)) == True: 
-                    for filename in os.listdir(os.path.join(settings.MEDIA_ROOT, "covers", dataset.name)): 
-                        if filename.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.bmp')): 
-                            #rerturn this file name
-                            dataset_info["cover_url"] = os.path.join("/media", "covers", dataset.name, filename)
-                        else: 
-                            print("ERROR IN COVER")
-                            #return error no image found in folder media/covers for dataset
-                            pass
-                #no tenemos creada la carpeta del dataset
-                else : 
-                   
-                    zip_path = os.path.join(settings.MEDIA_ROOT, str(dataset.url))
-
-                    image_path = utils.extract_cover_from_zip(zip_path, dataset.name)
-                    if image_path:
-                        # Construct the image URL from the extracted path
-                        image_url = os.path.join(settings.MEDIA_URL, str(dataset.url), os.path.basename(image_path))
-                        dataset_info["cover_url"] = image_url
+                    for file in os.listdir(os.path.join(settings.MEDIA_ROOT, "covers", dataset.name)): 
+                       
+                        if file.lower().endswith(('.jpg', '.png', '.jpeg')): 
+                            dataset_info["cover_url"] = os.path.join("/media", "covers", dataset.name, file)
+                            break
 
                 data.append(dataset_info)
             
@@ -70,7 +54,7 @@ def query_table(request):
         
     
         # check = utils.check_correct_form(url, type, format)
-        control_structure = utils.extract_and_verify_zip(url, type, format)
+        control_structure = utils.extract_and_verify_zip(url, format, type)
         if control_structure: 
             try:
                 dataset = Datasets(
@@ -81,16 +65,26 @@ def query_table(request):
                     format = format
                 )
                 dataset.save()
-                key = "sucess" #no hay datasets en la base de datos, pero no ha habido ningun fallo
-                response_data = msg.get_predefined_message(key)
-                return JsonResponse(response_data)
+                #obtebemos la cover del dataset, solo cuando la estructura de control es correcta 
+                if (utils.extract_cover(url, name, format, type)):
+                    key = "sucess" #no hay datasets en la base de datos, pero no ha habido ningun fallo
+                    print("Sucess")
+                    response_data = msg.get_predefined_message(key)
+                    return JsonResponse(response_data)
+                else: 
+                    key = "invalid" #no hay datasets en la base de datos, pero no ha habido ningun fallo
+                    print("Invalid error")
+                    response_data = msg.get_predefined_message(key)
+                    return JsonResponse(response_data)
                 
             except IntegrityError as e:
                 key = "error" #no hay datasets en la base de datos, pero no ha habido ningun fallo
+                print("Integrity error")
                 response_data = msg.get_predefined_message(key)
                 return JsonResponse(response_data)
         else: 
                 key = "invalid" #no hay datasets en la base de datos, pero no ha habido ningun fallo
+                print("Invalid dataset format")
                 response_data = msg.get_predefined_message(key)
                 return JsonResponse(response_data)
         
@@ -100,12 +94,15 @@ def get_dataset_info_by_id(request, dataset_id):
     if request.method == "GET": 
         
         dataset = Datasets.objects.get(dataset_id=dataset_id)
-       
+        image_files = utils.read_images_from_tmp_folder(dataset.url, dataset.type)
+        print(len(image_files))
+        
         dataset_data = {
                 'dataset_id': dataset.dataset_id,
                 'name': dataset.name,
                 'description': dataset.description,
-              
+                'images': image_files,
             }
+        
         return JsonResponse(data=dataset_data, safe=False)
         

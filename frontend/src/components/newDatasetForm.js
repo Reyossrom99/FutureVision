@@ -31,6 +31,7 @@ const FormDialog = ( {isOpen, onRequestClose}) => {
             }); 
             console.log(response); 
             onRequestClose(); 
+           
         }catch(error){
                 console.log(error); 
         }
