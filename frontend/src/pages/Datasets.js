@@ -2,7 +2,6 @@ import React, {useEffect, useState} from 'react';
 import axios from 'axios'; 
 import FormDialog from '../components/newDatasetForm';
 import './datasets.css'; 
-import SideNav from '../components/SideNav'; 
 import { Link, Route, BrowserRouter as Router, Switch } from 'react-router-dom';
 
 
@@ -35,6 +34,7 @@ function Datasets(){
                     alt={dataset.name}
                     className="dataset-image"
                   />
+                 
                   <div className="dataset-info">
                     <h2 className="dataset-name">{dataset.name}</h2>
                     <p className="dataset-description">{dataset.description}</p>

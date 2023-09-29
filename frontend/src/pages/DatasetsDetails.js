@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
-import TopNav from '../components/topNav';
-import './datasetsDetails.css';
+import './datasetsDetails.css'; 
 
 function DatasetsDetails() {
   const { id } = useParams();
@@ -35,12 +34,13 @@ function DatasetsDetails() {
             <div className='image-gallery'>
               {dataset.images.map(imageUrl => (
                 <img
-                  key={imageUrl} // Use the URL as the key
                   src={imageUrl} // Set the URL as the src attribute
-                  alt="Image"
+                  alt={imageUrl}
                   className='image-item'
                 />
+               
               ))}
+             
           </div>
           </div>
         )}

@@ -141,6 +141,8 @@ def read_images_from_tmp_folder(zip_path, type):
     zip_name = os.path.basename(zip_path.name).split(".zip")[0]
     dir_root = os.path.join(settings.MEDIA_ROOT, "tmp")
     temp_dir = tempfile.mkdtemp(dir = dir_root)
+    temp_name = os.path.basename(temp_dir)
+    print(temp_name)
     print(f"Ruta del destino temporal: {temp_dir}")
     images = []
     with zipfile.ZipFile(zip_path, 'r') as zip_ref: 
@@ -157,5 +159,6 @@ def read_images_from_tmp_folder(zip_path, type):
         print("Obteniendo las imagenes de la carpeta......")
         for name in files: 
             if name.lower().endswith(('.png', '.jpg','.jpeg')): 
-                images.append(os.path.join(root_path, name))
+                images.append(os.path.join("/media", "tmp", temp_name, zip_name,'images',name))
+                
     return images
