@@ -1,0 +1,13 @@
+asgiref==3.7.2
+chardet==5.1.0
+django==4.2.3
+django-cors-headers==4.2.0
+djangorestframework==3.14.0
+doxypypy==0.8.8.7
+numpy==1.24.4
+opencv-python==4.5.3.56
+Pillow==10.0.0
+psycopg2-binary==2.8.6
+pytz==2023.3
+sqlparse==0.4.4
+typing-extensions==4.7.1

@@ -7,6 +7,8 @@ from django.conf import settings
 import os
 import src.types.messages as msg
 
+from .serializers.yoloData import YoloData
+
 
 from . import utils 
 
@@ -93,16 +95,26 @@ def get_dataset_info_by_id(request, dataset_id):
   
     if request.method == "GET": 
         
+        #extract the show label parameter 
+        show_labels = request.GET.get('showLabels', False) #get if the show labels in the image is checked or not
         dataset = Datasets.objects.get(dataset_id=dataset_id)
-        image_files = utils.read_images_from_tmp_folder(dataset.url, dataset.type)
-        print(len(image_files))
-        
-        dataset_data = {
-                'dataset_id': dataset.dataset_id,
-                'name': dataset.name,
-                'description': dataset.description,
-                'images': image_files,
-            }
-        
+        dataset_data = {}
+        #creamos un objecto temporal que nos va a ayudar a realizar las operaciones en el dataset
+        if dataset.format == "yolo": 
+            data = YoloData(dataset.name, dataset.type, dataset.url)
+            #extraigo la informacion que quiera dependiendo de lo que me haya pedido el frontend
+            print("Correct format")
+            if data.extract_data_in_tmp(): 
+                print("Correct folder")
+                image_files = data.get_images()
+                labels_files = data.get_labels()
+                data.show_labels_in_image(image_files, labels_files)
+                dataset_data = {
+                    'dataset_id': dataset.dataset_id,
+                    'name': dataset.name,
+                    'description': dataset.description,
+                    'images': image_files,
+                }
+
         return JsonResponse(data=dataset_data, safe=False)
         

@@ -16,7 +16,7 @@ function TopNav() {
   return (
     <nav className='topnav'>
       {location.pathname === '/datasets' && (
-        <Link to="/datasets" className='navContainer'>Create New</Link>
+        <Link to="/datasets" className='navContainer' >Create New</Link>
       )}
       {location.pathname.startsWith('/datasets/') && (
         <select

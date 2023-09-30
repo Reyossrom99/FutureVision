@@ -97,47 +97,8 @@ def extract_cover(zip_path, dataset_name, format, type) :
         print(f"Tiempo total en extraer la cover: {str(t2 - t1)}")
         shutil.rmtree(temp_dir)
 
-def extract_cover_from_zip(zip_path, dataset_name): 
-     # Create a temporary directory to extract the zip file
-    temp_dir = tempfile.mkdtemp()
-
-    try:
-        # Extract the zip file to the temporary directory
-        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-            zip_ref.extractall(temp_dir)
-
-        # Search for image files in the temporary directory and select the first one
-        for root, _, files in os.walk(temp_dir):
-            for filename in files:
-                if filename.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.bmp')):
-                    image_path = os.path.join(root, filename)
-                
-                   
-                    image_path_striped = image_path.split("/")
-                    image_name = image_path_striped[len(image_path_striped) - 1]
-                 
-                   
-                    if os.path.exists(os.path.join(settings.MEDIA_ROOT, "covers", str(dataset_name))) == False: 
-                        os.mkdir(os.path.join(settings.MEDIA_ROOT, "covers", str(dataset_name)))
-                        shutil.copy(image_path, os.path.join(settings.MEDIA_ROOT, "covers", str(dataset_name)))
-
-                    print(settings.MEDIA_ROOT)
-                    image_media_path = os.path.join("/media", "covers",str(dataset_name), str(image_name))
-                    print(f"Image final path: {image_media_path}" )
-
-                    return image_media_path # Return the path to the first image found
-
-        return None  # No image files found
-    finally:
-        # Clean up the temporary directory
-       
-        shutil.rmtree(temp_dir)
-
 def read_images_from_tmp_folder(zip_path, type): 
     
-    #necesito crear el temp dir en la carpeta especifica que la web publica 
-    
-   
     zip_name = os.path.basename(zip_path.name).split(".zip")[0]
     dir_root = os.path.join(settings.MEDIA_ROOT, "tmp")
     temp_dir = tempfile.mkdtemp(dir = dir_root)
@@ -162,3 +123,9 @@ def read_images_from_tmp_folder(zip_path, type):
                 images.append(os.path.join("/media", "tmp", temp_name, zip_name,'images',name))
                 
     return images
+
+"""
+    Adds the label to the image for visualization
+"""
+def add_label_to_image(tmp_path, type): 
+    pass
