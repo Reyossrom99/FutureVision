@@ -53,3 +53,16 @@
   a:link, a:visited, a:active {
     text-decoration:none;
   }
+  .image-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* Set minimum column width to 150px */
+    grid-gap: 40px; /* Adjust the gap between images */
+  }
+  
+  .image-item {
+    width: 100%; /* Ensure images take up 100% of the grid cell width */
+    height: auto; /* Maintain aspect ratio */
+    max-width: 100%; /* Prevent images from exceeding their natural size */
+    max-height: 200px; /* Limit the maximum height of images */
+    object-fit: cover; /* Ensure images cover the container without stretching */
+  }
