@@ -12,6 +12,8 @@ from .serializers.yoloData import YoloData
 
 from . import utils 
 
+#gobal dictioary for YoloData objects
+yolo_data_objects = {}
 
 @api_view(["GET", "POST"])
 def query_table(request):
@@ -93,6 +95,9 @@ def query_table(request):
 @api_view(["GET"])
 def get_dataset_info_by_id(request, dataset_id): 
   
+    global yolo_data_objects #hace referencia a la variable en el ambito global 
+
+    
     if request.method == "GET": 
         
         #extract the show label parameter 
@@ -102,21 +107,27 @@ def get_dataset_info_by_id(request, dataset_id):
         dataset_data = {}
         #creamos un objecto temporal que nos va a ayudar a realizar las operaciones en el dataset
         if dataset.format == "yolo": 
-            data = YoloData(dataset.name, dataset.type, dataset.url)
-            #extraigo la informacion que quiera dependiendo de lo que me haya pedido el frontend
+            if dataset.dataset_id not in yolo_data_objects: 
+                yolo_data_objects[dataset_id] = YoloData(dataset.name, dataset.type, dataset.url) #creo el objecto y lo añado a el dicionario
+
+            data = yolo_data_objects[dataset_id]
             
             if data.extract_data_in_tmp(): 
                 image_files, image_files_full = data.get_images()
                 if show_labels == 'true': 
-                    print("No deberia")
-                    labels_files, labels_files_full = data.get_labels()
-                    labebeled_images, labeled_images_full = data.show_labels_in_image(image_files_full, labels_files_full)
+                    if not data.labeled_images: #si no se han guardado todavia las imagenes
+                        labels_files, labels_files_full = data.get_labels()
+                        data.save_labels_in_image(image_files_full, labels_files_full)
+                    
+                    labeled, labeled_full = data.get_labeled_images()
+
                     dataset_data = {
                         'dataset_id': dataset.dataset_id,
                         'name': dataset.name,
                         'description': dataset.description,
-                        'images': labebeled_images,
+                        'images': labeled,
                     }
+
                 else: 
                     dataset_data = {
                         'dataset_id': dataset.dataset_id,

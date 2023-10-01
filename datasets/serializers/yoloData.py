@@ -18,6 +18,7 @@ class YoloData():
         self.dir_root = os.path.join(settings.MEDIA_ROOT, "tmp")
         self.tmp_dir = tempfile.mkdtemp(dir = self.dir_root)
         self.tmp_name = os.path.basename(self.tmp_dir)
+        self.labeled_images = False #indica si se ha creado un directorio para imagenes con label
 
     def extract_data_in_tmp(self) -> bool :
         with zipfile.ZipFile(self.zip_path, 'r') as zip_ref: 
@@ -67,17 +68,36 @@ class YoloData():
                     labels_full.append(os.path.join(settings.TMP_ROOT, self.tmp_name, self.zip_name, 'labels', name))
         return labels, labels_full
     
+    def get_labeled_images(self) -> list: 
+        labeled = []
+        labeled_full = []
+        if not os.path.exists(self.tmp_dir) or not self.labeled_images: 
+            return labeled, labeled_full
+
+        if self.type == "no-splits": 
+                root_path = os.path.join(self.tmp_dir, self.zip_name, "labeled_images")
+        else: 
+            return labeled, labeled_full
+        for root, directories, files in os.walk(root_path):
+            for name in files: 
+                if name.lower().endswith(('.png', '.jpg','.jpeg')): 
+                    labeled.append(os.path.join("/media", "tmp", self.tmp_name, self.zip_name, "labeled_images", name))
+                    labeled_full.append(os.path.join(settings.TMP_ROOT, self.tmp_name, self.zip_name, 'labeled_images', name))
+        return labeled, labeled_full
     """
         REPASAR ESTA FUNCION PORQUE TARDA MUCHO TIEMPO
+        TENER EN CUENTA QUE ESTA HECHO PARA NO-SPLITS
     """
-    def show_labels_in_image(self, image_files:list, labels_files:list) -> list: 
-        labeled_images = []
-        labeled_images_full =[]
+    def save_labels_in_image(self, image_files:list, labels_files:list) : 
+        # labeled_images = []
+        # labeled_images_full =[]
+        if self.labeled_images: 
+            return 
         if not image_files or not labels_files: 
-           return  labeled_images, labeled_images_full
+           self.labeled_images = False
 
         if len(image_files) != len(labels_files): 
-            return labeled_images, labeled_images_full
+            self.labeled_images = False
         
         labeled_dir = os.path.join(self.tmp_dir, self.zip_name, 'labeled_images')
         os.makedirs(labeled_dir, exist_ok=False) #raises an error if the directory already exists
@@ -108,10 +128,10 @@ class YoloData():
             
             name = os.path.basename(image_files[index])
             cv2.imwrite(os.path.join(labeled_dir, name), image)
-            labeled_images_full.append(os.path.join(labeled_dir, name))
-            labeled_images.append(os.path.join("/media", "tmp", self.tmp_name, self.zip_name, "labeled_images", name))
+            # labeled_images_full.append(os.path.join(labeled_dir, name))
+            # labeled_images.append(os.path.join("/media", "tmp", self.tmp_name, self.zip_name, "labeled_images", name))
           
-        return labeled_images, labeled_images_full
+        self.labeled_images = True
             
 
             

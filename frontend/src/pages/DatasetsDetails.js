@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
+import { useCheckbox } from '../context/checkboxShowLabelContext';
 
 
 
@@ -13,31 +14,8 @@ function DatasetsDetails() {
   const [currentPage, setCurrentPage] = useState(1); 
   const itemsPerPage = 100; 
 
-  const [showLabels, setShowLabels] = useState(false); 
+  const { showLabels } = useCheckbox(); 
 
-  // useEffect(() => {
-  //   axios.get(`/datasets/${id}`)
-  //     .then(response => {
-  //       setDataset(response.data);
-  //       setIsLoading(false); // Set loading state to false when data is received
-  //     })
-  //     .catch(error => {
-  //       console.log(error);
-  //       setIsLoading(false); // Set loading state to false on error as well
-  //     });
-  // }, [id]);
-
-  // const fechData = async () => {
-  //   try{
-  //       const response = await axios.get('/datasets/${id}/?show_labels=${showLabels}')
-  //       .then(response => {
-  //         setDataset(response.data);
-  //         setIsLoading(false);
-  //       })
-  //   }catch(error){
-  //     console.log("Error fetching the images", error); 
-  //   }
-  // }; 
 
   const fetchData = (datasetId, shouldShowLabels) => {
     setIsLoading(true); // Set loading state to true when starting a new request
@@ -68,11 +46,6 @@ function DatasetsDetails() {
     setCurrentPage(newPage); 
   }
 
-  const handleCheckboxChange = () => {
-    setShowLabels(!showLabels); // Toggle checkbox state
-    fetchData(id, !showLabels); // Fetch data with updated showLabels status
-  };
-
   return (
     <div className='page-container'>
       <div className='content-container'>
@@ -84,10 +57,7 @@ function DatasetsDetails() {
           <div>
             <h1>{dataset.name}</h1>
             <p>Description: {dataset.description}</p>
-            <label>
-            <input type='checkbox' checked={showLabels} onChange={() => setShowLabels(!showLabels)} />
-            Show Labels
-          </label>
+    
             <div className='image-gallery'>
               {displayedImages.map(imageUrl => (
                 <img
