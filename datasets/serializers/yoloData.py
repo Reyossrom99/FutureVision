@@ -30,14 +30,15 @@ class YoloData():
     """
     #obtiene una list que contiene las rutas de todas las imagenes de la carpeta
     def get_images(self) -> list: 
-        images = []
+        images = []  #ruta relativa de las imagenes para mandarlas al front
+        images_full = [] #ruta completa de las imagenes que necesita el back
         if not os.path.exists(self.tmp_dir): 
-            return images 
+            return images, images_full
         
         if self.type == "no-splits": 
             root_path = os.path.join(self.tmp_dir, self.zip_name, "images")
         else: 
-            return images
+            return images, images_full
         
         print(f"Directorio de lectura temporal: {root_path}")
 
@@ -45,80 +46,72 @@ class YoloData():
             for name in files: 
                 if name.lower().endswith(('.png', '.jpg','.jpeg')): 
                     images.append(os.path.join("/media", "tmp", self.tmp_name, self.zip_name,'images',name))
-        return images
+                    images_full.append(os.path.join(settings.TMP_ROOT, self.tmp_name, self.zip_name, 'images', name))
+        return images, images_full
     
     def get_labels(self) -> list: 
-        labels = []
+        labels = [] #ruta relativa
+        labels_full = [] #ruta completa
         if not os.path.exists(self.tmp_dir): 
-            return labels
+            return labels, labels_full
         
         if self.type == "no-splits": 
             root_path = os.path.join(self.tmp_dir, self.zip_name, "labels")
         else: 
-            return labels
+            return labels, labels_full
         
         for root, directories, files in os.walk(root_path): 
             for name in files: 
                 if name.lower().endswith('.txt'): 
                     labels.append(os.path.join("/media", "tmp", self.tmp_name, self.zip_name, "labels", name))
-        return labels
+                    labels_full.append(os.path.join(settings.TMP_ROOT, self.tmp_name, self.zip_name, 'labels', name))
+        return labels, labels_full
     
     """
-        CORREGUIR LOS PATH PORQUE TIENE QUE HABER OTRA FORMA MAS OPTIMA DE HACERLO
+        REPASAR ESTA FUNCION PORQUE TARDA MUCHO TIEMPO
     """
     def show_labels_in_image(self, image_files:list, labels_files:list) -> list: 
         labeled_images = []
+        labeled_images_full =[]
         if not image_files or not labels_files: 
-           return  labeled_images
-      
+           return  labeled_images, labeled_images_full
 
-        #hay que añadirle el root directory para que lea la imagen bien
-        for image_file in image_files: 
-            # Split the path
-            path_components = image_file.split(os.path.sep)
+        if len(image_files) != len(labels_files): 
+            return labeled_images, labeled_images_full
+        
+        labeled_dir = os.path.join(self.tmp_dir, self.zip_name, 'labeled_images')
+        os.makedirs(labeled_dir, exist_ok=False) #raises an error if the directory already exists
+        
+        for index in range(0, len(image_files)): 
+            image = cv2.imread(image_files[index], cv2.IMREAD_UNCHANGED)
 
-            # Find the index of '/tmp'
-            tmp_index = path_components.index('tmp')
+            image_height, image_width, _ = image.shape
+          
+            #comprobar que efectivamente se leen en el mismo orden porque tienen el mismo nombre
 
-            # Extract the path from '/tmp' onwards
-            extracted_path = os.path.sep.join(path_components[tmp_index:])
-
-            
-            root_image = os.path.join(settings.MEDIA_ROOT, extracted_path)
-            image = cv2.imread(root_image)
-
-            ##########################################################
-            modified_path = extracted_path.replace('images', 'labels')
-            label_file = os.path.splitext(image_file)[0] + ".txt"
-         
-            label_path = os.path.join(settings.MEDIA_ROOT, modified_path)
-            root_label = os.path.splitext(label_path)[0] + ".txt"
-            ########################################################
-          # Open and read the labels file
-            with open(root_label, 'r') as file:
+            with open(labels_files[index], 'r') as file: 
                 lines = file.readlines()
+            file.close()
 
-            # Process each line in the labels file
-            for line in lines:
-                # Split the line into individual values (class, x_center, y_center, width, height)
+            for line in lines: 
                 class_id, x_center, y_center, width, height = map(float, line.strip().split())
 
-                # Assuming class_id is 0-based (0, 1, 2, ...) for indexing purposes
-
                 # Convert YOLO format to OpenCV format (x, y, width, height)
-                image_height, image_width, _ = image.shape
+               
                 x = int((x_center - width / 2) * image_width)
                 y = int((y_center - height / 2) * image_height)
                 w = int(width * image_width)
                 h = int(height * image_height)
-
-                # Draw bounding box on the image
-                cv2.rectangle(image, (x, y), (x + w, y + h), (0, 255, 0), 2)  # Green color, thickness=2
-
-            # Display the image with bounding boxes
-            # cv2.imshow("Image with Bounding Box", image)
-            # cv2.waitKey(0)
-            # cv2.destroyAllWindows()
+            
+                 # Draw bounding box on the image
+                cv2.rectangle(image, (x, y), (x + w, y + h), (255, 0, 0), 2)  # Green color, thickness=2
+            
+            name = os.path.basename(image_files[index])
+            cv2.imwrite(os.path.join(labeled_dir, name), image)
+            labeled_images_full.append(os.path.join(labeled_dir, name))
+            labeled_images.append(os.path.join("/media", "tmp", self.tmp_name, self.zip_name, "labeled_images", name))
+          
+        return labeled_images, labeled_images_full
+            
 
             
-            #crear el directorio y guardar las imagenes 

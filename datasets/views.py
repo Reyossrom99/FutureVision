@@ -97,24 +97,33 @@ def get_dataset_info_by_id(request, dataset_id):
         
         #extract the show label parameter 
         show_labels = request.GET.get('showLabels', False) #get if the show labels in the image is checked or not
+        print(f"Valor de checkbox: {show_labels}")
         dataset = Datasets.objects.get(dataset_id=dataset_id)
         dataset_data = {}
         #creamos un objecto temporal que nos va a ayudar a realizar las operaciones en el dataset
         if dataset.format == "yolo": 
             data = YoloData(dataset.name, dataset.type, dataset.url)
             #extraigo la informacion que quiera dependiendo de lo que me haya pedido el frontend
-            print("Correct format")
+            
             if data.extract_data_in_tmp(): 
-                print("Correct folder")
-                image_files = data.get_images()
-                labels_files = data.get_labels()
-                data.show_labels_in_image(image_files, labels_files)
-                dataset_data = {
-                    'dataset_id': dataset.dataset_id,
-                    'name': dataset.name,
-                    'description': dataset.description,
-                    'images': image_files,
-                }
+                image_files, image_files_full = data.get_images()
+                if show_labels == 'true': 
+                    print("No deberia")
+                    labels_files, labels_files_full = data.get_labels()
+                    labebeled_images, labeled_images_full = data.show_labels_in_image(image_files_full, labels_files_full)
+                    dataset_data = {
+                        'dataset_id': dataset.dataset_id,
+                        'name': dataset.name,
+                        'description': dataset.description,
+                        'images': labebeled_images,
+                    }
+                else: 
+                    dataset_data = {
+                        'dataset_id': dataset.dataset_id,
+                        'name': dataset.name,
+                        'description': dataset.description,
+                        'images': image_files,
+                    }
 
         return JsonResponse(data=dataset_data, safe=False)
         

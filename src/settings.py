@@ -140,6 +140,10 @@ STATIC_URL = 'static/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
+#creating tmp root folder 
+TMP_ROOT = os.path.join(BASE_DIR, 'media', 'tmp')
+TMP_URL = '/media/tmp/'
+
 
 
 
