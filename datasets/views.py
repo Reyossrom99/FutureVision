@@ -100,9 +100,10 @@ def get_dataset_info_by_id(request, dataset_id):
     
     if request.method == "GET": 
         
-        #extract the show label parameter 
+        #extract the parameters from the request
         show_labels = request.GET.get('showLabels', False) #get if the show labels in the image is checked or not
-        print(f"Valor de checkbox: {show_labels}")
+        requested_split = request.GET.get('request-split', 'none') #get the specific split you want to show options [none, train, val, test]
+        print(type(requested_split))
         dataset = Datasets.objects.get(dataset_id=dataset_id)
         dataset_data = {}
         #creamos un objecto temporal que nos va a ayudar a realizar las operaciones en el dataset
@@ -113,13 +114,13 @@ def get_dataset_info_by_id(request, dataset_id):
             data = yolo_data_objects[dataset_id]
             
             if data.extract_data_in_tmp(): 
-                image_files, image_files_full = data.get_images()
+                image_files, image_files_full = data.get_images(requested_split)
                 if show_labels == 'true': 
-                    if not data.labeled_images: #si no se han guardado todavia las imagenes
-                        labels_files, labels_files_full = data.get_labels()
-                        data.save_labels_in_image(image_files_full, labels_files_full)
+                   
+                    labels_files, labels_files_full = data.get_labels(requested_split)
+                    data.save_labels_in_image(image_files_full, labels_files_full, requested_split)
                     
-                    labeled, labeled_full = data.get_labeled_images()
+                    labeled, labeled_full = data.get_labeled_images(requested_split)
 
                     dataset_data = {
                         'dataset_id': dataset.dataset_id,

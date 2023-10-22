@@ -4,15 +4,16 @@ import React, { useState } from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import './topNav.css'; 
 import { useCheckbox } from '../context/checkboxShowLabelContext'; 
+import {useSplitContext } from '../context/selectSplitViewContext'; 
 
 function TopNav() {
   const location = useLocation();
   const {showLabels, setShowLabels} = useCheckbox(); 
   const { id } = useParams(); // Get the 'id' from the route params
-  const [selectedSplit, setSelectedSplit] = useState('train');
+  const { selectedSplit, setSplit } = useSplitContext();
 
   const handleSplitChange = (e) => {
-    setSelectedSplit(e.target.value);
+    setSplit(e.target.value);
   };
   const handleCheckboxChange = () => {
     setShowLabels(!showLabels); // Toggle checkbox state
@@ -27,8 +28,8 @@ function TopNav() {
         <div className='select-container'>
           <select
             id="splitSelect"
-            value={selectedSplit}
             onChange={handleSplitChange}
+            value = {selectedSplit}
           >
             <option value="train">Train</option>
             <option value="val">Validation</option>

@@ -5,15 +5,23 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { BrowserRouter } from 'react-router-dom';
 import {CheckboxProvider } from './context/checkboxShowLabelContext'; 
+import { SplitProvider } from './context/selectSplitViewContext';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 root.render(
   <React.StrictMode>
     <BrowserRouter>
+      
       <CheckboxProvider>
+      <SplitProvider>
         <App />
+        
+        
+      </SplitProvider>
       </CheckboxProvider>
+     
+
     </BrowserRouter>
   </React.StrictMode>
 );

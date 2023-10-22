@@ -2,7 +2,9 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import { useCheckbox } from '../context/checkboxShowLabelContext';
-
+import { useSplitContext  } from '../context/selectSplitViewContext';
+import forgetForm from '../components/forgetDatasetForm';
+import ForgetForm from '../components/forgetDatasetForm';
 
 
 function DatasetsDetails() {
@@ -16,10 +18,14 @@ function DatasetsDetails() {
 
   const { showLabels } = useCheckbox(); 
 
+  const {selectedSplit} = useSplitContext (); 
 
-  const fetchData = (datasetId, shouldShowLabels) => {
+  const [isFormOpen, setIsFormOpen] = useState(false); 
+
+
+  const fetchData = (datasetId, shouldShowLabels, requestSplitView) => {
     setIsLoading(true); // Set loading state to true when starting a new request
-    axios.get(`/datasets/${datasetId}?showLabels=${shouldShowLabels}`)
+    axios.get(`/datasets/${datasetId}?showLabels=${shouldShowLabels}&request-split=${requestSplitView}`)
         .then(response => {
             setDataset(response.data);
             setIsLoading(false); // Set loading state to false when data is received
@@ -31,8 +37,38 @@ function DatasetsDetails() {
   };
 
   useEffect(() => {
-      fetchData(id, showLabels);
-  }, [id, showLabels]);
+    fetchData(id, showLabels, selectedSplit);
+
+    // Event listener for beforeunload event
+    const handleBeforeUnload = (event) => {
+      // Show the modal form when the user tries to close the tab
+      setIsFormOpen(true);
+      event.preventDefault();
+      // Standard for most browsers
+      event.returnValue = '';
+    };
+
+    // Event listener for click event on menu items
+    const handleMenuItemClick = (event) => {
+      // Check if the clicked element is a menu item or a link
+      const isMenuItem = event.target.classList.contains('sidenav'); // Add a specific class to your menu items
+      if (isMenuItem) {
+        // Show the modal form when the user clicks on a menu item
+        setIsFormOpen(true);
+        event.preventDefault();
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    document.addEventListener('click', handleMenuItemClick);
+
+    // Cleanup event listeners
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      document.removeEventListener('click', handleMenuItemClick);
+    };
+  }, [id, showLabels, selectedSplit]);
+
 
   const totalImages = dataset ? dataset.images.length :0; 
   const totalPages = Math.ceil(totalImages /itemsPerPage); 
@@ -83,6 +119,7 @@ function DatasetsDetails() {
           </button>
         </div>
       </div>
+      {isFormOpen && <ForgetForm isOpen={isFormOpen} onRequestClose={() => setIsFormOpen(false)} />}
     </div>
   );
 };
