@@ -1,7 +1,7 @@
 import React, {useState} from "react";
 import Modal from 'react-modal'; 
 import axios from 'axios'; 
-import "./newDatasetForm.css";
+import styles from './newDatasetForm.module.css';
 
 
 const FormDialog = ( {isOpen, onRequestClose}) => {
@@ -64,27 +64,33 @@ return (
     isOpen = {isOpen}
     onRequestClose={onRequestClose}
     contentLabel="Form Modal"
+    className={styles.formContent}
     >
-        <h2 id="header-label">Create new dataset</h2>
-        <form>
-        
-        <label htmlFor="name" id="name-label">Name</label>
-        <input type="text" id="name-input" name="name" value={name} onChange={(e) => setName(e.target.value)} /><br /><br />
-        <label htmlFor="description" id ="description-label">Description</label>
-        <input type="text" id="description-input" name="description" value={description} onChange={(e) => setDescription(e.target.value)} /><br /><br />
-        <label htmlFor='type' id='type-label'>Select the type of the dataset</label>
-        <select htmlFor='type-select' id='type-select' onChange={handleTypeChange}>
+       
+        <form classname={styles.formElements}>
+        <h2 id={styles.headerLabel}>Create new dataset</h2> <br></br>
+        <label htmlFor="name" id={styles.nameLabel}>Name</label><br></br><br></br>
+        <input type="text" id={styles.nameInput} name="name" value={name} onChange={(e) => setName(e.target.value)} /><br /><br />
+
+        <label htmlFor="description" id ={styles.descriptionLabel}>Description</label><br></br><br></br>
+        <input type="text" id={styles.descriptionInput} name="description" value={description} onChange={(e) => setDescription(e.target.value)} /><br /><br />
+
+        <label htmlFor='type' id={styles.typeLabel}>Select the type of the dataset</label>
+        <select htmlFor='type-select' id={styles.typeInput} onChange={handleTypeChange}>
             <option value="splits"> splits created</option>
             <option value="no-splits"> no splits</option>
         </select> <br /><br/> 
-        <label htmlFor="format" id="format-label">Select the format of the dataset</label>
-        <select htmlFor="format-select" id="format-select" onChange={handleFormatChange}>
+
+        <label htmlFor="format" id={styles.formatLabel}>Select the format of the dataset</label>
+        <select htmlFor="format-select" id={styles.formatInput} onChange={handleFormatChange}>
             <option value="yolo"> Yolo </option>
             <option value ="coco"> CoCo</option>
         </select><br /><br/> 
-        <label htmlFor="dir" id ="dir-label">Select the dataset directory</label>
-        <input type="file" id="dir" name="dir" accept=".zip" onChange={handleDirectoryInput}/><br />
-        <div class="button-container">
+
+        <label htmlFor="dir" id ={styles.dirLabel}>Select the dataset directory</label> <br></br><br></br>
+        <input type="file" id={styles.dirInput} name="dir" accept=".zip" onChange={handleDirectoryInput}/> <br></br>
+       
+        <div class={styles.buttonContainer}>
         <button type="button" onClick={onRequestClose}>Close</button>
         <button type="button" onClick={() => handleAccept()}>Accept</button>
        

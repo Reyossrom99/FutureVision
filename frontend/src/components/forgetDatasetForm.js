@@ -1,6 +1,6 @@
 import React from 'react';
 import Modal from 'react-modal';
-import './forgetDatasetForm.css'; 
+// import './forgetDatasetForm.css'; 
 
 const ForgetForm = ({ isOpen, onRequestClose }) => {
   const handleAccept = () => {

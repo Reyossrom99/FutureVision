@@ -42,7 +42,7 @@
 }
 
 .linkTextClosed {
-    composes: linkText;
+  
     visibility: hidden;
 }
 
@@ -55,13 +55,3 @@
 }
 
 
-/* .menuBtn {
-    align-self: center;
-    align-self: flex-start;
-    justify-self: flex-end;
-    color: #B2BAC2;
-    background-color: transparent;
-    border: none;
-    cursor: pointer;
-    padding-left: 20px;
-} */

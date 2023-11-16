@@ -1,16 +1,23 @@
-
-
 import React, { useState } from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
-import './topNav.css'; 
+import styles from './topNav.module.css'
 import { useCheckbox } from '../context/checkboxShowLabelContext'; 
 import {useSplitContext } from '../context/selectSplitViewContext'; 
+import { useCreateSplitContext } from '../context/createSplitsContext';
+import {useCreateNewButtonContext} from '../context/createNewContext'; 
 
 function TopNav() {
   const location = useLocation();
   const {showLabels, setShowLabels} = useCheckbox(); 
   const { id } = useParams(); // Get the 'id' from the route params
   const { selectedSplit, setSplit } = useSplitContext();
+  // const { buttonClicked, handleButtonClick } = useCreateSplitContext();
+  const { handleNewButtonClick } = useCreateNewButtonContext(); 
+
+  const handleButtonClick = () => {
+    handleNewButtonClick(); 
+    // setIsDialogOpen(true); 
+  };
 
   const handleSplitChange = (e) => {
     setSplit(e.target.value);
@@ -20,26 +27,37 @@ function TopNav() {
   };
 
   return (
-    <nav className='topnav'>
+    <nav className={styles.topNavContainer}>
       {location.pathname === '/datasets' && (
-        <Link to="/datasets" className='navContainer' >Create New</Link>
+        // <Link to="/datasets" className={styles.navElement} >CREATE NEW</Link>
+        <button onClick={handleButtonClick} className={styles.navElement}>
+        Create new
+      </button>
       )}
-      {location.pathname.startsWith('/datasets/') && (
-        <div className='select-container'>
-          <select
-            id="splitSelect"
-            onChange={handleSplitChange}
-            value = {selectedSplit}
-          >
-            <option value="train">Train</option>
-            <option value="val">Validation</option>
-            <option value="test">Test</option>
-          </select>
-          <label>
-            <input type='checkbox' checked={showLabels} onChange={handleCheckboxChange} />
-            Show Labels
-          </label>
-        </div>
+      {location.pathname.startsWith('/datasets/')  && (
+        <div className={styles.elementContainer}>
+          
+            <select
+              id="splitSelect"
+              onChange={handleSplitChange}
+              value = {selectedSplit}
+              className={styles.navElement}
+            >
+              <option value="train">Train</option>
+              <option value="val">Validation</option>
+              <option value="test">Test</option>
+            </select>
+           
+            <input type='checkbox' checked={showLabels} onChange={handleCheckboxChange}className={styles.navElement} />
+            <label id={styles.showLabels}> Show Labels</label>
+           
+             
+          
+            <button onClick={() => handleButtonClick(true)} className={styles.navElement}>
+            Create splits</button>
+          
+          </div>
+        
          
       )}
       {/* Add other navigation elements as needed */}

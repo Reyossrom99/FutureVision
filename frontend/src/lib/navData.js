@@ -2,28 +2,28 @@
 export const navData = [
     {
         id: 0,
-        text: "YoloVision",
-      
+        text: "",
+        link: ""
     },
     {
         id: 1,
-        text: "Datasets",
+        text: "DATASETS",
         link: "datasets"
     },
     {
         id: 2,
      
-        text: "Proyects",
+        text: "PROYECTS",
         link: "proyects"
     },
     {
         id: 3,
-        text: "Settings",
+        text: "SETTINGS",
         link: "settings"
     },
     {
         id: 4,
-        text: "Profile",
+        text: "PROFILE",
         link: "profile"
     },
 ]

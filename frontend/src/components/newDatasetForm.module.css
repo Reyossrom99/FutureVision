@@ -1,0 +1,86 @@
+.formContent {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(247, 242, 235, 1.1);
+    display: flex;
+    align-items: start;
+    justify-content: center;
+    /* padding: 100px; */
+    border-radius: 4px;
+    width: 700px; 
+    height: 700px;
+    border: 1px solid #452b1a; 
+
+}
+
+.formElements{
+    display: flex;
+    flex-direction: column;
+    padding-left: 100px;
+
+}
+#headerLabel{
+    color: #452b1a;
+    padding-top: 10px;
+    font-size: 20px;
+    text-transform: uppercase;
+    
+
+}
+.formElements, label{
+    color: #452b1a;
+    font-size: 15px;
+    padding-right: 8px;
+   
+}
+
+.formElements, input[type="text"], input[type="file"] {
+  border: 1px solid #452b1a;
+  border-radius: 4px;
+  /* width: 60%; */
+  background-color: #f7f2EB;
+  padding: 8px;
+  width: 400px;
+}
+#descriptionInput{
+    height:100px; 
+       /* Align text to the top left corner */
+       vertical-align: text-top;
+       /* Justify the text */
+       text-align: justify;
+}
+.formElements, select{
+    background-color: #f7f2EB;
+    text-transform: capitalize;
+    color: #452b1a;
+    padding: 8px;
+    border: 1px solid #452b1a;
+    width: 200px;
+}
+.formElements, select:hover{
+    font-weight: bold;
+}
+.formElements, input[type="file"]:hover{
+    border: 2px solid #452b1a;
+}
+.buttonContainer button{
+    padding-right: 40px;
+    padding-left: 40px;
+    font-size:18px; 
+    flex: 1;
+    margin-right: 50px;
+    margin-top: 50px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    color:#452b1a; 
+    background-color: #f7f2EB;
+    border: 1px solid #452b1a; 
+    border-radius: 2px;
+}
+.buttonContainer button:hover{
+    background-color: #452b1a;
+    color: #f7f2EB; 
+    font-weight: bold;
+}

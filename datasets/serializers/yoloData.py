@@ -26,9 +26,7 @@ class YoloData():
         zip_ref.close()
         return True
     
-    """
-        falta por implemenenta el metodo de splits creados en todos los metodos
-    """
+
     #obtiene una list que contiene las rutas de todas las imagenes de la carpeta
     def get_images(self, requested_split:str) -> list: 
         print(self.type)
@@ -100,11 +98,7 @@ class YoloData():
                         labeled.append(os.path.join("/media", "tmp", self.tmp_name, self.zip_name, "labeled_images", requested_split,name))
                         labeled_full.append(os.path.join(settings.TMP_ROOT, self.tmp_name, self.zip_name, 'labeled_images', requested_split, name))
         return labeled, labeled_full
-    
-    """
-        REPASAR ESTA FUNCION PORQUE TARDA MUCHO TIEMPO
-        TENER EN CUENTA QUE ESTA HECHO PARA NO-SPLITS
-    """
+  
     def save_labels_in_image(self, image_files:list, labels_files:list, requested_split:str) : 
         # labeled_images = []
         # labeled_images_full =[]
@@ -155,6 +149,73 @@ class YoloData():
             # labeled_images.append(os.path.join("/media", "tmp", self.tmp_name, self.zip_name, "labeled_images", name))
         
         
-            
+    """
+        Funcion que sirve para convertir un dataset en formato no-splits a un dataset en formato splits
+    """
 
-            
+    def convert_to_splits(self, porcentajes:list): 
+
+        #si ha tiene los splits hechos
+        if self.type == 'splits' or len(porcentajes)!=3: 
+            return 
+        
+        #dentro de la carpeta tmp que tiene el siguiente formato: 
+        # root
+            #images
+            #labels
+        #creo una nueva carpeta que se llame splits 
+
+        if not os.path.exists(os.path.join(self.tmp_dir, self.tmp_name, 'splitted')): 
+            os.makedirs(os.path.join(self.tmp_dir, self.tmp_name, 'splitted', 'train', 'labels'), exist_ok=True)
+            os.makedirs(os.path.join(self.tmp_dir, self.tmp_name, 'splitted', 'train', 'images'), exist_ok=True)
+            os.makedirs(os.path.join(self.tmp_dir, self.tmp_name, 'splitted', 'val', 'images'), exist_ok=True)
+            os.makedirs(os.path.join(self.tmp_dir, self.tmp_name, 'splitted', 'val', 'labels'), exist_ok=True)
+            os.makedirs(os.path.join(self.tmp_dir, self.tmp_name, 'splitted', 'test', 'images'), exist_ok=True)
+            os.makedirs(os.path.join(self.tmp_dir, self.tmp_name, 'splitted', 'test', 'labels'), exist_ok=True)
+
+        splitted_root = os.path.join(self.tmp_dir, self.tmp_name, 'splitted')
+        base_root = os.path.join(self.tmp_dir, self.tmp_name)
+        
+        #de momento los porcentajes van a ser 70->test, 20->val 10->test
+        #cuento los labels que hay
+        labels = os.listdir(os.path.join(base_root, 'labels'))
+        cnt_labels = len(labels)
+
+        #train split
+        cnt_train = cnt_labels * porcentajes[0]
+        for i in range(0, cnt_train): 
+            name_label = labels.pop()
+            name_img = name_label.split(".")[0] + ".jpg"
+            shutil.copy(os.path.join(base_root, 'images', name_img), os.path.join(splitted_root, 'train', 'images', name_img))
+            shutil.copy(os.path.join(base_root, 'labels', name_label), os.path.join(splitted_root, 'train', 'labels', name_label))
+
+        #val split
+        cnt_val= cnt_labels * porcentajes[1]
+        for i in range(0, cnt_val): 
+            name_label = labels.pop()
+            name_img = name_label.split(".")[0] + ".jpg"
+            shutil.copy(os.path.join(base_root, 'images', name_img), os.path.join(splitted_root, 'val', 'images', name_img))
+            shutil.copy(os.path.join(base_root, 'labels', name_label), os.path.join(splitted_root, 'val', 'labels', name_label))
+
+        #test split
+        cnt_test = cnt_labels * porcentajes[2]
+        for i in range(0, cnt_test): 
+            name_label = labels.pop()
+            name_img = name_label.split(".")[0] + ".jpg"
+            shutil.copy(os.path.join(base_root, 'images', name_img), os.path.join(splitted_root, 'test', 'images', name_img))
+            shutil.copy(os.path.join(base_root, 'labels', name_label), os.path.join(splitted_root, 'test', 'labels', name_label))
+    
+    def save_splits_created(self): 
+         
+        if not os.path.exists(os.path.join(self.tmp_dir, self.tmp_name, 'splitted')): 
+            return 
+        os.makedirs(os.path.join(self.tmp_dir,self.name, 'zip'))
+        #en el argumento cambiar a la carpeta donde se va a guardar en zip
+        with zipfile.ZipFile(os.path.join(self.tmp_dir, self.name, 'zip'), 'w', zipfile.ZIP_DEFLATED) as zipf:
+            for folder, _, files in os.walk(os.path.join(self.tmp_dir, self.name, 'splitted')):
+                for file in files:
+                    file_path = os.path.join(folder, file)
+                    arcname = os.path.relpath(file_path, os.path.join(self.tmp_dir, self.name, 'splitted'))  # Maintain directory structure
+                    zipf.write(file_path, arcname=arcname)
+                        
+        

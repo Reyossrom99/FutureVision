@@ -1,0 +1,41 @@
+.topNavContainer{
+    background-color: #452b1a;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end; /* Align items to the right */
+    padding: 0 20px; /* Add padding to the top navigation */
+    /* box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.2); Add a box shadow for a subtle effect */
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1; 
+    
+}
+
+.navElement:hover{
+    font-weight: bold;
+}
+button{
+    background-color: #452b1a;
+    color: #f7f2EB; 
+    border:none;
+    text-transform: uppercase;
+    font-family: Helvetica; 
+    margin-right: 30px;
+}
+select{
+    background-color: #452b1a;
+    /* color: #f7f2EB; */
+    font-family: Helvetica;
+    border: 1px solid #f7f2EB;
+    border-radius: 2px;
+    margin-right: 30px;
+}
+
+#showLabels{
+    color: #f7f2EB; 
+    margin-right: 30px;
+
+}

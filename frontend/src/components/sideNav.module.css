@@ -1,0 +1,40 @@
+/* sideNavNew.css */
+
+.sideNavContainer {
+    width: 150px;
+    /* background-color: #F2F0de;  */
+    position: fixed;  /* Change 'absolute' to 'fixed' */
+    top: 0;          /* Align the top edge with the top of the screen */
+    left: 0;         /* Align the left edge with the left of the screen */
+    bottom: 0;       /* Extend to the bottom edge of the screen */
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+   
+    /* padding-top: 10px; Add some top padding */
+    transition: width 0.3s ease-in-out;
+    border-right: 2px solid #452b1a;
+    border-left: 15px solid #452b1a; 
+    /* background-color: #48291c; */
+    
+}
+.sideNavElement{
+    align-items: center;
+    text-decoration: none;
+    color: #452b1a;
+    display: block; /* Change to block display */
+    cursor: pointer;
+    margin: 0;
+    padding: 30px;
+    width: 60%; /* Occupy full width of sidenav */
+    /* font-family: 'Helvetica'; */
+    font-size:15px
+}
+.sideNavElement:first-child{
+    background-color: #452b1a;
+}
+.sideNavElement:hover{
+    font-weight: bold;
+}
+
+  
