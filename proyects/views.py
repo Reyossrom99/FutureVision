@@ -14,12 +14,13 @@ def query_table(request):
         if proyects.exists(): 
             data = []
             #extract a cover from a random image of the dataset so it can be view in the frontend
-            for dataset in proyects: 
+            for proyect in proyects: 
                 proyect_info = {
-                    "id": dataset.proyect_id, 
-                    "name": dataset.name, 
-                    "description": dataset.description,
-                    "uploaded_date": dataset.start_date
+                    "id": proyect.proyect_id, 
+                    "name": proyect.name, 
+                    "description": proyect.description,
+                    "start_date": proyect.start_date, 
+                    "dataset_id" : proyect.dataset.dataset_id
                 }
 
                 data.append(proyect_info)
@@ -58,3 +59,18 @@ def create_proyect(request):
         )
     project.save()
     return JsonResponse({'project_id': project.proyect_id})
+
+
+@api_view(["GET"])
+def get_proyect_info_by_id(request, proyect_id): 
+    print("Get proyect")
+    if request.method == "GET": 
+        proyect = Proyects.objects.get(proyect_id=proyect_id)
+        proyect_data = {
+            'proyect_id': proyect.proyect_id, 
+            'name': proyect.name, 
+            'description': proyect.description, 
+            'start_date': proyect.start_date, 
+            'dataset_name': proyect.dataset.name
+        }
+        return JsonResponse(data=proyect_data, safe=False)

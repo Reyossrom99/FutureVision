@@ -8,33 +8,7 @@ import FormDialog from '../components/newProyectForm';
 function Proyects(){
     const [proyects, setProyects] = useState([]); 
     const {isDialogOpen, handleCloseDialog} = useCreateNewButtonContext(); 
-    // const [formData, setFormData] = useState({
-    //     name: '',
-    //     description: '',
-    //     type: 'bbox',
-    //     selectDataset: ''
-    // });
-    // const handleAccept = async () => {
-    //     // Your existing code for making the POST request
-    //     try {
-    //         const csrfToken = window.csrfToken;
-    //         const uploadData = new FormData();
-    //         uploadData.append('name', formData.name);
-    //         uploadData.append('description', formData.description);
-    //         uploadData.append('type', formData.type); 
-    //         uploadData.append('dataset_id', formData.selectDataset); 
-           
-            
-    //         const response = await axios.post('/proyects/create/', uploadData, {
-    //             headers: {
-    //                 'X-CSRFToken': csrfToken,
-    //             },
-    //         });
-    //         console.log(response);
-    //     } catch (error) {
-    //         console.error(error);
-    //     }
-    // };
+
 
     useEffect(() => {
         axios.get('/proyects/')
@@ -47,7 +21,18 @@ function Proyects(){
                 <h1 className={styles.pageName}>PROYECTS</h1>
                 <div className={styles.proyectsContainer}>
                     {proyects.length > 0 ? (
-                        <p>Proyects page</p>
+                        proyects.map(proyect =>(
+                            <Link to={`/proyects/${proyect.id}`} key={proyect.id} className={styles.proyectCardLink}>
+                                <div className={styles.proeyectCard} key={proyect.id}>
+                                    <div className={styles.proyectInfo}>
+                                        <h2 className={styles.proyectName}>{proyect.name}</h2>
+                                        <p className={styles.proyectDescription}>{proyect.description}</p>
+                                        <p className={styles.proyectDescription}>{proyect.start_date}</p>
+                                    </div>
+                                </div>
+                            </Link>
+                            
+                        ))
                     ) : (
                         <p>No proyects created</p>
                     )}
