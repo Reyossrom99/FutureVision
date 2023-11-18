@@ -1,0 +1,21 @@
+.pageContainer {
+    display: flex;
+
+  }
+  .contentContainer {
+    margin-left: 200px; /* Adjust this value to match the width of your navbar */
+    flex-grow: 1; /* Allow the content to take up remaining space */
+    /* padding: 20px; Add some padding to the content */
+    margin-top: 60px;
+  }
+.pageName{
+    font-size:20px; 
+    color:  #452b1a; 
+    text-align: center;
+    text-transform: uppercase;
+}
+.proyectsContainer {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  

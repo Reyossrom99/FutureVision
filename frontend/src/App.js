@@ -9,6 +9,7 @@ import SideNav from './components/SideNav';
 import TopNav from "./components/topNav";
 import Datasets from './pages/Datasets';
 import DatasetsDetails from './pages/DatasetsDetails'
+import Proyects from "./pages/Proyects";
 
 
 
@@ -21,6 +22,7 @@ function App() {
         <Routes>
           <Route path="/datasets" element = {<Datasets/>}/>
           <Route path="/datasets/:id" element={<DatasetsDetails/>} />
+          <Route path='/proyects' element={<Proyects/>}/>
        
         </Routes>
       </main>

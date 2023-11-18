@@ -60,7 +60,13 @@ function TopNav() {
         
          
       )}
-      {/* Add other navigation elements as needed */}
+      {
+        location.pathname === '/proyects' && (
+          <button onClick={handleButtonClick} className={styles.navElement}>
+          Create new
+          </button>
+        )
+      }
     </nav>
   );
 }

@@ -138,4 +138,25 @@ def get_dataset_info_by_id(request, dataset_id):
                     }
 
         return JsonResponse(data=dataset_data, safe=False)
-        
+@api_view(["GET"])
+def get_datasets(request): 
+    if request.method == "GET":
+        datasets = Datasets.objects.all() #query all elements in the datasets database 
+    
+        if datasets.exists(): 
+            data = []
+            #extract a cover from a random image of the dataset so it can be view in the frontend
+            for dataset in datasets: 
+                dataset_info = {
+                    "id": dataset.dataset_id, 
+                    "name": dataset.name, 
+                }
+
+                data.append(dataset_info)
+            
+            return JsonResponse(data, safe=False)
+
+        else:
+            key = "sucess" #no hay datasets en la base de datos, pero no ha habido ningun fallo
+            response_data = msg.get_predefined_message(key)
+            return JsonResponse(response_data)

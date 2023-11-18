@@ -16,16 +16,13 @@ def upload_zip_file(instance,filename):
 
 class Datasets(models.Model):
     dataset_id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, unique=True)
     description = models.TextField(blank=True, null=True)
     uploaded_date = models.DateTimeField(auto_now_add=True)
     url = models.FileField(blank= True, null=True, upload_to=upload_zip_file)
     type = models.CharField(max_length=10, choices=DATASET_TYPE_CHOICES, default='splits')
     format = models.CharField(max_length=10, choices=DATASET_FORMAT_CHOICES, default='coco')
   
-    
- 
-
     def __str__(self):
         return self.name
 
