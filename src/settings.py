@@ -91,9 +91,9 @@ WSGI_APPLICATION = 'src.wsgi.application'
 DATABASES = {
     'default' : {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'yoloVision',
-        'USER': 'root',
-        'PASSWORD': 'root',
+        'NAME': 'yoloVisionDB',
+        'USER': 'admin',
+        'PASSWORD': 'admin',
         'HOST': 'localhost',  # Use the host of your Docker container
         'PORT': '5432',       # Port exposed in the container
     }
