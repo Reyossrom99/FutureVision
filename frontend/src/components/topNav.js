@@ -5,8 +5,11 @@ import { useCheckbox } from '../context/checkboxShowLabelContext';
 import {useSplitContext } from '../context/selectSplitViewContext'; 
 import { useCreateSplitContext } from '../context/createSplitsContext';
 import {useCreateNewButtonContext} from '../context/createNewContext'; 
-
+import AuthContext from '../context/AuthContext'
+import { useContext } from 'react'
 function TopNav() {
+  let { user, logoutUser } = useContext(AuthContext)
+  
   const location = useLocation();
   const {showLabels, setShowLabels} = useCheckbox(); 
   const { id } = useParams(); // Get the 'id' from the route params
@@ -60,7 +63,14 @@ function TopNav() {
         
          
       )}
-      {/* Add other navigation elements as needed */}
+      {
+        user ? (
+          <button onClick={logoutUser} className={styles.navElement}>Logout</button>
+        ) : (
+            <Link to="/login" >Login</Link>
+        )
+        
+      }
     </nav>
   );
 }
