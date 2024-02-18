@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import styles from './topNav.module.css'
 import { useCheckbox } from '../context/checkboxShowLabelContext'; 
 import {useSplitContext } from '../context/selectSplitViewContext'; 
 import { useCreateSplitContext } from '../context/createSplitsContext';
 import {useCreateNewButtonContext} from '../context/createNewContext'; 
+import { Nav } from 'react-bootstrap';
 
 function TopNav() {
   const location = useLocation();
@@ -13,6 +14,12 @@ function TopNav() {
   const { selectedSplit, setSplit } = useSplitContext();
   // const { buttonClicked, handleButtonClick } = useCreateSplitContext();
   const { handleNewButtonClick } = useCreateNewButtonContext(); 
+
+  const [isAuth, setIsAuth] = useState(false); 
+  useEffect(() => {     
+    if (localStorage.getItem('access_token') !== null) {        setIsAuth(true); 
+  }    }, [isAuth]);
+
 
   const handleButtonClick = () => {
     handleNewButtonClick(); 
@@ -60,7 +67,11 @@ function TopNav() {
         
          
       )}
-      {/* Add other navigation elements as needed */}
+      {
+        isAuth ? <Nav.Link href="/auth/logout">Logout</Nav.Link> :  
+        <Nav.Link as={Link} to="/auth/login">Login</Nav.Link>
+
+      }
     </nav>
   );
 }

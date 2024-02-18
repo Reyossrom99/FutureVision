@@ -24,7 +24,8 @@ from django.conf.urls.static import static
 urlpatterns = [
     # path('admin/', admin.site.urls),
     path('datasets/', include('datasets.urls')),
-    path('', views.basic_web_page)
+    path('', views.basic_web_page),
+    path('auth/', include('authentication.urls'))
   
 ]
 #allow static media files folder

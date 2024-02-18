@@ -8,6 +8,8 @@ import {CheckboxProvider } from './context/checkboxShowLabelContext';
 import { SplitProvider } from './context/selectSplitViewContext';
 import { ButtonClickProvider} from './context/createSplitsContext';
 import { CreateNewButtonProvider } from './context/createNewContext'; 
+import './interceptors/axios';
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 root.render(
