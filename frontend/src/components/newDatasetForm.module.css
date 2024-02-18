@@ -11,7 +11,7 @@
     border-radius: 4px;
     width: 700px; 
     height: 700px;
-    border: 1px solid #452b1a; 
+    border: 1px solid #D89958; 
 
 }
 
@@ -22,7 +22,7 @@
 
 }
 #headerLabel{
-    color: #452b1a;
+    color: #909892;
     padding-top: 10px;
     font-size: 20px;
     text-transform: uppercase;
@@ -30,14 +30,14 @@
 
 }
 .formElements, label{
-    color: #452b1a;
+    color: #909892;
     font-size: 15px;
     padding-right: 8px;
    
 }
 
 .formElements, input[type="text"], input[type="file"] {
-  border: 1px solid #452b1a;
+  border: 1px solid #909892;
   border-radius: 4px;
   /* width: 60%; */
   background-color: #f7f2EB;
@@ -54,16 +54,16 @@
 .formElements, select{
     background-color: #f7f2EB;
     text-transform: capitalize;
-    color: #452b1a;
+    color: #909892;
     padding: 8px;
-    border: 1px solid #452b1a;
+    border: 1px solid #909892;
     width: 200px;
 }
 .formElements, select:hover{
     font-weight: bold;
 }
 .formElements, input[type="file"]:hover{
-    border: 2px solid #452b1a;
+    border: 2px solid #909892;
 }
 .buttonContainer button{
     padding-right: 40px;

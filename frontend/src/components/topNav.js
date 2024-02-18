@@ -67,7 +67,7 @@ function TopNav() {
         user ? (
           <button onClick={logoutUser} className={styles.navElement}>Logout</button>
         ) : (
-            <Link to="/login" >Login</Link>
+            <Link to="/login"  className={styles.Link}>Login</Link>
         )
         
       }

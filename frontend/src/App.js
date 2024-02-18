@@ -10,6 +10,7 @@ import TopNav from "./components/topNav";
 import Datasets from './pages/Datasets';
 import DatasetsDetails from './pages/DatasetsDetails'
 import LoginPage from './pages/Login'
+import RegisterPage from "./pages/Register";
 
 import PrivateRoute from './utils/PrivateRoute'
 import { AuthProvider } from './context/AuthContext'
@@ -25,6 +26,7 @@ function App() {
           <Route path="/datasets" element = {<PrivateRoute><Datasets/></PrivateRoute>}/>
           <Route path="/datasets/:id" element={<DatasetsDetails/>} />
           <Route path="/login" element={<LoginPage/>}/>
+          <Route path="/sign-up" element={<RegisterPage/>}></Route>
         </Routes>
       </main>
       </AuthProvider>

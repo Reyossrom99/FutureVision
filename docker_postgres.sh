@@ -20,3 +20,5 @@ docker rm yoloVisionContainer
 
 #obten el status de docker
 sudo docker ps
+
+sudo docker run -p 5050:80 --name pgadmin4 -e 'PGADMIN_DEFAULT_EMAIL=reyesossorio@gmail.com' -e 'PGADMIN_DEFAULT_PASSWORD=root' -d dpage/pgadmin4

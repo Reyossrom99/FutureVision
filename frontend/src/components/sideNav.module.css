@@ -13,25 +13,25 @@
    
     /* padding-top: 10px; Add some top padding */
     transition: width 0.3s ease-in-out;
-    border-right: 2px solid #452b1a;
-    border-left: 15px solid #452b1a; 
+    border-right: 3px solid #55505A;
+    border-left: 15px solid #55505A; 
     /* background-color: #48291c; */
     
 }
 .sideNavElement{
     align-items: center;
     text-decoration: none;
-    color: #452b1a;
+    color: #AF6058;
     display: block; /* Change to block display */
     cursor: pointer;
     margin: 0;
     padding: 30px;
     width: 60%; /* Occupy full width of sidenav */
     /* font-family: 'Helvetica'; */
-    font-size:15px
+    font-size:18px
 }
 .sideNavElement:first-child{
-    background-color: #452b1a;
+    background-color: #55505A;
 }
 .sideNavElement:hover{
     font-weight: bold;
