@@ -5,7 +5,13 @@ import { useContext } from 'react'
 const PrivateRoute = ({children, ...rest}) => {
     let { user } = useContext(AuthContext)
 
-    return !user ? <Navigate to='/login'/> : children;
+    const currentPath = window.location.pathname;
+
+   
+    if (!user && currentPath !== '/register') {
+        return <Navigate to='/login' />;
+    }
+    return children
 }
 
 export default PrivateRoute;

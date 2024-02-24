@@ -34,43 +34,54 @@ input[type="password"] {
     box-sizing: border-box;
     margin-top: 5%;
     border: none;
+   
 
 }
 
-
-
 .loginButton {
-    width: 40%;
+    width: 100%;
     height: 40px;
-    margin-right: 5%;
-    margin-left: 5%;
-    margin-top: 5%;
     background-color:#55505A;
     color: #D89958;
     font-size: 15px;
     border: 2px;
     border-radius: 5px;
+    margin-top: 10px;
 }
 
 .signUp {
-    width: 85%;
+    width: 100%;
     height: 40px;
-    margin-top: 5%;
-    margin-left: 5%;
-    margin-right: 5%;
-    background-color:#55505A;
+    margin-top: 10%;
     color: #D89958;
-    font-size: 15px;
+    font-size:15px;
     border: 2px;
     border-radius: 5px;
+    text-align: right;
+    font-weight: bold;
 }
 h2{
     color: #AF6058;
     text-align: center;
-  
+    width: 100%;
     font-size:30px;
 }
-label{
+p{
     color: #909892;
     font-size: 15px; 
+    margin-bottom: 1px;
+    margin-top: 10px;
+}
+select{
+    width: 100%;
+    color: #909892;
+    font-size: 15px; 
+    margin-bottom: 10px;
+    margin-top: 10px;
+}
+.error{
+    width: 100%;
+    color: #AF6058;
+    font-size: 15px;
+    font-weight: bold;
 }
