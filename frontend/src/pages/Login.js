@@ -1,27 +1,32 @@
-import React, { useContext } from 'react';
-import AuthContext from '../context/AuthContext';
+import React from 'react';
 import styles from './Login.module.css';
-import { Link } from 'react-router-dom';
+import AuthContext from '../context/AuthContext';
+import { useContext } from 'react';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate from react-router-dom
 
 const LoginPage = () => {
-    let { loginUser, error } = useContext(AuthContext); 
+    const navigate = useNavigate(); // Move useNavigate hook inside the component function
+    const { loginUser } = useContext(AuthContext);
+
+    const handleRedirect = () => {
+        navigate('/sign-up');
+    };
 
     return (
         <div className={styles.pageContainer}>
             <div className={styles.contentContainer}>
-                <h2>Log in</h2>
+            <h2>Log in</h2>
                 <form onSubmit={loginUser}>
-                    <p>Enter username: </p>
-                    <input type="text" name="username" placeholder="Enter username" /><br></br>
-                    <p>Enter password: </p>
-                    <input type="password" name="password" placeholder="enter password" /><br></br>
-                    <input type="submit" className={styles.loginButton} value="Log in" /> <br></br>
-                    {error && <p className={styles.error}>{error}</p>}
-                    <Link to="/register" className={styles.signUp}>Create a new account</Link> {/* Link to the register page */}
+                <label>Enter username:</label>
+                    <input type="text" placeholder="username" className={styles.inputField} /><br />
+                    <label>Enter password:</label>
+                    <input type="password" name="password" placeholder="password" className={styles.inputField} /><br />
+                    <input type="submit" value='Log in' className={styles.loginButton} />
+                    <input type="button" value='Sign up' className={styles.loginButton} onClick={handleRedirect} />
                 </form>
             </div>
         </div>
     );
-}
+};
 
 export default LoginPage;

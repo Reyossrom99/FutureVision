@@ -7,9 +7,7 @@ const RegisterPage = () => {
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
         username: '',
-        email: '',
-        password: '',
-        role: 'admin'  // Default role value, change as needed
+        password: ''
     });
     const [error, setError] = useState('');
 
@@ -34,30 +32,18 @@ const RegisterPage = () => {
     return (
         <div className={styles.pageContainer}>
             <div className={styles.contentContainer}>
-                <h2>Sign up</h2>
-                
+                <h2>Sing up</h2>
+                {error && <p style={{ color: 'red' }}>{error}</p>} {/* Display error message */}
                 <form onSubmit={handleSubmit}>
                     <div>
                         <label>Enter username:</label>
                         <input type="text" name="username" value={formData.username} onChange={handleChange} />
                     </div>
                     <div>
-                        <label>Enter email:</label>
-                        <input type="text" name="email" value={formData.email} onChange={handleChange} />
-                    </div>
-                    <div>
-                        <label>Select a role:</label>
-                        <select name="role" value={formData.role} onChange={handleChange}>
-                            <option value="admin">Administrator</option>
-                            <option value="user">User</option>
-                        </select>
-                    </div>
-                    <div>
                         <label>Enter password:</label>
                         <input type="password" name="password" value={formData.password} onChange={handleChange} />
                     </div>
                     <input type="submit" value='Sign up' className={styles.signUp} />
-                    {error && <p className={styles.error}>{error}</p>} 
                 </form>
             </div>
         </div>
