@@ -1,5 +1,5 @@
 .topNavContainer{
-    background-color: #452b1a;
+    background-color: #55505A;
     height: 60px;
     display: flex;
     align-items: center;
@@ -18,24 +18,32 @@
     font-weight: bold;
 }
 button{
-    background-color: #452b1a;
-    color: #f7f2EB; 
+    background-color: #55505A;
+    color: #D89958; 
     border:none;
-    text-transform: uppercase;
+    
     font-family: Helvetica; 
     margin-right: 30px;
 }
 select{
-    background-color: #452b1a;
+    background-color: #D89958;
     /* color: #f7f2EB; */
-    font-family: Helvetica;
-    border: 1px solid #f7f2EB;
+   
+    border: 1px solid #55505A;
     border-radius: 2px;
     margin-right: 30px;
 }
 
 #showLabels{
-    color: #f7f2EB; 
+    color: #D89958; 
     margin-right: 30px;
 
+}
+#login{
+    background-color: #55505A;
+    color: #D89958; 
+    border:none;
+    
+    font-family: Helvetica; 
+    margin-right: 10px;
 }
