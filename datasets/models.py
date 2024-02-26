@@ -8,6 +8,10 @@ DATASET_FORMAT_CHOICES = (
     ('Yolo', 'yolo'), 
     ('Coco', 'coco'),
 )
+DATASET_PRIVACY_CHOICES = (
+    ('private'), 
+    ('public'), 
+)
 
 #Saves the saved file to /media/zip_data/name_dataset/name_zipFile
 def upload_zip_file(instance,filename): 
@@ -22,7 +26,7 @@ class Datasets(models.Model):
     url = models.FileField(blank= True, null=True, upload_to=upload_zip_file)
     type = models.CharField(max_length=10, choices=DATASET_TYPE_CHOICES, default='splits')
     format = models.CharField(max_length=10, choices=DATASET_FORMAT_CHOICES, default='coco')
-  
+    privacy = models.CharField(max_length=10, choices=DATASET_PRIVACY_CHOICES, default='private')
     
  
 

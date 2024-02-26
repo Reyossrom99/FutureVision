@@ -6,8 +6,11 @@ from django.http import JsonResponse
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+
+from authentication.models import obtener_clave_por_id
 from .serializers import UsuarioSerializer
 from django.views.decorators.csrf import csrf_exempt
+
 
 @csrf_exempt
 def sign_up(request):
@@ -157,3 +160,16 @@ def obtener_usuarios(request):
     
     # Devolver la lista de usuarios serializados
     return Response({'usuarios': serializer.data})
+
+
+@api_view(['GET'])
+def obtener_clave(request, usuario_id):
+    # Intentar obtener la clave del usuario por su ID
+    clave_usuario = obtener_clave_por_id(usuario_id)
+
+    if clave_usuario is not None:
+        # Si se encuentra la clave, devolverla en la respuesta
+        return JsonResponse({'clave': clave_usuario})
+    else:
+        # Si la clave no existe, devolver un mensaje de error
+        return JsonResponse({'error': 'No se encontró ninguna clave para el usuario con el ID proporcionado.'}, status=404)
