@@ -30,7 +30,7 @@ export const AuthProvider = ({ children }) => {
                 localStorage.setItem('authTokens', JSON.stringify(data));
                 setAuthTokens(data);
                 setUser(jwtDecode(data.access));
-                navigate('/');
+                navigate('/datasets');
             } else {
                 setError(data.detail); // Almacenar el detalle del error en la variable error
             }

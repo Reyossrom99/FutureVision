@@ -184,7 +184,7 @@ const Profile = () => {
                 </table>
                 <div className={styles.bottomLinkContainer}>
                     {profile.grupo === 'admin' && (
-                        <><Link to="/new-user" className={styles.adminLink}>Create new user</Link>
+                        <><Link to="/user/new" className={styles.adminLink}>Create new user</Link>
                         <Link to="/users" className={styles.adminLink}>View all users</Link></>
                     )}
                 </div>
