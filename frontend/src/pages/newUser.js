@@ -21,7 +21,7 @@ const NewUser = () => {
     const handleSubmit = async (e) => {
         e.preventDefault(); // Prevent the default form submission behavior
         try {
-            const response = await fetch(`/auth/user/new`, {
+            const response = await fetch(`/auth/user`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -30,7 +30,7 @@ const NewUser = () => {
                 body: JSON.stringify(formData) // Send the form data to the backend
             });
             if (response.ok) {
-                navigate('/profile'); // Navigate to success page or wherever you want
+                navigate('/users'); // Navigate to success page or wherever you want
             } else {
                 const data = await response.json();
                 setError(data.error || 'Error creating user'); // Handle errors

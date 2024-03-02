@@ -9,8 +9,8 @@ DATASET_FORMAT_CHOICES = (
     ('Coco', 'coco'),
 )
 DATASET_PRIVACY_CHOICES = (
-    ('private'), 
-    ('public'), 
+    ('private', 'priavte'), 
+    ('public', 'private'), 
 )
 
 #Saves the saved file to /media/zip_data/name_dataset/name_zipFile

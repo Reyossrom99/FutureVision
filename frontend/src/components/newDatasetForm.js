@@ -44,7 +44,7 @@ const FormDialog = ({ isOpen, onRequestClose }) => {
                 const data = await response.json();
             }
         }catch{
-            console.error('Error creating user:', error);
+            console.log('Error creating user:');
         }
     };
 
