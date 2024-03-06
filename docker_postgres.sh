@@ -2,7 +2,7 @@
 
 #crear el contenedor de postgres
 docker run -d \
-	--name yoloVisionContainer \
+	--name visioncontainer \
 	-e POSTGRES_DB=yoloVisionDB \
 	-e POSTGRES_USER=admin \
 	-e POSTGRES_PASSWORD=admin \
