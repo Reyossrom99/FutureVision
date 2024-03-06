@@ -23,7 +23,9 @@ function DatasetsDetails() {
   
   const {buttonClicked} = useCreateSplitContext(); 
 
-
+  useEffect(() => {
+    fetchData(id, showLabels, selectedSplit, buttonClicked);
+  }, []); 
 
   const fetchData = (datasetId, shouldShowLabels, requestSplitView, buttonClicked) => {
     setIsLoading(true); // Set loading state to true when starting a new request
