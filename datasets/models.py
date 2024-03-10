@@ -15,6 +15,8 @@ DATASET_PRIVACY_CHOICES = (
 
 #Saves the saved file to /media/zip_data/name_dataset/name_zipFile
 def upload_zip_file(instance,filename): 
+    print(instance)
+    print(filename)
     return "/".join(['zip_data', str(instance.name), filename])
 
 
