@@ -30,11 +30,11 @@ function App() {
           <main>
             <Routes>
               <Route path="/datasets" element={<PrivateRoute><Datasets /></PrivateRoute>} />
-              <Route path="/datasets/:id" element={<DatasetsDetails />} />
+              <Route path="/datasets/:id" element={<PrivateRoute><DatasetsDetails /></PrivateRoute>} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/sign-up" element={<RegisterPage />} />
-              <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
-              <Route path="/user/new" element={<PrivateRoute><NewUser /></PrivateRoute>} />
+              <Route path="/user" element={<PrivateRoute><Profile /></PrivateRoute>} />
+              <Route path="/user/add" element={<PrivateRoute><NewUser /></PrivateRoute>} />
               <Route path="/users" element={<PrivateRoute><ViewUsers /></PrivateRoute>} />
             </Routes>
           </main>

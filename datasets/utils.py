@@ -22,7 +22,6 @@ def extract_and_verify_zip(zip_path, format, type):
     file.close()
 
     #before obtaining the zip we need to get the name 
-    
     zip_name = zip_path.name.split(".zip")[0]
     temp_dir = tempfile.mkdtemp()
     try: 
@@ -129,3 +128,5 @@ def read_images_from_tmp_folder(zip_path, type):
 """
 def add_label_to_image(tmp_path, type): 
     pass
+
+

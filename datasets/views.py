@@ -1,11 +1,13 @@
 from django.db import IntegrityError
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
+from django.contrib.auth.models import User
 from datasets.models import Datasets
 from django.http import JsonResponse 
 from django.conf import settings
 import os
 import src.types.messages as msg
+from rest_framework.permissions import IsAuthenticated
 
 from .serializers.yoloData import YoloData
 
@@ -16,6 +18,7 @@ from . import utils
 yolo_data_objects = {}
 
 @api_view(["GET", "POST"])
+@permission_classes([IsAuthenticated])
 def query_table(request):
     if request.method == "GET":
         datasets = Datasets.objects.all() #query all elements in the datasets database 
@@ -29,6 +32,7 @@ def query_table(request):
                     "name": dataset.name, 
                     "description": dataset.description,
                     "uploaded_date": dataset.uploaded_date
+
                 }
                 if os.path.exists(os.path.join(settings.MEDIA_ROOT, "covers", dataset.name)) == True: 
                     for file in os.listdir(os.path.join(settings.MEDIA_ROOT, "covers", dataset.name)): 
@@ -52,11 +56,15 @@ def query_table(request):
         #adding data to the model 
         name = recived_data.get('name')
         description = recived_data.get('description')
-        url = recived_data.get('url')
+        url = recived_data.get('url') #directorio donde esta el zip
         type = recived_data.get('type')
         format = recived_data.get('format')
+        privacy = recived_data.get('privacy')
         
-    
+        if privacy == "private":
+            id = request.user.id 
+        
+        
         # check = utils.check_correct_form(url, type, format)
         control_structure = utils.extract_and_verify_zip(url, format, type)
         if control_structure: 
@@ -66,7 +74,8 @@ def query_table(request):
                     description=description,
                     url = url, 
                     type = type, 
-                    format = format
+                    format = format,
+                    privacy = privacy
                 )
                 dataset.save()
                 #obtebemos la cover del dataset, solo cuando la estructura de control es correcta 
@@ -93,6 +102,7 @@ def query_table(request):
                 return JsonResponse(response_data)
         
 @api_view(["GET"])
+@permission_classes([IsAuthenticated])
 def get_dataset_info_by_id(request, dataset_id): 
   
     global yolo_data_objects #hace referencia a la variable en el ambito global 

@@ -64,7 +64,7 @@ const ViewUsers = () => {
 
   const actualizarGrupoUsuario = async (userId, selectedGroup) => {
     try {
-      const response = await fetch(`/auth/user/modify?field=group&id=${userId}`, {
+      const response = await fetch(`/auth/user/id=${userId}?field=group`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

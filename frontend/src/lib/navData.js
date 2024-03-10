@@ -24,6 +24,6 @@ export const navData = [
     {
         id: 4,
         text: "PROFILE",
-        link: "profile"
+        link: "user"
     },
 ]
