@@ -14,20 +14,27 @@ const FormDialog = ({ isOpen, onRequestClose }) => {
     const [dir, setDir] = useState(); //set the url directory of the dataset
     const [type, setType] = useState("splits");
     const [format, setFormat] = useState("yolo");
-    const [privacy, setPrivacy] = useState("priavte");
+    const [privacy, setPrivacy] = useState("private");
 
     const authContext = useContext(AuthContext);
 
     const handleAccept = async () => {
-        const uploadData = new FormData();
-        uploadData.append('name', name);
-        uploadData.append('description', description);
-        uploadData.append('url', dir);
-        uploadData.append('type', type);
-        uploadData.append('format', format);
-        uploadData.append('privacy', privacy)
-
-        const csrfToken = window.csrfToken;
+        // const uploadData = new FormData();
+        // uploadData.append('name', name);
+        // uploadData.append('description', description);
+        // uploadData.append('url', dir);
+        // uploadData.append('type', type);
+        // uploadData.append('format', format);
+        // uploadData.append('privacy', privacy)
+        const requestData = {
+            name : name, 
+            description: description, 
+            url : dir, 
+            type : type, 
+            format : format, 
+            privacy: privacy ==='public'
+        }
+        
 
         try {
             const response = await fetch('/datasets/', {
@@ -36,7 +43,7 @@ const FormDialog = ({ isOpen, onRequestClose }) => {
                     'Content-Type': 'application/json',
                     'Authorization': 'Bearer ' + String(authContext.authTokens.access)
                 },
-                body: uploadData
+                body: JSON.stringify(requestData)
             });
             if (response.ok) {
                 onRequestClose();

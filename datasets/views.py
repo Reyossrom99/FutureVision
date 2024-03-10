@@ -6,11 +6,12 @@ from datasets.models import Datasets
 from django.http import JsonResponse 
 from django.conf import settings
 import os
+from django.db.models import Q
 import src.types.messages as msg
 from rest_framework.permissions import IsAuthenticated
 
 from .serializers.yoloData import YoloData
-
+from .serializers.serializers import DatasetsSerializers
 
 from . import utils 
 
@@ -19,36 +20,41 @@ yolo_data_objects = {}
 
 @api_view(["GET", "POST"])
 @permission_classes([IsAuthenticated])
-def query_table(request):
+def datasets(request):
     if request.method == "GET":
-        datasets = Datasets.objects.all() #query all elements in the datasets database 
-    
-        if datasets.exists(): 
-            data = []
-            #extract a cover from a random image of the dataset so it can be view in the frontend
-            for dataset in datasets: 
-                dataset_info = {
-                    "id": dataset.dataset_id, 
-                    "name": dataset.name, 
-                    "description": dataset.description,
-                    "uploaded_date": dataset.uploaded_date
+        # datasets = Datasets.objects.all() #query all elements in the datasets database 
+        
+        # if datasets.exists(): 
+        #     data = []
+        #     #extract a cover from a random image of the dataset so it can be view in the frontend
+        #     for dataset in datasets: 
+        #         dataset_info = {
+        #             "id": dataset.dataset_id, 
+        #             "name": dataset.name, 
+        #             "description": dataset.description,
+        #             "uploaded_date": dataset.uploaded_date
 
-                }
-                if os.path.exists(os.path.join(settings.MEDIA_ROOT, "covers", dataset.name)) == True: 
-                    for file in os.listdir(os.path.join(settings.MEDIA_ROOT, "covers", dataset.name)): 
+        #         }
+        #         if os.path.exists(os.path.join(settings.MEDIA_ROOT, "covers", dataset.name)) == True: 
+        #             for file in os.listdir(os.path.join(settings.MEDIA_ROOT, "covers", dataset.name)): 
                        
-                        if file.lower().endswith(('.jpg', '.png', '.jpeg')): 
-                            dataset_info["cover_url"] = os.path.join("/media", "covers", dataset.name, file)
-                            break
+        #                 if file.lower().endswith(('.jpg', '.png', '.jpeg')): 
+        #                     dataset_info["cover_url"] = os.path.join("/media", "covers", dataset.name, file)
+        #                     break
 
-                data.append(dataset_info)
+        #         data.append(dataset_info)
             
-            return JsonResponse(data, safe=False)
+        #     return JsonResponse(data, safe=False)
 
-        else:
-            key = "sucess" #no hay datasets en la base de datos, pero no ha habido ningun fallo
-            response_data = msg.get_predefined_message(key)
-            return JsonResponse(response_data)
+        
+        # else:
+        #     key = "sucess" #no hay datasets en la base de datos, pero no ha habido ningun fallo
+        #     response_data = msg.get_predefined_message(key)
+        #     return JsonResponse(response_data)
+
+        datasets = Datasets.objects.filter(Q(user=request.user) | Q(is_public=True))
+        serializer = DatasetsSerializers(datasets, many=True)
+        return JsonResponse(serializer.data , safe=False)
     
     elif request.method == "POST": 
         #data is in json format
@@ -60,10 +66,7 @@ def query_table(request):
         type = recived_data.get('type')
         format = recived_data.get('format')
         privacy = recived_data.get('privacy')
-        
-        if privacy == "private":
-            id = request.user.id 
-        
+    
         
         # check = utils.check_correct_form(url, type, format)
         control_structure = utils.extract_and_verify_zip(url, format, type)
@@ -75,7 +78,8 @@ def query_table(request):
                     url = url, 
                     type = type, 
                     format = format,
-                    privacy = privacy
+                    privacy = privacy,
+                    user = request.user.id
                 )
                 dataset.save()
                 #obtebemos la cover del dataset, solo cuando la estructura de control es correcta 

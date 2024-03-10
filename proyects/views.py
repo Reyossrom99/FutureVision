@@ -20,7 +20,6 @@ def proyects(request):
     if request.method == "GET": 
         
         proyects = Proyects.objects.filter(Q(user=request.user) | Q(is_public=True))
-    
         serializer = ProjectsSerializer(proyects, many=True)
             
         return JsonResponse(serializer.data , safe=False)
@@ -28,10 +27,9 @@ def proyects(request):
        
         
     if request.method == "POST":
-        
+
         data = request.data
 
-        
         if request.user.is_authenticated:
             
             project = Proyects(
@@ -42,15 +40,11 @@ def proyects(request):
                 dataset_id=data.get('dataset_id'),
                 user=request.user  
             )
-
-           
             project.save()
-
-            
             serializer = ProjectsSerializer(project)
+
             return JsonResponse(serializer.data, status=status.HTTP_201_CREATED)
         else:
-            
             return JsonResponse({'error': 'User is not authenticated.'}, status=status.HTTP_401_UNAUTHORIZED)
     else:
         return JsonResponse({'error': 'Method not allowed.'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
@@ -65,16 +59,20 @@ def proyect(request, proyect_id):
 
     """
     if request.method == "GET": 
+
         proyect = Proyects.objects.get(proyect_id=proyect_id)
         serializer = ProjectsSerializer(proyect, many=True) 
         return JsonResponse(serializer.data, safe=False)
     
     elif request.method == "DELETE": 
+
         try:
             project = Proyects.objects.get(proyect_id=proyect_id)
             project.delete()
             return JsonResponse({"message": "Project deleted successfully."}, status=status.HTTP_200_OK)
+        
         except Proyects.DoesNotExist:
             return JsonResponse({"error": "Project not found."}, status=status.HTTP_404_NOT_FOUND)
+        
     else: 
         return JsonResponse({'error': 'Method not allowed.'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
