@@ -32,6 +32,7 @@ def query_table(request):
                     "name": dataset.name, 
                     "description": dataset.description,
                     "uploaded_date": dataset.uploaded_date
+
                 }
                 if os.path.exists(os.path.join(settings.MEDIA_ROOT, "covers", dataset.name)) == True: 
                     for file in os.listdir(os.path.join(settings.MEDIA_ROOT, "covers", dataset.name)): 
@@ -55,7 +56,7 @@ def query_table(request):
         #adding data to the model 
         name = recived_data.get('name')
         description = recived_data.get('description')
-        url = recived_data.get('url')
+        url = recived_data.get('url') #directorio donde esta el zip
         type = recived_data.get('type')
         format = recived_data.get('format')
         privacy = recived_data.get('privacy')

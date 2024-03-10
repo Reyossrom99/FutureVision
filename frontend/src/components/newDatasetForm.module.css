@@ -66,8 +66,7 @@
     border: 2px solid #452b1a;
 }
 .buttonContainer button{
-    padding-right: 40px;
-    padding-left: 40px;
+
     font-size:18px; 
     flex: 1;
     margin-right: 50px;

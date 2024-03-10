@@ -36,7 +36,7 @@ const FormDialog = ({ isOpen, onRequestClose }) => {
                     'Content-Type': 'application/json',
                     'Authorization': 'Bearer ' + String(authContext.authTokens.access)
                 },
-                body: JSON.stringify(uploadData)
+                body: uploadData
             });
             if (response.ok) {
                 navigate('/datasets')
