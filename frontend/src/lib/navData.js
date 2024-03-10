@@ -13,8 +13,8 @@ export const navData = [
     {
         id: 2,
      
-        text: "PROYECTS",
-        link: "proyects"
+        text: "PROJECTS",
+        link: "projects"
     },
     {
         id: 3,

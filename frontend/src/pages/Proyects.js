@@ -1,20 +1,41 @@
-import React, {useEffect, useState} from 'react'; 
+import React, {useEffect, useState, useContext} from 'react'; 
 import axios from 'axios'; 
 import styles from './proyects.module.css'
 import { Link, Route, BrowserRouter as Router, Switch } from 'react-router-dom';
-import { useCreateNewButtonContext } from '../context/createNewContext';
+import { useCreateNewProjectContext } from '../context/createNewContext';
 import FormDialog from '../components/newProyectForm';
+import AuthContext from '../context/AuthContext';
 
 function Proyects(){
     const [proyects, setProyects] = useState([]); 
-    const {isDialogOpen, handleCloseDialog} = useCreateNewButtonContext(); 
-
+    const {isDialogOpen, handleCloseDialog} = useCreateNewProjectContext(); 
+    const { authTokens, logoutUser} = useContext(AuthContext);
 
     useEffect(() => {
-        axios.get('/proyects/')
-        .then(response => setProyects(response.data))
-        .catch(error => console.error(error))
+        // axios.get('/proyects/')
+        // .then(response => setProyects(response.data))
+        // .catch(error => console.error(error))
+        getProyects(); 
     }, []); 
+    const getProyects = async () => {
+        try {
+            const response = await fetch('/proyects', {
+              method: 'GET',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + String(authTokens.access)
+              }
+            });
+            if (response.ok) {
+              const data = await response.json();
+              setProyects(data);
+            } else if (response.status === 401) {
+              logoutUser();
+            }
+          } catch (error) {
+            console.error('Error fetching profile:', error);
+          }
+    };
     return (
         <div className={styles.pageContainer}>
             <div className={styles.contentContainer}>

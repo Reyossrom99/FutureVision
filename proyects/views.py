@@ -1,76 +1,80 @@
 from django.shortcuts import render
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from django.http import JsonResponse 
 from proyects.models import Proyects
 import src.types.messages as msg
 from datasets.models import Datasets
+from rest_framework.permissions import IsAuthenticated
+from proyects.serializers import ProjectsSerializer
+from django.db.models import Q
+from rest_framework import status
 
-@api_view(["GET"])
-def query_table(request): 
+@permission_classes([IsAuthenticated]) 
+@api_view(["GET", "POST"])
+def proyects(request): 
+    """
+        Gets all the proyects that a user can view or creates a new proyect 
+        depeding on the type of request
+        Only for authenticated users
+    """
     if request.method == "GET": 
-        print("Getting proyect info")
-        proyects = Proyects.objects.all() #query all elements in the datasets database 
+        
+        proyects = Proyects.objects.filter(Q(user=request.user) | Q(is_public=True))
     
-        if proyects.exists(): 
-            data = []
-            #extract a cover from a random image of the dataset so it can be view in the frontend
-            for proyect in proyects: 
-                proyect_info = {
-                    "id": proyect.proyect_id, 
-                    "name": proyect.name, 
-                    "description": proyect.description,
-                    "start_date": proyect.start_date, 
-                    "dataset_id" : proyect.dataset.dataset_id
-                }
-
-                data.append(proyect_info)
+        serializer = ProjectsSerializer(proyects, many=True)
             
-            return JsonResponse(data, safe=False)
+        return JsonResponse(serializer.data , safe=False)
 
+       
+        
+    if request.method == "POST":
+        
+        data = request.data
+
+        
+        if request.user.is_authenticated:
+            
+            project = Proyects(
+                name=data.get('name'),
+                description=data.get('description'),
+                type=data.get('type'),
+                is_public=data.get('is_public', False),  
+                dataset_id=data.get('dataset_id'),
+                user=request.user  
+            )
+
+           
+            project.save()
+
+            
+            serializer = ProjectsSerializer(project)
+            return JsonResponse(serializer.data, status=status.HTTP_201_CREATED)
         else:
-            key = "sucess" #no hay datasets en la base de datos, pero no ha habido ningun fallo
-            response_data = msg.get_predefined_message(key)
-            return JsonResponse(response_data)
-@api_view(["POST"])
-def create_proyect(request): 
-    if request.method == "POST": 
-         # Extract data from the POST request
-        name = request.POST.get('name')
-        description = request.POST.get('description')
-        type = request.POST.get('type')
-        dataset_id = request.POST.get('dataset_id')  # Assuming 'dataset' is the key for the dataset_id
-
-        # Retrieve the Dataset object
-        print(f"type", type)
-        print(f"dataset_id", dataset_id)
-        try:
-            dataset = Datasets.objects.get(dataset_id=dataset_id)
-        except Datasets.DoesNotExist: 
-            key = "error"
-            reponse_data = msg.get_predefined_message(key)
-            return JsonResponse(reponse_data)
-
-        # Create a new Proyects instance
-        project = Proyects.objects.create(
-            name=name,
-            description=description,
-            type=type,
-            dataset=dataset
-        )
-    project.save()
-    return JsonResponse({'project_id': project.proyect_id})
+            
+            return JsonResponse({'error': 'User is not authenticated.'}, status=status.HTTP_401_UNAUTHORIZED)
+    else:
+        return JsonResponse({'error': 'Method not allowed.'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
-@api_view(["GET"])
-def get_proyect_info_by_id(request, proyect_id): 
-    print("Get proyect")
+
+@permission_classes([IsAuthenticated]) 
+@api_view(["GET", "DELETE"])
+def proyect(request, proyect_id): 
+    """
+        Manages operations with a single proyect [GET, DELETE]
+
+    """
     if request.method == "GET": 
         proyect = Proyects.objects.get(proyect_id=proyect_id)
-        proyect_data = {
-            'proyect_id': proyect.proyect_id, 
-            'name': proyect.name, 
-            'description': proyect.description, 
-            'start_date': proyect.start_date, 
-            'dataset_name': proyect.dataset.name
-        }
-        return JsonResponse(data=proyect_data, safe=False)
+        serializer = ProjectsSerializer(proyect, many=True) 
+        return JsonResponse(serializer.data, safe=False)
+    
+    elif request.method == "DELETE": 
+        try:
+            project = Proyects.objects.get(proyect_id=proyect_id)
+            project.delete()
+            return JsonResponse({"message": "Project deleted successfully."}, status=status.HTTP_200_OK)
+        except Proyects.DoesNotExist:
+            return JsonResponse({"error": "Project not found."}, status=status.HTTP_404_NOT_FOUND)
+    else: 
+        return JsonResponse({'error': 'Method not allowed.'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)

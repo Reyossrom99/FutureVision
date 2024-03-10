@@ -7,7 +7,7 @@ import { BrowserRouter } from 'react-router-dom';
 import {CheckboxProvider } from './context/checkboxShowLabelContext'; 
 import { SplitProvider } from './context/selectSplitViewContext';
 import { ButtonClickProvider} from './context/createSplitsContext';
-import { CreateNewButtonProvider } from './context/createNewContext'; 
+import { CreateNewButtonProvider, CreateNewProjectProvider} from './context/createNewContext'; 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 root.render(
@@ -15,7 +15,7 @@ root.render(
     <BrowserRouter>
     
       <CreateNewButtonProvider>
-    
+      <CreateNewProjectProvider>
       <CheckboxProvider>
       <SplitProvider>
       <ButtonClickProvider>
@@ -24,7 +24,7 @@ root.render(
       </ButtonClickProvider>
       </SplitProvider>
       </CheckboxProvider>
-      
+      </CreateNewProjectProvider>
       </CreateNewButtonProvider>
      
 

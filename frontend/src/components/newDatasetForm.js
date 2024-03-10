@@ -39,6 +39,7 @@ const FormDialog = ({ isOpen, onRequestClose }) => {
                 body: uploadData
             });
             if (response.ok) {
+                onRequestClose();
                 navigate('/datasets')
             } else {
                 const data = await response.json();

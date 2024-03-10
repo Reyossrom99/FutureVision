@@ -1,16 +1,21 @@
-import React, {useState, useEffect} from "react";
+import React, {useState, useEffect, useContext} from "react";
 import Modal from 'react-modal'; 
 import axios from 'axios'; 
 import styles from './newDatasetForm.module.css';
+import AuthContext from "../context/AuthContext";
+import { useNavigate } from 'react-router-dom';
 
 const FormDialog = ({isOpen, onRequestClose}) => {
+    const navigate = useNavigate();
+
     const [name, setName] = useState(''); 
     const [description, setDescription] = useState(''); 
     const [type, setType] = useState("bbox"); 
     const [datasets, setDatasets] = useState([]);
     const [selectDataset, setSelectDataset] = useState(null);
-    
+    const [privacy, setSelectPrivacy] = useState("public"); 
 
+    const authContext = useContext(AuthContext);
     //request fro the avariable datasets to the backend
     useEffect(() => {
         const fetchDatasets = async () => {
@@ -24,43 +29,50 @@ const FormDialog = ({isOpen, onRequestClose}) => {
 
         fetchDatasets();
     }, []);
-
-    const handleAccept = () => {
-        const uploadData = new FormData (); 
-        uploadData.append('name', name);
-        uploadData.append('description', description);
-        uploadData.append('type', type); 
-        if (selectDataset != null){
-            uploadData.append('dataset_id', selectDataset); 
-            const csrfToken = window.csrfToken; 
-
-            try{
-                const response =  axios.post('/proyects/create/', uploadData, {
+    const handleAccept = async () => {
+        const requestData = {
+            name: name,
+            description: description,
+            type: type,
+            is_public: privacy === 'public',
+            dataset_id: selectDataset
+        };
+    
+        try {
+            const response = await fetch('/proyects/', {
+                method: 'POST',
                 headers: {
-                    'X-CSRFToken': csrfToken,  // Include the csrf token in headers
-                }
-                }); 
-                console.log(response); 
-                onRequestClose(); 
-            
-            }catch(error){
-                    console.log(error); 
+                    'Content-Type': 'application/json', // Indica que estás enviando datos en formato JSON
+                    'Authorization': 'Bearer ' + String(authContext.authTokens.access)
+                },
+                body: JSON.stringify(requestData) // Convierte los datos a formato JSON
+            });
+    
+            if (response.ok) {
+                onRequestClose();
+                navigate('/proyects');
+            } else {
+                const data = await response.json();
+                console.log('Error:', data); // Manejar el error si es necesario
             }
-        }
-        else {
-            alert("Select a correct dataset value"); 
+        } catch(error) {
+            console.error('Error creating proyect:', error);
         }
     };
 
     const handleTypeChange = (e) => {
-        setType(e.target.value); 
+  
+        setType(e.target.value);
+ 
     };
-
     const handleDatasetChange = (e) => {
   
         setSelectDataset(e.target.value);
  
     };
+    const handlePrivacyChange = (e) => {
+        setSelectPrivacy(e.target.value)
+    }
     
     return (
         <Modal
@@ -94,7 +106,14 @@ const FormDialog = ({isOpen, onRequestClose}) => {
                     {dataset.name}
                 </option>
                 ))}
-            </select>
+            </select><br /><br/> 
+
+            <label htmlFor='privacy' id={styles.typeLabel}>Select a privacy option </label>
+      
+            <select htmlFor='privacy-select' id={styles.typeInput} onChange={handlePrivacyChange}>
+                <option value="public">public</option>
+                <option value="private">private</option>
+            </select> <br /><br/> 
 
             <div class={styles.buttonContainer}>
             <button type="button" onClick={onRequestClose}>Close</button>
