@@ -15,20 +15,31 @@ const FormDialog = ({isOpen, onRequestClose}) => {
     const [selectDataset, setSelectDataset] = useState(null);
     const [privacy, setSelectPrivacy] = useState("public"); 
 
-    const authContext = useContext(AuthContext);
+    
+    const { authTokens, logoutUser } = useContext(AuthContext);
     //request fro the avariable datasets to the backend
     useEffect(() => {
-        const fetchDatasets = async () => {
-            try {
-                const response = await axios.get('/datasets/get_datasets/');
-                setDatasets(response.data);
-            } catch (error) {
-                console.log(error);
-            }
-        };
-
-        fetchDatasets();
-    }, []);
+    getDatasets();
+  }, []);
+  const getDatasets = async () => {
+    try {
+      const response = await fetch('/datasets', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + String(authTokens.access)
+        }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setDatasets(data);
+      } else if (response.status === 401) {
+        logoutUser();
+      }
+    } catch (error) {
+      console.error('Error fetching profile:', error);
+    }
+  };
     const handleAccept = async () => {
         const requestData = {
             name: name,
@@ -43,7 +54,7 @@ const FormDialog = ({isOpen, onRequestClose}) => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json', // Indica que estás enviando datos en formato JSON
-                    'Authorization': 'Bearer ' + String(authContext.authTokens.access)
+                    'Authorization': 'Bearer ' + String(authTokens.access)
                 },
                 body: JSON.stringify(requestData) // Convierte los datos a formato JSON
             });
@@ -102,7 +113,7 @@ const FormDialog = ({isOpen, onRequestClose}) => {
             <select htmlFor='dataset-select' id={styles.typeInput} onChange={handleDatasetChange}>
                 <option value={null}>-</option>
                 {datasets.map((dataset) => (
-                <option key={dataset.id} value={dataset.id}>
+                <option key={dataset.dataset_id} value={dataset.dataset_id}>
                     {dataset.name}
                 </option>
                 ))}
