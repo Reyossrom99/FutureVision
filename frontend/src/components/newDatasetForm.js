@@ -1,6 +1,6 @@
 import React, { useContext, useState } from "react";
 import Modal from 'react-modal';
-import axios from 'axios';
+import axios, { HttpStatusCode } from 'axios';
 import styles from './newDatasetForm.module.css';
 import AuthContext from "../context/AuthContext";
 import { useNavigate } from 'react-router-dom';
@@ -19,40 +19,33 @@ const FormDialog = ({ isOpen, onRequestClose }) => {
     const authContext = useContext(AuthContext);
 
     const handleAccept = async () => {
-        // const uploadData = new FormData();
-        // uploadData.append('name', name);
-        // uploadData.append('description', description);
-        // uploadData.append('url', dir);
-        // uploadData.append('type', type);
-        // uploadData.append('format', format);
-        // uploadData.append('privacy', privacy)
-        const requestData = {
-            name : name, 
-            description: description, 
-            url : dir, 
-            type : type, 
-            format : format, 
-            privacy: privacy ==='public'
-        }
-        
-
+        const uploadData = new FormData();
+        uploadData.append('name', name);
+        uploadData.append('description', description);
+        uploadData.append('url', dir); // 'dir' es el objeto File
+        uploadData.append('type', type);
+        uploadData.append('format', format);
+        uploadData.append('privacy', privacy === 'public');
+    
         try {
             const response = await fetch('/datasets/', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
+                    // No establecer 'Content-Type': 'application/json' aquí
+                    // FormData establece el encabezado 'Content-Type' a 'multipart/form-data' automáticamente
                     'Authorization': 'Bearer ' + String(authContext.authTokens.access)
                 },
-                body: JSON.stringify(requestData)
+                body: uploadData
             });
-            if (response.ok) {
+            if (response.status == HttpStatusCode.Created) {
                 onRequestClose();
                 navigate('/datasets')
             } else {
                 const data = await response.json();
+                console.log('Error:', data);
             }
-        }catch{
-            console.log('Error creating user:');
+        } catch (error) {
+            console.log('Error creating dataset:', error);
         }
     };
 

@@ -40,7 +40,7 @@ def extract_and_verify_zip(zip_path, format, type):
                 
                 if isinstance(value, dict): 
                     #si hay un diccionario entonces miramos de forma recursiva dentro de este 
-                    if not check_directory_structure(item_path,  value): 
+                    if not check_directory_structure(item_path,  value):
                         return False
                     
                 elif isinstance(value, bool): 
@@ -61,6 +61,7 @@ def extract_and_verify_zip(zip_path, format, type):
         t2 = int(time.time() * 1000)
         print(f"Tiempo total en comprobar la estructura: {str(t2 - t1)}")
         shutil.rmtree(temp_dir)     
+    
 
 def extract_cover(zip_path, dataset_name, format, type) : 
     temp_dir = tempfile.mkdtemp()
@@ -78,24 +79,21 @@ def extract_cover(zip_path, dataset_name, format, type) :
 
         for root, directories, files in os.walk(root_path): 
                 for name in files: 
-                    print(f"Nombres de archivo: {name}")
                     if name.lower().endswith(('.png', '.jpg','.jpeg')): 
                         image_path = os.path.join(root, name)
                         image_path_striped = image_path.split("/")
                         image_name = image_path_striped[len(image_path_striped) - 1]
-                        if os.path.exists(os.path.join(settings.MEDIA_ROOT, "covers", str(dataset_name))) == False: 
+                        if not os.path.exists(os.path.join(settings.MEDIA_ROOT, "covers", str(dataset_name))): 
                             os.mkdir(os.path.join(settings.MEDIA_ROOT, "covers", str(dataset_name)))
                             shutil.copy(image_path, os.path.join(settings.MEDIA_ROOT, "covers", str(dataset_name)))
-                            return True
-                    
-        return False           
+                        return True
 
             
     finally: 
         t2 = int(time.time() * 1000)
         print(f"Tiempo total en extraer la cover: {str(t2 - t1)}")
         shutil.rmtree(temp_dir)
-
+    return False
 def read_images_from_tmp_folder(zip_path, type): 
     
     zip_name = os.path.basename(zip_path.name).split(".zip")[0]

@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from datasets.models import Datasets
 from django.http import JsonResponse 
 from django.conf import settings
+from rest_framework import status
 import os
 from django.db.models import Q
 import src.types.messages as msg
@@ -65,8 +66,7 @@ def datasets(request):
         url = recived_data.get('url') #directorio donde esta el zip
         type = recived_data.get('type')
         format = recived_data.get('format')
-        privacy = recived_data.get('privacy')
-    
+        privacy = recived_data.get('privacy') == 'true'
         
         # check = utils.check_correct_form(url, type, format)
         control_structure = utils.extract_and_verify_zip(url, format, type)
@@ -78,32 +78,27 @@ def datasets(request):
                     url = url, 
                     type = type, 
                     format = format,
-                    privacy = privacy,
-                    user = request.user.id
+                    is_public = privacy,
+                    user = request.user
                 )
+               
                 dataset.save()
                 #obtebemos la cover del dataset, solo cuando la estructura de control es correcta 
                 if (utils.extract_cover(url, name, format, type)):
-                    key = "sucess" #no hay datasets en la base de datos, pero no ha habido ningun fallo
-                    print("Sucess")
-                    response_data = msg.get_predefined_message(key)
-                    return JsonResponse(response_data)
+                    return JsonResponse({"id": dataset.dataset_id}
+                                        , status= status.HTTP_201_CREATED)
                 else: 
-                    key = "invalid" #no hay datasets en la base de datos, pero no ha habido ningun fallo
-                    print("Invalid error")
-                    response_data = msg.get_predefined_message(key)
-                    return JsonResponse(response_data)
+                   return JsonResponse({"error" : "no cover extrated for dataset"}
+                                       , status=status.HTTP_500_INTERNAL_SERVER_ERROR)
                 
             except IntegrityError as e:
-                key = "error" #no hay datasets en la base de datos, pero no ha habido ningun fallo
-                print("Integrity error")
-                response_data = msg.get_predefined_message(key)
-                return JsonResponse(response_data)
+               return JsonResponse("error", e.__str__, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         else: 
-                key = "invalid" #no hay datasets en la base de datos, pero no ha habido ningun fallo
-                print("Invalid dataset format")
-                response_data = msg.get_predefined_message(key)
-                return JsonResponse(response_data)
+               return JsonResponse({"error": "format of dataset is not valid"}
+                                   , status=status.HTTP_400_BAD_REQUEST)
+        
+        
+      
         
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])

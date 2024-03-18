@@ -12,7 +12,8 @@ DATASET_FORMAT_CHOICES = (
 
 
 #Saves the saved file to /media/zip_data/name_dataset/name_zipFile
-def upload_zip_file(instance,filename): 
+def upload_zip_file(instance,filename):
+    print("upload") 
     print(instance)
     print(filename)
     return "/".join(['zip_data', str(instance.name), filename])
@@ -20,7 +21,7 @@ def upload_zip_file(instance,filename):
 
 class Datasets(models.Model):
     dataset_id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=255, unique=True)
+    name = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
     uploaded_date = models.DateTimeField(auto_now_add=True)
     url = models.FileField(blank= True, null=True, upload_to=upload_zip_file)
