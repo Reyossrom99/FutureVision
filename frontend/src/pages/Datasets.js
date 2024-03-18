@@ -46,7 +46,7 @@ function Datasets() {
         <div className={styles.datasetContainer}>
           {datasets.length > 0 ? (
             datasets.map(dataset => (
-              <Link to={`/datasets/${dataset.id}`} key={dataset.id} className={styles.datasetCardLink}>
+              <Link to={`/datasets/${dataset.dataset_id}`} key={dataset.id} className={styles.datasetCardLink}>
                 <div key={dataset.id} className={styles.datasetCard}>
                   <img
                     src={dataset.cover_url} //dataset url
