@@ -45,6 +45,7 @@ def extract_and_verify_zip(zip_path, format, type):
                     
                 elif isinstance(value, bool): 
                     #estamos en el final del directorio y tnemos que mirar si concuerda
+                  
                     if value and not os.path.exists(item_path):
                         return False
                 else: #no sabemos cual es la estructura 

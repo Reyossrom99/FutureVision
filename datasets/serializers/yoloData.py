@@ -19,17 +19,20 @@ class YoloData():
         self.tmp_dir = tempfile.mkdtemp(dir = self.dir_root)
         self.tmp_name = os.path.basename(self.tmp_dir)
         self.labeled_images = False #indica si se ha creado un directorio para imagenes con label
+        self.is_tmp = False #variable to check if tmp dir is created
 
-    def extract_data_in_tmp(self) -> bool :
+    def extract_data_in_tmp(self)  :
         with zipfile.ZipFile(self.zip_path, 'r') as zip_ref: 
             zip_ref.extractall(self.tmp_dir)
         zip_ref.close()
-        return True
+        self.is_tmp = True
+        
+       
     
 
     #obtiene una list que contiene las rutas de todas las imagenes de la carpeta
     def get_images(self, requested_split:str) -> list: 
-        print(self.type)
+        
         images = []  #ruta relativa de las imagenes para mandarlas al front
         images_full = [] #ruta completa de las imagenes que necesita el back
         if not os.path.exists(self.tmp_dir): 
@@ -39,10 +42,7 @@ class YoloData():
             root_path = os.path.join(self.tmp_dir, self.zip_name, "images")
         else: 
             #get the images by split 
-
             root_path = os.path.join(self.tmp_dir, self.zip_name, requested_split, "images")
-        
-        
 
         for root, directories, files in os.walk(root_path): 
             for name in files: 
