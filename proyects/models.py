@@ -14,7 +14,7 @@ class Proyects(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
     start_date = models.DateField(auto_now_add=True)
-    type = models.CharField(choices=PROYECT_TYPE_CHOICES, default='bbox')
+    type = models.CharField(max_length=10, choices=PROYECT_TYPE_CHOICES, default='bbox')
     is_public = models.BooleanField(default=False) 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     dataset = models.ForeignKey(Datasets, on_delete=models.CASCADE)

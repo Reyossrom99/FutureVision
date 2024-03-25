@@ -97,7 +97,7 @@ DATABASES = {
         'NAME': 'yoloVisionDB',
         'USER': 'admin',
         'PASSWORD': 'admin',
-        'HOST': 'localhost',  # Use the host of your Docker container (localhost, db)
+        'HOST': 'db',  # Use the host of your Docker container (localhost, db)
         'PORT': '5432',       # Port exposed in the container
     }
 }

@@ -27,7 +27,7 @@ export const AuthProvider = ({ children }) => {
             const data = await response.json();
 
             if (response.ok) {
-                localStorage.setItem('authTokens', JSON.stringify(data));
+                sessionStorage.setItem('authTokens', JSON.stringify(data));
                 setAuthTokens(data);
                 setUser(jwtDecode(data.access));
                 navigate('/datasets');
@@ -42,7 +42,7 @@ export const AuthProvider = ({ children }) => {
 
     let logoutUser = (e) => {
         e.preventDefault();
-        localStorage.removeItem('authTokens');
+        sessionStorage.removeItem('authTokens');
         setAuthTokens(null);
         setUser(null);
         navigate('/login');
@@ -86,17 +86,23 @@ export const AuthProvider = ({ children }) => {
     };
     
 
-    useEffect(()=>{
+    // useEffect(()=>{
 
-        const REFRESH_INTERVAL = 1000 * 60 * 4 // 4 minutes
-        let interval = setInterval(()=>{
-            if(authTokens){
-                updateToken()
-            }
-        }, REFRESH_INTERVAL)
-        return () => clearInterval(interval)
+    //     const REFRESH_INTERVAL = 1000 * 60 * 4 // 4 minutes
+    //     let interval = setInterval(()=>{
+    //         if(authTokens){
+    //             updateToken()
+    //         }
+    //     }, REFRESH_INTERVAL)
+    //     return () => clearInterval(interval)
 
-    },[authTokens])
+    // },[authTokens])
+    useEffect(() => {
+        if (!sessionStorage.getItem('authTokens')) {
+          setUser(null);
+          setAuthTokens(null);
+        }
+      }, []);
     return (
         <AuthContext.Provider value={contextData}>
             {children}

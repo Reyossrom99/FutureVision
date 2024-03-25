@@ -17,7 +17,9 @@ import NewUser from "./pages/newUser";
 import ViewUsers from "./pages/viewUsers";
 import PrivateRoute from './utils/PrivateRoute'
 import { AuthProvider } from './context/AuthContext'
+import AuthContext from "./context/AuthContext";
 import Proyects from './pages/Proyects'
+import { useEffect } from "react";
 function App() {
   const location = useLocation();
 

@@ -13,14 +13,15 @@ services:
       - "5432:5432" 
 
   web:
-    build: .
+    image: reyossrom/tfg:v.0.5
     command: ./entrypoint.sh   # Cambia el comando a ejecutar por el script de entrada
-    volumes:
-      - .:/app
     ports:
       - "8000:8000"
     depends_on:
       - db
+    volumes:
+      - media_volume:/usr/src/app/media
 
 volumes:
   postgres_data:
+  media_volume: 
