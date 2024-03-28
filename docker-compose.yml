@@ -13,7 +13,7 @@ services:
       - "5432:5432" 
 
   web:
-    image: reyossrom/tfg:v.0.5
+    image: reyossrom/tfg:latest
     command: ./entrypoint.sh   # Cambia el comando a ejecutar por el script de entrada
     ports:
       - "8000:8000"

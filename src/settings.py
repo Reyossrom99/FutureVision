@@ -97,7 +97,7 @@ DATABASES = {
         'NAME': 'yoloVisionDB',
         'USER': 'admin',
         'PASSWORD': 'admin',
-        'HOST': 'db',  # Use the host of your Docker container (localhost, db)
+        'HOST': 'localhost',  # Use the host of your Docker container (localhost, db)
         'PORT': '5432',       # Port exposed in the container
     }
 }
@@ -181,7 +181,7 @@ REST_FRAMEWORK = {
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "REFRESH_TOKEN_LIFETIME": timedelta(minutes=5),
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
     "UPDATE_LAST_LOGIN": False,
@@ -209,5 +209,5 @@ SIMPLE_JWT = {
 
     "SLIDING_TOKEN_REFRESH_EXP_CLAIM": "refresh_exp",
     "SLIDING_TOKEN_LIFETIME": timedelta(minutes=5),
-    "SLIDING_TOKEN_REFRESH_LIFETIME": timedelta(days=1),
+    "SLIDING_TOKEN_REFRESH_LIFETIME": timedelta(minutes=5),
 }

@@ -8,12 +8,15 @@ import {CheckboxProvider } from './context/checkboxShowLabelContext';
 import { SplitProvider } from './context/selectSplitViewContext';
 import { ButtonClickProvider} from './context/createSplitsContext';
 import { CreateNewButtonProvider, CreateNewProjectProvider} from './context/createNewContext'; 
+
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
+
 
 root.render(
   <React.StrictMode>
     <BrowserRouter>
-    
+      
       <CreateNewButtonProvider>
       <CreateNewProjectProvider>
       <CheckboxProvider>

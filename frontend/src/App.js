@@ -17,9 +17,10 @@ import NewUser from "./pages/newUser";
 import ViewUsers from "./pages/viewUsers";
 import PrivateRoute from './utils/PrivateRoute'
 import { AuthProvider } from './context/AuthContext'
-import AuthContext from "./context/AuthContext";
+import UnloadConfirmation from './components/UnloadConfirmation';
+
 import Proyects from './pages/Proyects'
-import { useEffect } from "react";
+
 function App() {
   const location = useLocation();
 
@@ -27,6 +28,7 @@ function App() {
     <div className="App">
     
         <AuthProvider>
+       
           {location.pathname !== '/sign-up' && <PrivateRoute><SideNav /></PrivateRoute>}
           <TopNav />
           <main>
@@ -41,6 +43,7 @@ function App() {
               <Route path="/projects" element={<PrivateRoute><Proyects /></PrivateRoute>} />
             </Routes>
           </main>
+          
         </AuthProvider>
     
     </div>
