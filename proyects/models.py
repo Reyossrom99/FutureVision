@@ -27,3 +27,5 @@ class Training(models.Model):
     data = models.TextField(help_text="Save data.yaml for training purporses")
     is_training = models.BooleanField(default=False)
     is_trained = models.BooleanField(default=False)
+    data_folder = models.CharField(max_length=255)
+    

@@ -11,6 +11,8 @@ from django.db.models import Q
 from rest_framework import status
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 import yaml
+from datasets.utils import create_data_file, create_train_folder
+from tasks import train_model
 
 @permission_classes([IsAuthenticated]) 
 @api_view(["GET", "POST"])
@@ -101,23 +103,29 @@ def proyect_queue(request, proyect_id):
             return JsonResponse({'error': 'Proyect does not exits in database'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
 
-        #crear el archivo data.yaml para el entrenamiento 
+        #get yaml data for training 
+        data_file, err = create_data_file(proyect.dataset.dataset_id)
+        if err is not None: 
+            return JsonResponse({'error', err}, status=status.HTTP_400_BAD_REQUEST)
         
-        data = {
-            'train': 
-            'val': 
-            'test': 
-            'nc': 
-            'names': 
-        }
+        #get data path 
+        train_folder, err = create_train_folder(proyect.dataset.dataset_id)
+
+        #add train folder to input data 
+        
         training = Training(
             proyect_id = proyect, 
             input = input_data, 
             is_training = False, 
-            is_trained = False
+            is_trained = False, 
+            data = data_file, 
+            data_folder = train_folder
         )
         training.full_clean()  # Validar el modelo
-        training.save()
+        training.save() 
+
+        #send request to queue
+        train_model(training.training_id)
 
         JsonResponse({"error": False, "message": "Added proyect to training queue"})
 
