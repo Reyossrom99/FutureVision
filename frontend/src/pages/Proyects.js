@@ -43,8 +43,8 @@ function Proyects(){
                 <div className={styles.proyectsContainer}>
                     {proyects.length > 0 ? (
                         proyects.map(proyect =>(
-                            <Link to={`/proyects/${proyect.id}`} key={proyect.id} className={styles.proyectCardLink}>
-                                <div className={styles.proeyectCard} key={proyect.id}>
+                            <Link to={`/proyects/${proyect.proyect_id}`} key={proyect.proyect_id} className={styles.proyectCardLink}>
+                                <div className={styles.proeyectCard} key={proyect.proyect_id}>
                                     <div className={styles.proyectInfo}>
                                         <h2 className={styles.proyectName}>{proyect.name}</h2>
                                         <p className={styles.proyectDescription}>{proyect.description}</p>

@@ -17,7 +17,7 @@ import NewUser from "./pages/newUser";
 import ViewUsers from "./pages/viewUsers";
 import PrivateRoute from './utils/PrivateRoute'
 import { AuthProvider } from './context/AuthContext'
-import UnloadConfirmation from './components/UnloadConfirmation';
+import ProyectDetails from './pages/ProyectDetails'
 
 import Proyects from './pages/Proyects'
 
@@ -41,6 +41,7 @@ function App() {
               <Route path="/user/add" element={<PrivateRoute><NewUser /></PrivateRoute>} />
               <Route path="/users" element={<PrivateRoute><ViewUsers /></PrivateRoute>} />
               <Route path="/projects" element={<PrivateRoute><Proyects /></PrivateRoute>} />
+              <Route path="/projects/:id" element={<PrivateRoute><ProyectDetails /></PrivateRoute>} />
             </Routes>
           </main>
           

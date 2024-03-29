@@ -128,4 +128,8 @@ def read_images_from_tmp_folder(zip_path, type):
 def add_label_to_image(tmp_path, type): 
     pass
 
-
+"""
+    Creates a data.yaml file with the dataset information necesary for training 
+"""
+def create_data_file(datasetId): 
+    pass

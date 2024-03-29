@@ -1,6 +1,7 @@
 from django.db import models
 from datasets.models import Datasets
 from django.contrib.auth.models import User
+from django.db.models import JSONField
 
 PROYECT_TYPE_CHOICES = (
     ('bbox', 'BBOX'), 
@@ -18,4 +19,11 @@ class Proyects(models.Model):
     is_public = models.BooleanField(default=False) 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     dataset = models.ForeignKey(Datasets, on_delete=models.CASCADE)
-    #Si borramos un dataset tambien se borra el modelo asociado a el
+ 
+class Training(models.Model): 
+    training_id = models.AutoField(primary_key=True)
+    proyect_id = models.ForeignKey(Proyects, on_delete=models.CASCADE)
+    input = JSONField(help_text="Save training input in json format")
+    data = models.TextField(help_text="Save data.yaml for training purporses")
+    is_training = models.BooleanField(default=False)
+    is_trained = models.BooleanField(default=False)
