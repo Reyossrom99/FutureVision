@@ -148,7 +148,7 @@ TMP_ROOT = os.path.join(BASE_DIR, 'media', 'tmp')
 TMP_URL = '/media/tmp/'
 
 #folder for training
-TRAIN_ROOT = os.path.join(BASE_DIR, 'train')
+TRAIN_ROOT = os.path.join(BASE_DIR, 'media', 'train')
 TRAIN_URL = '/media/train'
 
 
