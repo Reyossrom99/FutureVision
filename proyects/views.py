@@ -12,7 +12,7 @@ from rest_framework import status
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 import yaml
 from datasets.utils import create_data_file, create_train_folder
-from tasks import train_model
+from proyects.tasks import train_model
 
 @permission_classes([IsAuthenticated]) 
 @api_view(["GET", "POST"])
@@ -66,7 +66,7 @@ def proyect(request, proyect_id):
     if request.method == "GET": 
 
         proyect = Proyects.objects.get(proyect_id=proyect_id)
-        serializer = ProjectsSerializer(proyect, many=True) 
+        serializer = ProjectsSerializer(proyect, many=False) 
         return JsonResponse(serializer.data, safe=False)
     
     elif request.method == "DELETE": 
@@ -89,16 +89,22 @@ def proyect_queue(request, proyect_id):
         Add a proyect to the training queue
     """
     if request.method == "POST": 
-        data = json.loads(request.body)
+        data = request.data
 
         try: 
-            input_data = data.get('input')  # Este debería ser un JSON
+            input_data = {
+                "batchSize": data.get("batchSize"), 
+                "imgSize" : data.get("imgSize"), 
+                "epochs": data.get("epochs"),
+                "noTest" : data.get("noTest")
+
+            }
         except KeyError as e: 
             JsonResponse({'error': 'Missing request parameters'}, status=status.HTTP_400_BAD_REQUEST)
 
         try: 
             #get related proyect 
-            proyect = Proyects.objects.get(id=proyect_id)
+            proyect = Proyects.objects.get(proyect_id=proyect_id)
         except ObjectDoesNotExist: 
             return JsonResponse({'error': 'Proyect does not exits in database'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
@@ -106,10 +112,13 @@ def proyect_queue(request, proyect_id):
         #get yaml data for training 
         data_file, err = create_data_file(proyect.dataset.dataset_id)
         if err is not None: 
-            return JsonResponse({'error', err}, status=status.HTTP_400_BAD_REQUEST)
+            return JsonResponse({'error': err}, status=status.HTTP_400_BAD_REQUEST, safe=False)
         
         #get data path 
         train_folder, err = create_train_folder(proyect.dataset.dataset_id)
+        if err is not None: 
+            print(err)
+            return JsonResponse({'error': err}, status=status.HTTP_400_BAD_REQUEST, safe=False)
 
         #add train folder to input data 
         

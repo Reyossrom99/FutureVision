@@ -21,7 +21,7 @@ RUN apt install -y python3.7 python3.7-distutils python3.7-dev
 RUN apt-get install -y python3-pip
 
 # Install additional dependencies required for OpenCV
-RUN apt-get update && apt-get install -y ffmpeg libsm6 libxext6 netcat-openbsd postgresql-client && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y ffmpeg libsm6 libxext6 netcat-openbsd postgresql-client  && rm -rf /var/lib/apt/lists/*
 
 # Upgrade pip and set the working directory in the container
 RUN python3.7 -m pip install --upgrade pip

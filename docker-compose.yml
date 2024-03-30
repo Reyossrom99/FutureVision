@@ -30,7 +30,7 @@ services:
 
   celery:
     build: .
-    command: celery -A app worker --loglevel=debug
+    command: celery -A app worker --loglevel=debug -c 1
     volumes:
       - .:/code
     depends_on:

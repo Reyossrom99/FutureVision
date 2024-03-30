@@ -7,7 +7,7 @@ import json
 import time
 import datasets.logMessages.errors as log
 import yaml
-from models import Datasets
+from datasets.models import Datasets
 
 
 """
@@ -101,21 +101,25 @@ def extract_cover(zip_path, dataset_name, format, type) :
 
 def extract_data_values(zip_path, dataset_name): 
     temp_dir = tempfile.mkdtemp()
-    zip_name = zip_path.name.split(".zip")[0]
+    print(temp_dir)
+    print(zip_path)
+    zip_name = zip_path.name.split("/")[-1].split(".zip")[0]
+    print(zip_name)
     try: 
         t1 = int(time.time() * 1000)
         with zipfile.ZipFile(zip_path, 'r') as zip_ref:
             zip_ref.extractall(temp_dir)
         zip_ref.close()
  
-        root_path = os.path.join(temp_dir, zip_name, 'data.yaml')
-        with open('root_path', 'r') as dataFile: 
+        root_path = temp_dir + "/" + zip_name + "/" + 'data.yaml'
+        print(settings.MEDIA_ROOT)
+        print("root path: ", root_path)
+        with open(root_path, 'r') as dataFile: 
             datos = yaml.safe_load(dataFile)
-
-        if 'nc' in datos and 'names' in datos : 
-            return datos['nc'], datos['name'], None 
-        else: 
-            return "", "", "keys not in file"
+        try: 
+            return datos['nc'], datos['names'], None 
+        except KeyError as e: 
+            return None, None, e.__str__
 
     finally: 
         t2 = int(time.time() * 1000)
@@ -162,14 +166,17 @@ def add_label_to_image(tmp_path, type):
 """
 def create_data_file(datasetId): 
     try: 
-        dataset = Datasets.object.get(datasetId)
+        dataset = Datasets.objects.get(dataset_id=datasetId)
     except KeyError as e: 
         return None, e
     
     #check the format of the dataset is correct for training
-    if dataset.format is not 'Yolo' or dataset.type is not 'splits': 
+    if dataset.format != 'yolo' or dataset.type !='splits': 
         return None, log.INCORRECT_FORMAT
+    
     nc, names, err = extract_data_values(dataset.url, dataset.name)
+
+
     if err != None:
         return None, err
     
@@ -191,12 +198,12 @@ def create_data_file(datasetId):
 """
 def create_train_folder(datasetId): 
     try : 
-        dataset = Datasets.objects.get(datasetId)
+        dataset = Datasets.objects.get(dataset_id=datasetId)
     except KeyError as e: 
-        return None, e
+        return None, e.__str__
     
     #check the format of the dataset is correct for training
-    if dataset.format is not 'Yolo' or dataset.type is not 'splits': 
+    if dataset.format != 'yolo' or dataset.type != 'splits': 
         return None, log.INCORRECT_FORMAT
     root_path = os.path.join(settings.TRAIN_ROOT, dataset.name)
 
