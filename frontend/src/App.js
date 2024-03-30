@@ -41,7 +41,7 @@ function App() {
               <Route path="/user/add" element={<PrivateRoute><NewUser /></PrivateRoute>} />
               <Route path="/users" element={<PrivateRoute><ViewUsers /></PrivateRoute>} />
               <Route path="/projects" element={<PrivateRoute><Proyects /></PrivateRoute>} />
-              <Route path="/projects/:id" element={<PrivateRoute><ProyectDetails /></PrivateRoute>} />
+              <Route path="/project/:id" element={<PrivateRoute><ProyectDetails /></PrivateRoute>} />
             </Routes>
           </main>
           

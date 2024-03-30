@@ -51,3 +51,29 @@ export function CreateNewProjectProvider ({ children }) {
     </CreateNewProjectContext.Provider>
   );
 }
+
+//create new train
+const CreateNewTrainContext = createContext(); 
+export function useCreateNewTrainContext() {
+  return useContext(CreateNewTrainContext); 
+}
+
+export function CreateNewTrainProvider ({ children }) {
+  const [isTrainButtonClicked, setNewTrainClicked] = useState(false); 
+  const [isDialogOpen, setIsDialogOpen] = useState(false); 
+
+  const handleNewTrainButtonClick = () => {
+    setNewTrainClicked(true); 
+    setIsDialogOpen(true); 
+  };
+
+  const handleCloseDialog = () => {
+    setIsDialogOpen(false); // Close the dialog
+  };
+
+  return (
+    <CreateNewTrainContext.Provider value={{ isDialogOpen, handleNewTrainButtonClick, handleCloseDialog }}>
+      {children}
+    </CreateNewTrainContext.Provider>
+  );
+}
