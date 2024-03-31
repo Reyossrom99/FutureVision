@@ -10,7 +10,7 @@ services:
   db:
     image: postgres
     environment:
-      POSTGRES_DB: yoloVisionDB
+      POSTGRES_DB: visionDocker
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: admin
     volumes:
@@ -20,23 +20,22 @@ services:
 
   web:
     image: reyossrom/tfg:latest
-    command: ./entrypoint.sh   # Cambia el comando a ejecutar por el script de entrada
+    command: ./entrypoint.sh   
     ports:
       - "8000:8000"
     depends_on:
       - db
     volumes:
-      - media_volume:/usr/src/app/media
+      - media_volume:/app/media
 
   celery:
-    build: .
-    command: celery -A app worker --loglevel=debug -c 1
-    volumes:
-      - .:/code
+    image: reyossrom/tfg:latest
+    command: ./entrypoint_celery.sh
+    environment:
+    - DJANGO_SETTINGS_MODULE=src.settings
     depends_on:
       - web
       - redis
-      - db 
 
 volumes:
   postgres_data:

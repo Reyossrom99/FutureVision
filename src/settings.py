@@ -94,10 +94,10 @@ WSGI_APPLICATION = 'src.wsgi.application'
 DATABASES = {
     'default' : {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'yoloVisionDB',
+        'NAME': 'visionDocker',
         'USER': 'admin',
         'PASSWORD': 'admin',
-        'HOST': 'localhost',  # Use the host of your Docker container (localhost, db)
+        'HOST': 'db',  # Use the host of your Docker container (localhost, db)
         'PORT': '5432',       # Port exposed in the container
     }
 }
@@ -170,7 +170,14 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000" # Your frontend's domain 
 ]
-
+CORS_ALLOW_METHODS = [
+    "DELETE",
+    "GET",
+    "OPTIONS",
+    "PATCH",
+    "POST",
+    "PUT",
+]
 
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
@@ -216,4 +223,4 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_REFRESH_LIFETIME": timedelta(minutes=5),
 }
 
-CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_BROKER_URL = 'redis://redis:6379/0'

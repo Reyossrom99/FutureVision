@@ -15,9 +15,5 @@ done
 >&2 echo "PostgreSQL is up - executing command"
 
 # Ejecutar las migraciones de Django
-echo "Ejecutando migraciones de Django..."
-python3.7 manage.py migrate
-
-# Iniciar el servidor web Django
-echo "Iniciando el servidor web Django..."
-python3.7 manage.py runserver 0.0.0.0:8000
+echo "Running celery component" 
+celery -A src worker --loglevel=debug -c 1

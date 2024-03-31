@@ -133,6 +133,8 @@ def proyect_queue(request, proyect_id):
         training.full_clean()  # Validar el modelo
         training.save() 
 
+        print("send train model")
+
         #send request to queue
         train_model(training.training_id)
 

@@ -25,6 +25,7 @@ RUN apt-get update && apt-get install -y ffmpeg libsm6 libxext6 netcat-openbsd p
 
 # Upgrade pip and set the working directory in the container
 RUN python3.7 -m pip install --upgrade pip
+
 # Establece el directorio de trabajo en el contenedor
 WORKDIR /app
 
@@ -41,11 +42,10 @@ COPY . .
 COPY entrypoint.sh .
 RUN chmod +x entrypoint.sh
 
+COPY entrypoint_celery.sh . 
+RUN chmod +x entrypoint_celery.sh 
+
 # Puerto en el que se ejecutará la aplicación Django
 EXPOSE 8000
-
-# Comando para ejecutar la aplicación Django usando el script de entrada
-ENTRYPOINT ["./entrypoint.sh"]
-CMD ["python3.8", "manage.py", "runserver", "0.0.0.0:8000"]
 
 

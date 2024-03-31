@@ -15,8 +15,9 @@ def train_model(training_id):
 
         # Suponiendo que tienes un script de entrenamiento externo
         # Puedes modificar este comando según tus necesidades
+        print("training model command")
         command = [
-            "python", "path/to/your/training_script.py",
+            "python", "../yolov7/train.py",
             "--batch_size", str(input_params.get("batch_size")),
             "--image_size", str(input_params.get("image_size")),
             "--epoch", str(input_params.get("epoch")),
@@ -25,13 +26,16 @@ def train_model(training_id):
             "weights", "weights/yolov7.weights"
             # Agrega más argumentos según sea necesario
         ]
+       
 
         if input_params.get("no_test"):
             command.append("--no_test")
 
+        print(command) 
+
         # Ejecutar el comando de entrenamiento
         subprocess.run(command)
-
+        print("running command ")
         # Actualizar el estado en la base de datos
         training.is_training = True
         training.save()
@@ -39,6 +43,8 @@ def train_model(training_id):
         return True
 
     except Training.DoesNotExist as e:
+        print("training error: ", e)
         return e
     except Exception as e:
+        print("exception: ", e)
         return e

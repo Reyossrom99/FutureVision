@@ -11,7 +11,7 @@ class DatasetsSerializers(serializers.ModelSerializer):
         fields = '__all__'
 
     def get_cover_url(self, obj):
-        cover_path = os.path.join(settings.MEDIA_ROOT, "covers", str(obj.name))
+        cover_path = os.path.join(settings.MEDIA_ROOT,  "covers", str(obj.name))
         cover_files = [file for file in os.listdir(cover_path) if file.lower().endswith(('.jpg', '.png', '.jpeg'))]
         if cover_files:
             return os.path.join("/media", "covers", str(obj.name), cover_files[0])
