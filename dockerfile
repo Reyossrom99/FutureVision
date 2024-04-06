@@ -1,4 +1,4 @@
-FROM nvidia/cuda:12.3.2-devel-ubuntu22.04
+FROM nvidia/cuda:12.0.0-devel-ubuntu22.04
 
 # Establece la variable de entorno para que las selecciones de zona horaria sean no interactivas
 ENV DEBIAN_FRONTEND=noninteractive
@@ -11,11 +11,11 @@ RUN apt-get update && apt-get install -y tzdata gnupg curl && \
 
 RUN apt install -y  software-properties-common
 RUN add-apt-repository ppa:deadsnakes/ppa && \
-    apt-get update
+    apt-get update && apt-get install -y git
 
 
 # Install Python 3.7 and necessary development tools
-RUN apt install -y python3.7 python3.7-distutils python3.7-dev
+RUN apt install -y python3.8 python3.8-distutils python3.8-dev
 
 # Install pip for Python 3.7
 RUN apt-get install -y python3-pip
@@ -24,7 +24,8 @@ RUN apt-get install -y python3-pip
 RUN apt-get update && apt-get install -y ffmpeg libsm6 libxext6 netcat-openbsd postgresql-client  && rm -rf /var/lib/apt/lists/*
 
 # Upgrade pip and set the working directory in the container
-RUN python3.7 -m pip install --upgrade pip
+RUN python3.8 -m pip install --upgrade pip
+
 
 # Establece el directorio de trabajo en el contenedor
 WORKDIR /app
@@ -33,7 +34,7 @@ WORKDIR /app
 COPY requirements.txt .
 
 # Instala las dependencias del proyecto Django
-RUN python3.7 -m pip install -r requirements.txt
+RUN python3.8 -m pip install -r requirements.txt
 
 # Copia el código de la aplicación al contenedor
 COPY . .

@@ -8,7 +8,9 @@ import time
 import datasets.logMessages.errors as log
 import yaml
 from datasets.models import Datasets
+import logging
 
+log = logging.getLogger("docker")
 
 """
     format -> indica si es YOLO o Coco
@@ -180,15 +182,25 @@ def create_data_file(datasetId):
     if err != None:
         return None, err
     
-    
+    names_order = []
+    for name in names: 
+        names_order.append(name)
+
+    zip_name = os.path.basename(dataset.url.name).split(".zip")[0]
+
     data = {
-        'train': settings.TRAIN_ROOT + dataset.name + "/train/images",
-        'val'  : settings.TRAIN_ROOT + dataset.name + "/val/images", 
-        'test': settings.TRAIN_ROOT + dataset.name + "/test/images", 
-        'nc' : nc, 
-        'names': names
+        'train': settings.TRAIN_ROOT + "/" + dataset.name +  "/" + zip_name +"/train/images",
+        'val'  : settings.TRAIN_ROOT + "/" + dataset.name + "/" + zip_name +"/val/images", 
+        'test': settings.TRAIN_ROOT + "/" + dataset.name + "/" + zip_name +"/test/images", 
+        'nc' : len(names_order), 
     }
-    return yaml.dump(data), None
+
+    #serializar el diccionario expecto la lista de names 
+    yaml_str = yaml.dump(data)
+    names_str = "names: " + str(names_order)
+    yaml_str = yaml_str + names_str
+
+    return yaml_str, None
 
 """ 
     Create training folder to run the model on 
@@ -207,14 +219,15 @@ def create_train_folder(datasetId):
         return None, log.INCORRECT_FORMAT
     root_path = os.path.join(settings.TRAIN_ROOT, dataset.name)
 
-    if os.path.exists(root_path): 
-        return root_path, None
-    
-    else: 
-        os.makedirs(root_path) #create path folder
-        
-        #extract zip file in folder
+    #if not created path create an extract 
+    if not os.path.exists(root_path): 
+        os.makedirs(root_path)
         with zipfile.ZipFile(dataset.url, 'r') as zip_ref: 
             zip_ref.extractall(root_path)
+    
+    zip_name = os.path.basename(dataset.url.name).split(".zip")[0]
+    train_path = os.path.join(root_path, zip_name)
+    
+    return train_path , None
 
-        return root_path, None
+    

@@ -13,6 +13,10 @@ from django.core.exceptions import ObjectDoesNotExist, ValidationError
 import yaml
 from datasets.utils import create_data_file, create_train_folder
 from proyects.tasks import train_model
+import logging
+
+log = logging.getLogger("docker")
+
 
 @permission_classes([IsAuthenticated]) 
 @api_view(["GET", "POST"])
@@ -89,17 +93,17 @@ def proyect_queue(request, proyect_id):
         Add a proyect to the training queue
     """
     if request.method == "POST": 
-        data = request.data
-
-        try: 
+        
+        try:
+            data = json.loads(request.body)
             input_data = {
-                "batchSize": data.get("batchSize"), 
-                "imgSize" : data.get("imgSize"), 
-                "epochs": data.get("epochs"),
-                "noTest" : data.get("noTest")
-
+            "batchSize": int(data.get("batchSize")),
+            "imgSize": int(data.get("imgSize")),
+            "epochs": int(data.get("epochs")),
+            "noTest": int(data.get("noTest"))
             }
-        except KeyError as e: 
+            log.info("input data: %s", input_data)
+        except json.JSONDecodeError as e:
             JsonResponse({'error': 'Missing request parameters'}, status=status.HTTP_400_BAD_REQUEST)
 
         try: 
@@ -130,13 +134,16 @@ def proyect_queue(request, proyect_id):
             data = data_file, 
             data_folder = train_folder
         )
+
+       
         training.full_clean()  # Validar el modelo
         training.save() 
+      
 
-        print("send train model")
+        log.debug("send training model")
 
         #send request to queue
-        train_model(training.training_id)
+        train_model.delay(training.training_id)
 
         JsonResponse({"error": False, "message": "Added proyect to training queue"})
 

@@ -1,29 +1,37 @@
 from celery import shared_task
 from .models import Training
-import subprocess  # Si planeas ejecutar un script de entrenamiento
+import subprocess 
+import os 
+import logging
+import yaml
 
+log = logging.getLogger("docker")
 @shared_task
 def train_model(training_id):
     try:
         
         training = Training.objects.get(training_id=training_id)
         
-
         # Aquí debes extraer los parámetros necesarios para el entrenamiento
         # Por ejemplo, si tienes los parámetros en el campo 'input' como JSON
         input_params = training.input
+        log.info(training.input)
 
-        # Suponiendo que tienes un script de entrenamiento externo
-        # Puedes modificar este comando según tus necesidades
-        print("training model command")
+        #save yaml training file in data folder 
+        train_data = os.path.join(training.data_folder,"data_train.yaml")
+
+        with open(train_data, 'w') as file : 
+            file.write(training.data)
+
+
         command = [
-            "python", "../yolov7/train.py",
-            "--batch_size", str(input_params.get("batch_size")),
-            "--image_size", str(input_params.get("image_size")),
-            "--epoch", str(input_params.get("epoch")),
-            "--data", str(training.data_folder), 
-            "--cfg", "cfg/yolov7.cfg", 
-            "weights", "weights/yolov7.weights"
+            "python3.8", "/app/yolov7/train.py",
+            "--batch-size", str(input_params.get("batchSize")),
+            # "--img-size", [str(input_params.get("imgSize")), str(input_params.get("imgSize"))],
+            "--epoch", str(input_params.get("epochs")),
+            "--data", str(train_data), 
+            "--cfg", "/app/yolov7/cfg/training/yolov7.yaml", 
+            "--weights", "/app/yolov7/weights/yolov7.pt"
             # Agrega más argumentos según sea necesario
         ]
        
@@ -31,11 +39,13 @@ def train_model(training_id):
         if input_params.get("no_test"):
             command.append("--no_test")
 
-        print(command) 
+        log.info(command)
 
         # Ejecutar el comando de entrenamiento
         subprocess.run(command)
-        print("running command ")
+        
+        log.info("running command")
+
         # Actualizar el estado en la base de datos
         training.is_training = True
         training.save()
@@ -43,8 +53,8 @@ def train_model(training_id):
         return True
 
     except Training.DoesNotExist as e:
-        print("training error: ", e)
+        log.info("training error: ", e)
         return e
     except Exception as e:
-        print("exception: ", e)
+        log.info("exception: ", e)
         return e

@@ -14,17 +14,20 @@ from django.core.paginator import Paginator, EmptyPage
 from .serializers.yoloData import YoloData
 from .serializers.serializers import DatasetsSerializers
 from rest_framework.pagination import PageNumberPagination
+import logging
 
 from . import utils 
 
 #gobal dictioary for YoloData objects
 yolo_data_objects = {}
 
+log = logging.getLogger("docker")
+
 @api_view(["GET", "POST"])
 @permission_classes([IsAuthenticated])
 def datasets(request):
     if request.method == "GET":
-
+        print("GETTING COVER")
         datasets = Datasets.objects.filter(Q(user=request.user) | Q(is_public=True))
         serializer = DatasetsSerializers(datasets, many=True)
         return JsonResponse(serializer.data , safe=False)
