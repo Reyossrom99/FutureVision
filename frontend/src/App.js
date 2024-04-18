@@ -17,6 +17,9 @@ import NewUser from "./pages/newUser";
 import ViewUsers from "./pages/viewUsers";
 import PrivateRoute from './utils/PrivateRoute'
 import { AuthProvider } from './context/AuthContext'
+import ProyectDetails from './pages/ProyectDetails'
+
+import Proyects from './pages/Proyects'
 
 function App() {
   const location = useLocation();
@@ -25,6 +28,7 @@ function App() {
     <div className="App">
     
         <AuthProvider>
+       
           {location.pathname !== '/sign-up' && <PrivateRoute><SideNav /></PrivateRoute>}
           <TopNav />
           <main>
@@ -36,8 +40,11 @@ function App() {
               <Route path="/user" element={<PrivateRoute><Profile /></PrivateRoute>} />
               <Route path="/user/add" element={<PrivateRoute><NewUser /></PrivateRoute>} />
               <Route path="/users" element={<PrivateRoute><ViewUsers /></PrivateRoute>} />
+              <Route path="/projects" element={<PrivateRoute><Proyects /></PrivateRoute>} />
+              <Route path="/project/:id" element={<PrivateRoute><ProyectDetails /></PrivateRoute>} />
             </Routes>
           </main>
+          
         </AuthProvider>
     
     </div>

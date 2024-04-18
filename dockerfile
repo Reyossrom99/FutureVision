@@ -1,0 +1,52 @@
+FROM nvidia/cuda:12.0.0-devel-ubuntu22.04
+
+# Establece la variable de entorno para que las selecciones de zona horaria sean no interactivas
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Actualiza e instala tzdata y herramientas necesarias
+RUN apt-get update && apt-get install -y tzdata gnupg curl && \
+    echo "Etc/UTC" > /etc/timezone && \
+    dpkg-reconfigure -f noninteractive tzdata
+
+
+RUN apt install -y  software-properties-common
+RUN add-apt-repository ppa:deadsnakes/ppa && \
+    apt-get update && apt-get install -y git
+
+
+# Install Python 3.7 and necessary development tools
+RUN apt install -y python3.8 python3.8-distutils python3.8-dev
+
+# Install pip for Python 3.7
+RUN apt-get install -y python3-pip
+
+# Install additional dependencies required for OpenCV
+RUN apt-get update && apt-get install -y ffmpeg libsm6 libxext6 netcat-openbsd postgresql-client  && rm -rf /var/lib/apt/lists/*
+
+# Upgrade pip and set the working directory in the container
+RUN python3.8 -m pip install --upgrade pip
+
+
+# Establece el directorio de trabajo en el contenedor
+WORKDIR /app
+
+# Copia el archivo de requerimientos y el proyecto Django
+COPY requirements.txt .
+
+# Instala las dependencias del proyecto Django
+RUN python3.8 -m pip install -r requirements.txt
+
+# Copia el código de la aplicación al contenedor
+COPY . .
+
+# Hace el script de entrada ejecutable
+COPY entrypoint.sh .
+RUN chmod +x entrypoint.sh
+
+COPY entrypoint_celery.sh . 
+RUN chmod +x entrypoint_celery.sh 
+
+# Puerto en el que se ejecutará la aplicación Django
+EXPOSE 8000
+
+

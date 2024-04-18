@@ -12,6 +12,6 @@
             "images": true,
             "labels": true
         },
-        "dataset_metadata.txt": false
+        "data.yaml": true
     }
 }

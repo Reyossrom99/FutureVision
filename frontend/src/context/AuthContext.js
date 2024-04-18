@@ -40,13 +40,28 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    let logoutUser = (e) => {
+    let logoutUser = async (e) => {
         e.preventDefault();
-        localStorage.removeItem('authTokens');
+        try {
+            await fetch('http://127.0.0.1:8000/auth/token/blacklist/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${authTokens.access}`
+                }, 
+                body: JSON.stringify({ "refresh": authTokens.refresh })
+            });
+        } catch (error) {
+            console.error('Error while logging out:', error);
+        }
+        if (localStorage.getItem('authTokens')) {
+            localStorage.removeItem('authTokens');
+        }
         setAuthTokens(null);
         setUser(null);
         navigate('/login');
     };
+
 
     const updateToken = async () => {
         try {
@@ -86,17 +101,16 @@ export const AuthProvider = ({ children }) => {
     };
     
 
-    useEffect(()=>{
+    useEffect(() => {
+        if (authTokens) {
+            const intervalId = setInterval(() => {
+                updateToken();
+            }, 1000 * 60 * 4); // Actualiza el token cada 4 minutos
 
-        const REFRESH_INTERVAL = 1000 * 60 * 4 // 4 minutes
-        let interval = setInterval(()=>{
-            if(authTokens){
-                updateToken()
-            }
-        }, REFRESH_INTERVAL)
-        return () => clearInterval(interval)
+            return () => clearInterval(intervalId);
+        }
+    }, [authTokens]);
 
-    },[authTokens])
     return (
         <AuthContext.Provider value={contextData}>
             {children}
