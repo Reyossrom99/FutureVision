@@ -6,3 +6,7 @@ doxyfile.txt
 /media
 /permanent
 codigo_colores.txt
+
+docker_postgres_windows.bat 
+docker_postgres.sh 
+
