@@ -2,7 +2,7 @@
 
 #crear el contenedor de postgres
 docker run -d \
-	--name yoloVisionContainer \
+	--name visioncontainer \
 	-e POSTGRES_DB=yoloVisionDB \
 	-e POSTGRES_USER=admin \
 	-e POSTGRES_PASSWORD=admin \
@@ -20,3 +20,6 @@ docker rm yoloVisionContainer
 
 #obten el status de docker
 sudo docker ps
+
+
+sudo docker run --gpus all -it --name yolo_training_test -v /home/reyes/Code:/workspace/Code nvidia/cuda:12.3.2-devel-ubuntu22.04 /bin/bash

@@ -35,7 +35,15 @@ def sign_up(request):
                 
             # Create the new user
             user = User.objects.create_user(username=username, email=email, password=password)
-            user.groups.add(Group.objects.get(name=role))
+            # Check if the group exists, and create it if it doesn't
+            group, created = Group.objects.get_or_create(name=role)
+
+            # Now add the user to the group
+            user.groups.add(group)
+
+            #also create other groups
+            groupUser, created = Group.objects.get_or_create(name="user")
+            
             return JsonResponse({'message': 'User created successfully.'}, status=200)
         
         except Exception as e:
