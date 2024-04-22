@@ -1,6 +1,5 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext} from 'react';
 import AuthContext from '../context/AuthContext';
-import styles from './Login.module.css';
 import { ErrorMessage, Form, LinkForm, Input, Title, SubmitInput} from '../elements/formSyles';
 import {LoginContainer} from '../elements/containers';
 
@@ -18,11 +17,11 @@ const LoginPage = () => {
                 
                 <Form onSubmit={handleSubmit}>
                     <Title>Welcome back!</Title>
-                    {error && <ErrorMessage>{error}</ErrorMessage>}
                     <Input type="text" name="username" placeholder="username" />
                     <Input type="password" name="password" placeholder="password" />
                     <SubmitInput type="submit" value="login" /> 
                     <LinkForm to="/signup">Create a new account</LinkForm> 
+                    {error && <ErrorMessage>{error}</ErrorMessage>}
                 </Form>
             
         </LoginContainer>

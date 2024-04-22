@@ -36,7 +36,7 @@ export const SubmitInput = styled(Input)`
 `;
 
 export const ErrorMessage = styled.p`
-  color: ${palette.accent};
+  color: ${palette.error};
   margin-bottom: 20px;
 `;
 

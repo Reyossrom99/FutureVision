@@ -20,7 +20,7 @@ const SignupPage = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        axios.post('/auth/sign-up', formData)
+        axios.post('/auth/signup', formData)
             .then(response => {
                 console.log(response.data);
                 navigate("/login")
@@ -38,21 +38,21 @@ const SignupPage = () => {
 
                 <Title>Welcome!</Title>
 
-                {error && <ErrorMessage>{error}</ErrorMessage>}
                 <Input type="text" name="username" value={formData.username} onChange={handleChange} placeholder="username" />
 
                 <Input type="text" name="email" value={formData.email} onChange={handleChange} placeholder="email" />
 
-                <Select name="role" value={formData.role}>
-                    <Option value="" disabled>Choose a role</Option>
-                    <Option value="admin">Administrator</Option>
-                    <Option value="user">User</Option>
+                <Select name="role" value={formData.role} onChange={handleChange}>
+                    <option value="" disabled>Choose a role</option>
+                    <option value="admin">Administrator</option>
+                    <option value="user">User</option>
                 </Select>
 
                 <Input type="password" name="password" value={formData.password} onChange={handleChange} placeholder="password" />
 
                 <SubmitInput type="submit" value='signup' />
                 <LinkForm to="/login">If you already have an account, log in.</LinkForm>
+                {error && <ErrorMessage>{error}</ErrorMessage>}
 
             </Form>
         </SingupContainer>
