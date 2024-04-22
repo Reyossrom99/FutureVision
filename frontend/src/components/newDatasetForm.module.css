@@ -36,7 +36,7 @@
    
 }
 
-.formElements, input[type="text"], input[type="file"] {
+.formElements,  input[type="file"] {
   border: 1px solid #452b1a;
   border-radius: 4px;
   /* width: 60%; */
@@ -51,17 +51,7 @@
        /* Justify the text */
        text-align: justify;
 }
-.formElements, select{
-    background-color: #f7f2EB;
-    text-transform: capitalize;
-    color: #452b1a;
-    padding: 8px;
-    border: 1px solid #452b1a;
-    width: 200px;
-}
-.formElements, select:hover{
-    font-weight: bold;
-}
+
 .formElements, input[type="file"]:hover{
     border: 2px solid #452b1a;
 }

@@ -7,7 +7,7 @@ const PrivateRoute = ({children, ...rest}) => {
     const currentPath = window.location.pathname;
 
     // If the user is not authenticated and the current route is not /register, redirect to /login
-    if (!user && currentPath !== '/sign-up') {
+    if (!user && currentPath !== '/signup') {
         return <Navigate to='/login' />;
     }
 

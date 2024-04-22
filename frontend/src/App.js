@@ -7,8 +7,8 @@ import SideNav from './components/SideNav';
 import TopNav from "./components/topNav";
 import Datasets from './pages/Datasets';
 import DatasetsDetails from './pages/DatasetsDetails'
-import LoginPage from './pages/Login'
-import RegisterPage from "./pages/Register";
+import LoginPage from './pages/login'
+import SignupPage from "./pages/signup";
 import Profile from "./pages/profile";
 import NewUser from "./pages/newUser";
 import ViewUsers from "./pages/viewUsers";
@@ -42,7 +42,7 @@ function App() {
               <Route path="/datasets" element={<PrivateRoute><Datasets /></PrivateRoute>} />
               <Route path="/datasets/:id" element={<PrivateRoute><DatasetsDetails /></PrivateRoute>} />
               <Route path="/login" element={<LoginPage />} />
-              <Route path="/sign-up" element={<RegisterPage />} />
+              <Route path="/signup" element={<SignupPage />} />
               <Route path="/user" element={<PrivateRoute><Profile /></PrivateRoute>} />
               <Route path="/user/add" element={<PrivateRoute><NewUser /></PrivateRoute>} />
               <Route path="/users" element={<PrivateRoute><ViewUsers /></PrivateRoute>} />
