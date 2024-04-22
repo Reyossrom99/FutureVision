@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User, Group
 
-class UsuarioSerializer(serializers.ModelSerializer):
+class user_serializer(serializers.ModelSerializer):
     grupo = serializers.SerializerMethodField()
 
     class Meta:

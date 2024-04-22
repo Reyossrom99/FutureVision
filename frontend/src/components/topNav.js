@@ -1,103 +1,96 @@
-import React, { useState , useContext} from 'react';
-import { Link, useLocation, useParams } from 'react-router-dom';
-import styles from './topNav.module.css'
-import { useCheckbox } from '../context/checkboxShowLabelContext'; 
-import {useSplitContext } from '../context/selectSplitViewContext'; 
+import React, { useState, useContext } from 'react';
+import { useLocation, useParams } from 'react-router-dom';
+import { useCheckbox } from '../context/checkboxShowLabelContext';
+import { useSplitContext } from '../context/selectSplitViewContext';
 import { useCreateSplitContext } from '../context/createSplitsContext';
-import {useCreateNewButtonContext, useCreateNewProjectContext, useCreateNewTrainContext} from '../context/createNewContext'; 
+import { useCreateNewButtonContext, useCreateNewProjectContext, useCreateNewTrainContext } from '../context/createNewContext';
 
 import AuthContext from '../context/AuthContext';
 
+import TopNavContainer from '../elements/topNavContainer';
+import Button from '../elements/button';
+import { Link } from 'react-router-dom';
+
+import palette from '../palette';
+
 function TopNav() {
   const location = useLocation();
-  const {showLabels, setShowLabels} = useCheckbox(); 
-  const { id } = useParams(); // Get the 'id' from the route params
+  const { showLabels, setShowLabels } = useCheckbox();
+  const { id } = useParams();
   const { selectedSplit, setSplit } = useSplitContext();
-  // const { buttonClicked, handleButtonClick } = useCreateSplitContext();
-  const { handleNewButtonClick} = useCreateNewButtonContext(); 
-  const {handleNewProjectButtonClick} = useCreateNewProjectContext(); 
-  const {handleNewTrainButtonClick} = useCreateNewTrainContext(); 
+  const { handleNewButtonClick } = useCreateNewButtonContext();
+  const { handleNewProjectButtonClick } = useCreateNewProjectContext();
+  const { handleNewTrainButtonClick } = useCreateNewTrainContext();
 
-  let { user, loginUser, logoutUser} = useContext(AuthContext)
- 
+  let { user, loginUser, logoutUser } = useContext(AuthContext)
+
   const handleButtonClick = () => {
-    handleNewButtonClick(); 
-    // setIsDialogOpen(true); 
+    handleNewButtonClick();
   };
   const handleNewTrain = () => {
-    handleNewTrainButtonClick(); 
+    handleNewTrainButtonClick();
   }
 
   const handleNewProject = () => {
-    handleNewProjectButtonClick(); 
+    handleNewProjectButtonClick();
   }
   const handleSplitChange = (e) => {
     setSplit(e.target.value);
   };
   const handleCheckboxChange = () => {
-    setShowLabels(!showLabels); // Toggle checkbox state
+    setShowLabels(!showLabels); 
   };
-  
+
 
   return (
-    <nav className={styles.topNavContainer}>
-      {location.pathname === '/datasets' && (
-        <button onClick={handleButtonClick} className={styles.navElement}>
-          Create new
-        </button>
-      )}
-      {location.pathname.startsWith('/datasets/') && (
-        <div className={styles.elementContainer}>
-          <select
-            id="splitSelect"
-            onChange={handleSplitChange}
-            value={selectedSplit}
-            className={styles.navElement}
-          >
-            <option value="train">Train</option>
-            <option value="val">Validation</option>
-            <option value="test">Test</option>
-          </select>
+    <TopNavContainer>
+      <div>
+        {location.pathname === '/datasets' && (
+          <Button onClick={handleButtonClick}>
+            Create new
+          </Button>
+        )}
+        {location.pathname.startsWith('/datasets/') && (
+          <div>
+            <select
+              id="splitSelect"
+              onChange={handleSplitChange}
+              value={selectedSplit}
+            >
+              <option value="train">Train</option>
+              <option value="val">Validation</option>
+              <option value="test">Test</option>
+            </select>
 
-          <input
-            type="checkbox"
-            checked={showLabels}
-            onChange={handleCheckboxChange}
-            className={styles.navElement}
-          />
-          <label id={styles.showLabels}> Show Labels</label>
+            <input
+              type="checkbox"
+              checked={showLabels}
+              onChange={handleCheckboxChange}
+            />
+            <label> Show Labels</label>
 
-          <button onClick={() => handleButtonClick(true)} className={styles.navElement}>
-            Create splits
-          </button>
-        </div>
-      )}
-      {
-        location.pathname === '/projects' && (
-          <button onClick={handleNewProject} className={styles.navElement}>
-          Create new
-        </button>
-        )
-
-      }
-      {
-        location.pathname.startsWith('/project/') &&(
-          <button onClick={handleNewTrain} className={styles.navElement}>
-              New training
-        </button>
-        )
-      }
-      <span> | </span>
-      {user ? (
-        <button onClick={logoutUser} className={styles.navElement}>
-          Logout
-        </button>
-      ) : (
-        <Link to="/login" id={styles.login}>
-          Login
-        </Link>
-      )}
-    </nav>
+            <Button onClick={() => handleButtonClick(true)}>
+              Create splits
+            </Button>
+          </div>
+        )}
+        {location.pathname === '/projects' && (
+          <Button onClick={handleNewProject} >
+            Create new
+          </Button>
+        )}
+        {location.pathname.startsWith('/project/') && (
+          <Button onClick={handleNewTrain} >
+            New training
+          </Button>
+        )}
+      </div>
+      <div style={{ marginLeft: 'auto' }}>
+        <Button onClick={logoutUser} style={{ backgroundColor: palette.neutralWhite }}>
+          logout
+        </Button>
+      </div>
+    </TopNavContainer>
   );
 }
 
