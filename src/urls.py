@@ -25,8 +25,10 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('datasets/', include('datasets.urls')),
     path('', views.basic_web_page),
+    path('login/', views.basic_web_page),
     path('proyects/', include('proyects.urls')),
     path('auth/', include('authentication.urls'))
+
   
 ]
 #allow static media files folder
