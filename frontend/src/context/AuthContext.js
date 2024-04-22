@@ -11,12 +11,12 @@ export const AuthProvider = ({ children }) => {
     let [authTokens, setAuthTokens] = useState(() => (localStorage.getItem('authTokens') ? JSON.parse(localStorage.getItem('authTokens')) : null));
     let [loading, setLoading] = useState(true);
     const navigate = useNavigate();
-    const [error, setError] = useState(null); // Variable para almacenar errores
+    const [error, setError] = useState(null);   
 
     let loginUser = async (e) => {
         e.preventDefault();
         try {
-            const response = await fetch('http://127.0.0.1:8000/auth/token/', {
+            const response = await fetch('/auth/token/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -32,18 +32,17 @@ export const AuthProvider = ({ children }) => {
                 setUser(jwtDecode(data.access));
                 navigate('/datasets');
             } else {
-                setError(data.detail); // Almacenar el detalle del error en la variable error
+                setError(data.detail); 
             }
         } catch (error) {
-            console.error('Error while logging in:', error);
-            setError('Something went wrong while logging in.'); // Almacenar un mensaje genérico en caso de error
+            setError(error);
         }
     };
 
     let logoutUser = async (e) => {
         e.preventDefault();
         try {
-            await fetch('http://127.0.0.1:8000/auth/token/blacklist/', {
+            await fetch('/auth/token/blacklist/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -65,7 +64,7 @@ export const AuthProvider = ({ children }) => {
 
     const updateToken = async () => {
         try {
-            const response = await fetch('http://127.0.0.1:8000/auth/token/refresh/', {
+            const response = await fetch('/auth/token/refresh/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

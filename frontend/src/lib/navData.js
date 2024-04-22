@@ -7,23 +7,17 @@ export const navData = [
     },
     {
         id: 1,
-        text: "DATASETS",
+        text: "datasets",
         link: "datasets"
     },
     {
         id: 2,
-     
-        text: "PROJECTS",
+        text: "projects",
         link: "projects"
-    },
+    }, 
     {
         id: 3,
-        text: "SETTINGS",
-        link: "settings"
-    },
-    {
-        id: 4,
-        text: "PROFILE",
+        text: "profile",
         link: "user"
     },
 ]
