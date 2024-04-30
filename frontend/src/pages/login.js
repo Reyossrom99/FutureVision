@@ -9,7 +9,6 @@ const LoginPage = () => {
     const handleSubmit = (e) => {
         e.preventDefault();
         loginUser(e);
-        setError(null);
     };
 
     return (

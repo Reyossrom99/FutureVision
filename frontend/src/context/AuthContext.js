@@ -38,7 +38,7 @@ export const AuthProvider = ({ children }) => {
                     setError(data.error); 
                 } else {
                     // Si no hay una clave 'error' en el JSON, mostrar un mensaje genérico
-                    setError('Unknown error occurred.'); 
+                    setError('Error login in. Please try again.'); 
                 }
             }
         } catch (error) {

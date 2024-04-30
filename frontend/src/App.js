@@ -35,8 +35,7 @@ function App() {
     <div className="App">
       <Container palette={palette}>
         <AuthProvider>
-          {location.pathname !== '/sign-up' && <PrivateRoute><SideNav /></PrivateRoute>}
-          {location.pathname !== '/login' || location.pathname !== '/sign-up' && <PrivateRoute><TopNav /></PrivateRoute>}
+        {!(location.pathname === '/login' || location.pathname === '/sign-up') && <PrivateRoute><TopNav /></PrivateRoute>}
           <main>
             <Routes>
               <Route path="/datasets" element={<PrivateRoute><Datasets /></PrivateRoute>} />

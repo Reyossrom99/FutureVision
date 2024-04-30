@@ -1,23 +1,22 @@
-
+import { SlPicture, SlLayers, SlUser} from "react-icons/sl";
 export const navData = [
+   
     {
         id: 0,
-        text: "",
-        link: ""
+        text: "datasets",
+        link: "datasets", 
+        icon: <SlPicture style={{fontSize: '16px'}}/>
     },
     {
         id: 1,
-        text: "datasets",
-        link: "datasets"
-    },
-    {
-        id: 2,
         text: "projects",
-        link: "projects"
+        link: "projects", 
+        icon: <SlLayers style={{fontSize: '16px'}}/>
     }, 
     {
-        id: 3,
+        id: 2,
         text: "profile",
-        link: "user"
+        link: "user", 
+        icon: <SlUser style={{fontSize: '16px'}}/>
     },
 ]

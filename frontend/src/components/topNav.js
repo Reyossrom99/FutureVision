@@ -1,17 +1,16 @@
 import React, { useState, useContext } from 'react';
-import { useLocation, useParams } from 'react-router-dom';
+import { NavLink, useLocation, useParams } from 'react-router-dom';
 import { useCheckbox } from '../context/checkboxShowLabelContext';
 import { useSplitContext } from '../context/selectSplitViewContext';
-import { useCreateSplitContext } from '../context/createSplitsContext';
 import { useCreateNewButtonContext, useCreateNewProjectContext, useCreateNewTrainContext } from '../context/createNewContext';
-
 import AuthContext from '../context/AuthContext';
-
-import TopNavContainer from '../elements/topNavContainer';
+import { navData } from '../lib/navData';
+import { TopNavContainer, TopNavItem, TopNavItems, TopNavButton, LastItem } from '../elements/topNavContainer';
 import Button from '../elements/button';
-import { Link } from 'react-router-dom';
+import { SideNavButton, TopNavLink, NavContainer} from '../elements/SideNavContainer';
 
 import palette from '../palette';
+import { SlMenu, SlLogout } from "react-icons/sl";
 
 function TopNav() {
   const location = useLocation();
@@ -21,6 +20,7 @@ function TopNav() {
   const { handleNewButtonClick } = useCreateNewButtonContext();
   const { handleNewProjectButtonClick } = useCreateNewProjectContext();
   const { handleNewTrainButtonClick } = useCreateNewTrainContext();
+  const [menuVisible, setMenuVisible] = useState(false);
 
   let { user, loginUser, logoutUser } = useContext(AuthContext)
 
@@ -38,20 +38,41 @@ function TopNav() {
     setSplit(e.target.value);
   };
   const handleCheckboxChange = () => {
-    setShowLabels(!showLabels); 
+    setShowLabels(!showLabels);
   };
+
 
 
   return (
     <TopNavContainer>
-      <div>
-        {location.pathname === '/datasets' && (
-          <Button onClick={handleButtonClick}>
-            Create new
-          </Button>
-        )}
+      <TopNavItems>
+        <TopNavItem>
+          <SideNavButton onClick={() => setMenuVisible(!menuVisible)}>
+            <SlMenu style={{fontSize: '16px'}}/>
+          </SideNavButton>
+          {
+            menuVisible && (
+              <NavContainer open={menuVisible}>
+                {/* Mapea los elementos de navData para renderizar los enlaces */}
+                {navData.map(item => (
+                  <TopNavLink key={item.id} to={item.link} onClick={() => setMenuVisible(!menuVisible)}>
+                    {item.icon}
+                    <span id={item.text} style={{marginLeft:'10px', fontSize:'16px'}}>{item.text}</span>
+                  </TopNavLink>
+                ))}
+              </NavContainer>
+            )
+          }
+        </TopNavItem>
+        <TopNavItem>
+          {location.pathname === '/datasets' && (
+            <TopNavButton onClick={handleButtonClick}>
+              new dataset
+            </TopNavButton>
+          )}
+        </TopNavItem>
         {location.pathname.startsWith('/datasets/') && (
-          <div>
+          <><TopNavItem>
             <select
               id="splitSelect"
               onChange={handleSplitChange}
@@ -61,35 +82,41 @@ function TopNav() {
               <option value="val">Validation</option>
               <option value="test">Test</option>
             </select>
-
-            <input
+          </TopNavItem>
+          <TopNavItem>
+          <input
               type="checkbox"
               checked={showLabels}
-              onChange={handleCheckboxChange}
-            />
-            <label> Show Labels</label>
-
-            <Button onClick={() => handleButtonClick(true)}>
-              Create splits
-            </Button>
-          </div>
+              onChange={handleCheckboxChange} /><label> Show Labels</label>
+              <TopNavButton onClick={() => handleButtonClick(true)}>
+              create splits
+            </TopNavButton>
+            </TopNavItem>
+            </>
         )}
         {location.pathname === '/projects' && (
-          <Button onClick={handleNewProject} >
-            Create new
-          </Button>
+          <TopNavItem>
+          <TopNavButton onClick={handleNewProject} >
+            create new
+          </TopNavButton>
+          </TopNavItem>
         )}
         {location.pathname.startsWith('/project/') && (
-          <Button onClick={handleNewTrain} >
-            New training
-          </Button>
+          <TopNavItem>
+          <TopNavButton onClick={handleNewTrain} >
+            new training
+          </TopNavButton>
+          </TopNavItem>
         )}
-      </div>
-      <div style={{ marginLeft: 'auto' }}>
-        <Button onClick={logoutUser} style={{ backgroundColor: palette.neutralWhite }}>
-          logout
-        </Button>
-      </div>
+     
+     
+      <LastItem style={{marginLeft:'auto'}}>
+        <SideNavButton onClick={logoutUser}>
+          <SlLogout style={{fontSize: '24px' }}/>
+        </SideNavButton>
+        </LastItem>
+     
+      </TopNavItems>
     </TopNavContainer>
   );
 }

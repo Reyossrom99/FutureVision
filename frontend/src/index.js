@@ -14,20 +14,21 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     <BrowserRouter>
-
-      <CreateNewButtonProvider>
-        <CreateNewProjectProvider>
-          <CreateNewTrainProvider>
-            <CheckboxProvider>
-              <SplitProvider>
-                <ButtonClickProvider>
-                  <App palette={palette} />
-                </ButtonClickProvider>
-              </SplitProvider>
-            </CheckboxProvider>
-          </CreateNewTrainProvider>
-        </CreateNewProjectProvider>
-      </CreateNewButtonProvider>
+    
+        <CreateNewButtonProvider>
+          <CreateNewProjectProvider>
+            <CreateNewTrainProvider>
+              <CheckboxProvider>
+                <SplitProvider>
+                  <ButtonClickProvider>
+                    <App palette={palette} />
+                  </ButtonClickProvider>
+                </SplitProvider>
+              </CheckboxProvider>
+            </CreateNewTrainProvider>
+          </CreateNewProjectProvider>
+        </CreateNewButtonProvider>
+     
 
 
     </BrowserRouter>
