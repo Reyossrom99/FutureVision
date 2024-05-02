@@ -5,7 +5,6 @@ import tempfile
 import shutil
 import json 
 import time
-import datasets.logMessages.errors as log
 import yaml
 from datasets.models import Datasets
 import logging

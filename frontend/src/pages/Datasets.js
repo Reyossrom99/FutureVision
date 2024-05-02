@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext} from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
 import FormDialog from '../components/newDatasetForm';
 import styles from './datasets.module.css'
@@ -14,13 +14,16 @@ function Datasets() {
   // const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { isDialogOpen, handleCloseDialog } = useCreateNewButtonContext();
   const { authTokens, logoutUser } = useContext(AuthContext);
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
-    getDatasets();
-  }, []);
-  const getDatasets = async () => {
+    getDatasets(currentPage);
+  }, [currentPage]);
+
+
+  const getDatasets = async (page) => {
     try {
-      const response = await fetch('/datasets', {
+      const response = await fetch(`/datasets?page=${page}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -37,6 +40,10 @@ function Datasets() {
       console.error('Error fetching profile:', error);
     }
   };
+
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+  }
   return (
     <div className={styles.pageContainer}>
 
@@ -64,6 +71,17 @@ function Datasets() {
           ) : (
             <p>No datasets available</p>
           )}
+          <div >
+            <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
+              Previous
+            </button>
+            <span>
+              Page {currentPage} of {datasets ? datasets.total_pages : 0}
+            </span>
+            <button onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === (datasets ? datasets.total_pages : 0)}>
+              Next
+            </button>
+          </div>
 
 
         </div>

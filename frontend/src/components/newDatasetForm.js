@@ -15,10 +15,12 @@ const FormDialog = ({ isOpen, onRequestClose }) => {
     const [type, setType] = useState("splits");
     const [format, setFormat] = useState("yolo");
     const [privacy, setPrivacy] = useState("private");
+    const [isLoaded, setIsLoaded] = useState(true);
 
     const authContext = useContext(AuthContext);
 
     const handleAccept = async () => {
+        setIsLoaded(false);
         const uploadData = new FormData();
         uploadData.append('name', name);
         uploadData.append('description', description);
@@ -26,7 +28,7 @@ const FormDialog = ({ isOpen, onRequestClose }) => {
         uploadData.append('type', type);
         uploadData.append('format', format);
         uploadData.append('privacy', privacy === 'public');
-    
+        
         try {
             const response = await fetch('/datasets/', {
                 method: 'POST',
@@ -39,12 +41,15 @@ const FormDialog = ({ isOpen, onRequestClose }) => {
             });
             if (response.status == HttpStatusCode.Created) {
                 onRequestClose();
+                setIsLoaded(true);
                 navigate('/datasets')
             } else {
+                setIsLoaded(true);
                 const data = await response.json();
                 console.log('Error:', data);
             }
         } catch (error) {
+            setIsLoaded(true);
             console.log('Error creating dataset:', error);
         }
     };
@@ -65,6 +70,7 @@ const FormDialog = ({ isOpen, onRequestClose }) => {
 
     const handleTypeChange = (e) => {
         setType(e.target.value);
+       
     };
 
     const handleFormatChange = (e) => {
@@ -110,12 +116,13 @@ const FormDialog = ({ isOpen, onRequestClose }) => {
 
                 <label htmlFor="dir" id={styles.dirLabel}>Select the dataset directory</label> <br></br><br></br>
                 <input type="file" id={styles.dirInput} name="dir" accept=".zip" onChange={handleDirectoryInput} /> <br></br>
+                {isLoaded ? (
+                    <div class={styles.buttonContainer}>
+                        <button type="button" onClick={onRequestClose}>Close</button>
+                        <button type="button" onClick={() => handleAccept()}>Accept</button>
 
-                <div class={styles.buttonContainer}>
-                    <button type="button" onClick={onRequestClose}>Close</button>
-                    <button type="button" onClick={() => handleAccept()}>Accept</button>
-
-                </div>
+                    </div>) : <div><p>Loading data</p></div>
+                }
             </form>
         </Modal>
     );
