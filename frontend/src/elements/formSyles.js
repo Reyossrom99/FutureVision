@@ -29,7 +29,7 @@ export const Input = styled.input`
 export const SubmitInput = styled(Input)`
   background-color: ${palette.primary};
   border: none;
-  color: ${palette.neutralBlack};
+  color: ${palette.neutralWhite};
   padding: 12px 24px;
   font-size: 16px;
   cursor: pointer;

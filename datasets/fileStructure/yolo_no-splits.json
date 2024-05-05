@@ -2,6 +2,6 @@
     "project_root": {
         "images": true,
         "labels": true,
-        "datayaml": true
+        "data.yaml": true
     }
 }

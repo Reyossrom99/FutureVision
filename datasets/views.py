@@ -1,3 +1,4 @@
+import math
 import time
 from django.db import IntegrityError
 from rest_framework.decorators import api_view, permission_classes
@@ -19,20 +20,31 @@ import logging
 
 from . import utils 
 
-#gobal dictioary for YoloData objects
-yolo_data_objects = {}
 
-log = logging.getLogger("docker")
+
+
+yolo_data_objects = {}
+coco_data_objects = {}
+
+#gobal dictioary for YoloData objects
+datasetsPerPage = 10
 
 @api_view(["GET", "POST"])
 @permission_classes([IsAuthenticated])
 def datasets(request):
     if request.method == "GET":
         page_number = int(request.GET.get('page', 1))
-        page_size = int(request.GET.get('page_size', 10))
         
         # Obtener los datasets
         datasets = Datasets.objects.filter(Q(user=request.user) | Q(is_public=True))
+        if datasets.count() < datasetsPerPage:
+            page_size = datasets.count()
+        else:
+            page_size = datasetsPerPage
+
+        # Calcular el número total de páginas
+        total_pages = math.ceil(datasets.count() / page_size)
+        # puedo tener 10 datasets por pagina 
         
         # Verificar si hay datasets
         if not datasets: 
@@ -51,52 +63,39 @@ def datasets(request):
         # Preparar los datos paginados
         paginated_data = {
             'datasets': list(datasets_page),
-            'total_pages': paginator.num_pages
+            'total_pages': total_pages
         }
+        print(paginated_data)
         return JsonResponse(paginated_data, safe=False)
     
     elif request.method == "POST": 
-        print("petición post")
-        #data is in json format
-       
+    
         #adding data to the model 
-        t1 = int(time.time() * 1000)
-        print("leyendo name")
         name = request.POST.get('name')
-        print("leyendo description")
         description = request.POST.get('description')
-        print("leyendo files")
         uploaded_file = request.FILES['url'] #directorio donde esta el zip
-        t2 = int(time.time() * 1000)
-        print("tiempo de subida de archivo: ", t2 - t1)
         type = request.POST.get('type')
         format = request.POST.get('format')
         privacy = request.POST.get('privacy') == 'true'
         
         print(name, description, uploaded_file, type, format, privacy)
-
-        # check = utils.check_correct_form(url, type, format)
-        print("control structure")
-        #control_structure = utils.extract_and_verify_zip(uploaded_file, format, type)
-        control_structure = False
-        print("despues de control structure")
+        control_structure = utils.extract_and_verify_zip(uploaded_file, format, type)
         if control_structure: 
             print("control structure correcto")
             try:
                 dataset = Datasets(
                     name=name, 
                     description=description,
-                    url = url, 
+                    url = uploaded_file, 
                     type = type, 
                     format = format,
                     is_public = privacy,
                     user = request.user
                 )
-               
                 dataset.save()
                 print("dataset guardado")
                 #obtebemos la cover del dataset, solo cuando la estructura de control es correcta 
-                if (utils.extract_cover(url, name, format, type)):
+                if (utils.extract_cover(uploaded_file, name, format, type)):
                     print("cover extraida")
                     return JsonResponse({"id": dataset.dataset_id}
                                         , status= status.HTTP_201_CREATED)
@@ -124,11 +123,12 @@ def get_dataset_info_by_id(request, dataset_id):
         requested_split = request.GET.get('request-split', 'none')
         page_number = int(request.GET.get('page', 1))
         page_size = int(request.GET.get('page_size', 100))
+        print(show_labels, requested_split, page_number, page_size)
 
         dataset = Datasets.objects.get(dataset_id=dataset_id)
-        if dataset.type == 'yolo':
+        if dataset.format == 'yolo':
             # Comprueba si el objeto YoloData ya existe para este dataset
-            if dataset.dataset_id not in yolo_data_objects and dataset.type == 'yolo': 
+            if dataset.dataset_id not in yolo_data_objects: 
                 yolo_data_objects[dataset.dataset_id] = YoloData(dataset.name, dataset.type, dataset.url)
             yolo_data = yolo_data_objects[dataset.dataset_id]
             
@@ -143,16 +143,23 @@ def get_dataset_info_by_id(request, dataset_id):
                 images, _ = yolo_data.get_labeled_images(requested_split)
             else:
                 images = image_files
-        elif dataset.type == 'coco':
+        elif dataset.format == 'coco':
             #a testear 
-            if dataset.dataset_id not in coco_data_objects and dataset.type == 'coco':
+            if dataset.dataset_id not in coco_data_objects:
                 coco_data_objects[dataset.dataset_id] = CocoData(dataset.name, dataset.type, dataset.url)
+            
             coco_data = coco_data_objects[dataset.dataset_id]
 
             if not coco_data.is_tmp:
                 coco_data.extract_data_in_tmp()
+            print("coco data extracted")
 
-            images = coco_data.get_images(requested_split)
+            image_files, _ = coco_data.get_images(requested_split)
+            print("getting images")
+            if show_labels == 'true':
+                pass
+            else: 
+                images = image_files
         else:
             return JsonResponse({'error': 'Incorret dataset format'}, status=status.HTTP_400_BAD_REQUEST)
         

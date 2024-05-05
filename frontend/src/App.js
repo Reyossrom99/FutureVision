@@ -35,11 +35,11 @@ function App() {
     <div className="App">
       <Container palette={palette}>
         <AuthProvider>
-        {!(location.pathname === '/login' || location.pathname === '/sign-up') && <PrivateRoute><TopNav /></PrivateRoute>}
+        {!(location.pathname === '/login' || location.pathname === '/signup') && <PrivateRoute><TopNav /></PrivateRoute>}
           <main>
             <Routes>
               <Route path="/datasets" element={<PrivateRoute><Datasets /></PrivateRoute>} />
-              <Route path="/datasets/:id" element={<PrivateRoute><DatasetsDetails /></PrivateRoute>} />
+              <Route path="/dataset/:id" element={<PrivateRoute><DatasetsDetails /></PrivateRoute>} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/signup" element={<SignupPage />} />
               <Route path="/user" element={<PrivateRoute><Profile /></PrivateRoute>} />

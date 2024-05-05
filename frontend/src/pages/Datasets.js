@@ -4,10 +4,14 @@ import FormDialog from '../components/newDatasetForm';
 import styles from './datasets.module.css'
 import { Link, Route, BrowserRouter as Router, Switch } from 'react-router-dom';
 import { useCreateNewButtonContext } from '../context/createNewContext';
-
+import Paginator from '../elements/paginator';
 import AuthContext from '../context/AuthContext';
+import { PaginatorButton } from '../elements/button';
+import { PageTitle } from '../elements/title';
+import { ContentContainer, PageContainer } from '../elements/containers';
+import {CardContainer, CardImage, CardTitle, CardLabel, CardDescription, CardLabels}from '../elements/card';
+import palette from '../palette';
 
-//make http request to /datasets when enter the page 
 function Datasets() {
   const [datasets, setDatasets] = useState([]); //get the data from the backend
   const [postResponse, setPostRequest] = useState(null); //send and recive post from the backend
@@ -15,6 +19,7 @@ function Datasets() {
   const { isDialogOpen, handleCloseDialog } = useCreateNewButtonContext();
   const { authTokens, logoutUser } = useContext(AuthContext);
   const [currentPage, setCurrentPage] = useState(1);
+  const [total_pages, setTotalPages] = useState(1);
 
   useEffect(() => {
     getDatasets(currentPage);
@@ -32,7 +37,8 @@ function Datasets() {
       });
       if (response.ok) {
         const data = await response.json();
-        setDatasets(data);
+        setDatasets(data.datasets);
+        setTotalPages(data.total_pages);
       } else if (response.status === 401) {
         logoutUser();
       }
@@ -43,53 +49,52 @@ function Datasets() {
 
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
+
   }
   return (
-    <div className={styles.pageContainer}>
-
-      <div className={styles.contentContainer}>
-        <h1 className={styles.pageName}>DATASETS</h1>
-
-        <div className={styles.datasetContainer}>
+      <PageContainer>
+        <PageTitle>DATASETS</PageTitle>
+        <ContentContainer>
+        
           {datasets.length > 0 ? (
             datasets.map(dataset => (
-              <Link to={`/datasets/${dataset.dataset_id}`} key={dataset.id} className={styles.datasetCardLink}>
-                <div key={dataset.id} className={styles.datasetCard}>
-                  <img
+              <Link to={`/dataset/${dataset.dataset_id}`} key={dataset.id} >
+                <CardContainer key={dataset.id} >
+                  <CardImage
                     src={dataset.cover_url} //dataset url
                     alt={dataset.name}
                     className={styles.datasetImage}
                   />
-
-                  <div className={styles.datasetInfo}>
-                    <h2 className={styles.datasetName}>{dataset.name}</h2>
-                    <p className={styles.datasetDescription}>{dataset.description}</p>
+                  <div >
+                    <CardTitle>{dataset.name}</CardTitle>
+                    <CardLabels>
+                    <CardLabel style={{backgroundColor: palette.secondary }}>{dataset.format}</CardLabel>
+                    {dataset.is_public ? <CardLabel style={{backgroundColor: palette.accent }} >Public</CardLabel> : <CardLabel style={{backgroundColor: palette.accent }}>Private</CardLabel>}
+                    <CardLabel style={{backgroundColor: palette.primary }}>{dataset.type}</CardLabel>
+                    </CardLabels>
                   </div>
-                </div>
+                </CardContainer>
               </Link>
             ))
+            
           ) : (
             <p>No datasets available</p>
           )}
-          <div >
-            <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
-              Previous
-            </button>
+          
+          <Paginator>
+            <PaginatorButton onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
+              previous
+            </PaginatorButton>
             <span>
-              Page {currentPage} of {datasets ? datasets.total_pages : 0}
+              page {currentPage} of {datasets ? total_pages : 0}
             </span>
-            <button onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === (datasets ? datasets.total_pages : 0)}>
-              Next
-            </button>
-          </div>
-
-
-        </div>
-
-
+            <PaginatorButton onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === (datasets ? total_pages : 0)}>
+              next
+            </PaginatorButton>
+          </Paginator>
         <FormDialog isOpen={isDialogOpen} onRequestClose={handleCloseDialog} />
-      </div>
-    </div>
+    </ContentContainer>
+    </PageContainer>
   );
 }
 export default Datasets; 

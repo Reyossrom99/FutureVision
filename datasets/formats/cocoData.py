@@ -5,13 +5,14 @@ import zipfile
 from django.conf import settings
 
 
-class CocoData () :
+class CocoData:
     #type: splits, no splits
-    def __init__(self, name:str, type:str, zip_path:str) -> None:
+    def __init__(self, name:str, type:str, zip_path:str):
         self.name = name
         self.type = type
         self.zip_path = zip_path
         self.dir_root = os.path.join(settings.MEDIA_ROOT, "tmp")
+        self.zip_name = os.path.basename(zip_path.name).split(".zip")[0]
         self.tmp_dir = tempfile.mkdtemp(dir = self.dir_root)
         self.tmp_name = os.path.basename(self.tmp_dir)
         self.labeled_images = False #indica si se ha creado un directorio para imagenes con label

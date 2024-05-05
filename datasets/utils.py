@@ -1,3 +1,4 @@
+from asyncio import sleep
 import os 
 import zipfile
 from django.conf import settings
@@ -16,56 +17,50 @@ log = logging.getLogger("docker")
     type -> indica si tiene splits o no
 """
 
-def extract_and_verify_zip(zip_path, format, type): 
-    #leemos del archivo json que nos interesa la estructura
+def extract_and_verify_zip(zip_path, format, type):
     structured_file = "datasets/fileStructure" + "/" + format + "_" + type + ".json"
-    print(f"Fichero de estructura leido: {structured_file}")
 
     with open(structured_file, 'r') as file: 
         expected_structure = json.load(file)
-    file.close()
 
-    #before obtaining the zip we need to get the name 
     zip_name = zip_path.name.split(".zip")[0]
     temp_dir = tempfile.mkdtemp()
-    try: 
-        t1 = int(time.time() * 1000)
-        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-            zip_ref.extractall(temp_dir)
-        zip_ref.close()
 
-        #miramos recursivamente sobre el directorio para comprobar si son correctos los valores
-        def check_directory_structure(root, structure): 
-            for item, value in structure.items(): 
-                #tenemos que eliminar la primera parte del item, que es el root
-                
-                item_path = os.path.join(root, item)
-                print(f"Ruta donde estoy buscando: {item_path}")
-                
-                if isinstance(value, dict): 
-                    #si hay un diccionario entonces miramos de forma recursiva dentro de este 
-                    if not check_directory_structure(item_path,  value):
-                        return False
-                    
-                elif isinstance(value, bool): 
-                    #estamos en el final del directorio y tnemos que mirar si concuerda
-                  
-                    if value and not os.path.exists(item_path):
-                        return False
-                else: #no sabemos cual es la estructura 
-                    return False 
-            return True 
-        
+    try:
+        t1 = int(time.time() * 1000)
+
+        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+            for file_info in zip_ref.infolist():
+                # Extraer el archivo individual en lugar de todo el ZIP
+                zip_ref.extract(file_info, temp_dir)
+        # Verificar la estructura después de extraer cada archivo
         temp_dir_path = os.path.join(temp_dir, zip_name)
-        print(f"Ruta temporal: {temp_dir_path}")
-        if not check_directory_structure(temp_dir_path, expected_structure['project_root']): 
+        if not check_directory_structure(temp_dir_path, expected_structure['project_root']):
             return False
-        return True 
-    
+
+        return True
     finally:
+        # Limpieza del directorio temporal
         t2 = int(time.time() * 1000)
-        print(f"Tiempo total en comprobar la estructura: {str(t2 - t1)}")
-        shutil.rmtree(temp_dir)     
+        if os.path.exists(temp_dir):
+            shutil.rmtree(temp_dir)
+
+def check_directory_structure(root, structure):
+    # Función de verificación de estructura recursiva
+    for item, value in structure.items():
+        item_path = os.path.join(root, item)
+
+        if isinstance(value, dict):
+           
+            if not check_directory_structure(item_path,  value):
+                return False
+        elif isinstance(value, bool):
+            if value and not os.path.exists(item_path):
+                return False
+        else:
+            return False
+
+    return True
     
 
 def extract_cover(zip_path, dataset_name, format, type) : 

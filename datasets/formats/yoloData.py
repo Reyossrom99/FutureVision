@@ -8,7 +8,7 @@ import time
 import cv2 
 import numpy as np
 
-class YoloData(): 
+class YoloData: 
 
     def __init__(self, name:str, type:str, zip_path:str) -> None:
         self.name = name
@@ -47,7 +47,6 @@ class YoloData():
         for root, directories, files in os.walk(root_path): 
             for name in files: 
                 if name.lower().endswith(('.png', '.jpg','.jpeg')): 
-                  
                     if self.type == "no-splits":
                         images_full.append(os.path.join(settings.TMP_ROOT, self.tmp_name, self.zip_name, 'images', name))
                         images.append(os.path.join("/media", "tmp", self.tmp_name, self.zip_name,'images',name))
