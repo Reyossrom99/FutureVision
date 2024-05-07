@@ -71,7 +71,7 @@ function TopNav() {
             </TopNavButton>
           )}
         </TopNavItem>
-        {location.pathname.startsWith('/datasets/') && (
+        {location.pathname.startsWith('/dataset/') && (
           <><TopNavItem>
             <select
               id="splitSelect"

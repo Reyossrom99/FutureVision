@@ -18,23 +18,97 @@ class YoloData:
         self.dir_root = os.path.join(settings.MEDIA_ROOT, "tmp")
         self.tmp_dir = tempfile.mkdtemp(dir = self.dir_root)
         self.tmp_name = os.path.basename(self.tmp_dir)
-        self.labeled_images = False #indica si se ha creado un directorio para imagenes con label
-        self.is_tmp = False #variable to check if tmp dir is created
+        self.extracted_pages = []
+        self.extracted_train = []
+        self.extracted_val = []
+        self.extracted_test = []
+        self.labeled_images = []
+        self.labeled_images_train = []
+        self.labeled_images_val = []
+        self.labeled_images_test = []
+        self.file_list = None
 
-    def extract_data_in_tmp(self)  :
-        with zipfile.ZipFile(self.zip_path, 'r') as zip_ref: 
-            zip_ref.extractall(self.tmp_dir)
-        zip_ref.close()
-        self.is_tmp = True
+    """
+        Extracts the data from the zip file into a temporary directory
+    """
+    def extract_data_in_tmp(self, page_number:int, page_size:int, split:str=""):
+        if self.file_list is None:
+            self.file_list = zipfile.ZipFile(self.zip_path, 'r').namelist()
+
+        if self.type == "no-splits" and page_number not in self.extracted_pages:
+            with zipfile.ZipFile(self.zip_path, 'r') as zip_ref:
+
+                file_list_no_splits = [file_name for file_name in self.file_list if file_name.lower().endswith(('.jpg', '.jpeg', '.png'))]
+                file_list_no_splits_txt = [file_name for file_name in self.file_list if file_name.lower().endswith('.txt')]
+                # Calcular el rango de archivos que se extraerán para la página actual
+                start_index = (page_number - 1) * page_size
+                end_index = min(start_index + page_size, len(self.file_list))
+                
+               
+                for file_name in file_list_no_splits[start_index:end_index]:
+                    zip_ref.extract(file_name, self.tmp_dir)
+                for file_name in file_list_no_splits_txt[start_index:end_index]:
+                    zip_ref.extract(file_name, self.tmp_dir)   
+            self.extracted_pages.append(page_number)
+
+        elif split == "train" and page_number not in self.extracted_train: 
+            with zipfile.ZipFile(self.zip_path, 'r') as zip_ref:
+                # Obtener lista de nombres de archivos en el zip
+                file_list_train = [file_name for file_name in self.file_list if 'train' in file_name and file_name.lower().endswith(('.jpg', '.jpeg', '.png'))]
+                file_list_train_txt = [file_name for file_name in self.file_list if 'train' in file_name and file_name.lower().endswith('.txt')]
+
+                # Calcular el rango de archivos que se extraerán para la página actual
+                start_index = (page_number - 1) * page_size
+                end_index = min(start_index + page_size, len(self.file_list))
+                
+                for file_name in file_list_train[start_index:end_index]:
+                    zip_ref.extract(file_name, self.tmp_dir)
+                for file_name in file_list_train_txt[start_index:end_index]:
+                    zip_ref.extract(file_name, self.tmp_dir)    
+            self.extracted_train.append(page_number)
+
+        elif split == "val" and page_number not in self.extracted_val: 
+            with zipfile.ZipFile(self.zip_path, 'r') as zip_ref:
+                # Obtener lista de nombres de archivos en el zip
+                file_list_val= [file_name for file_name in self.file_list if 'val' in file_name and file_name.lower().endswith(('.jpg', '.jpeg', '.png'))]
+                file_list_val_txt = [file_name for file_name in self.file_list if 'val' in file_name and file_name.lower().endswith('.txt')]
+                # Calcular el rango de archivos que se extraerán para la página actual
+                start_index = (page_number - 1) * page_size
+                end_index = min(start_index + page_size, len(self.file_list))
+
+                for file_name in file_list_val[start_index:end_index]:
+                    zip_ref.extract(file_name, self.tmp_dir)
+                for file_name in file_list_val_txt[start_index:end_index]:
+                    zip_ref.extract(file_name, self.tmp_dir)    
+            self.extracted_val.append(page_number)
+
+        elif split == "test" and page_number not in self.extracted_test: 
         
-       
-    
+            with zipfile.ZipFile(self.zip_path, 'r') as zip_ref:
+                # Obtener lista de nombres de archivos en el zip
+                file_list_test = [file_name for file_name in self.file_list if 'test' in file_name and file_name.lower().endswith(('.jpg', '.jpeg', '.png'))]
+                file_list_test_txt = [file_name for file_name in self.file_list if 'test' in file_name and file_name.lower().endswith('.txt')]
+                # Calcular el rango de archivos que se extraerán para la página actual
+                start_index = (page_number - 1) * page_size
+                end_index = min(start_index + page_size, len(self.file_list))
+
+               
+                for file_name in file_list_test[start_index:end_index]:
+                    zip_ref.extract(file_name, self.tmp_dir)
+                for file_name in file_list_test_txt[start_index:end_index]: 
+                    zip_ref.extract(file_name, self.tmp_dir)
+
+            self.extracted_test.append(page_number)
 
     #obtiene una list que contiene las rutas de todas las imagenes de la carpeta
-    def get_images(self, requested_split:str) -> list: 
+    def get_images(self, requested_split:str, page_number:int, page_size:int) -> list: 
         
         images = []  #ruta relativa de las imagenes para mandarlas al front
         images_full = [] #ruta completa de las imagenes que necesita el back
+
+        start_index = (page_number - 1) * page_size
+        end_index = start_index + page_size
+        
         if not os.path.exists(self.tmp_dir): 
             return images, images_full
         
@@ -44,8 +118,9 @@ class YoloData:
             #get the images by split 
             root_path = os.path.join(self.tmp_dir, self.zip_name, requested_split, "images")
 
-        for root, directories, files in os.walk(root_path): 
-            for name in files: 
+        image_files = sorted(os.listdir(root_path))[start_index:end_index]
+        
+        for name in image_files: 
                 if name.lower().endswith(('.png', '.jpg','.jpeg')): 
                     if self.type == "no-splits":
                         images_full.append(os.path.join(settings.TMP_ROOT, self.tmp_name, self.zip_name, 'images', name))
@@ -55,9 +130,14 @@ class YoloData:
                         images_full.append(os.path.join(settings.TMP_ROOT, self.tmp_name, self.zip_name, requested_split ,'images', name))
         return images, images_full
     
-    def get_labels(self, requested_split:str) -> list: 
+    
+    def get_labels(self, requested_split:str, page_number:int, page_size: int) -> list: 
         labels = [] #ruta relativa
         labels_full = [] #ruta completa
+
+        start_index = (page_number - 1) * page_size
+        end_index = start_index + page_size
+
         if not os.path.exists(self.tmp_dir): 
             return labels, labels_full
         
@@ -65,9 +145,9 @@ class YoloData:
             root_path = os.path.join(self.tmp_dir, self.zip_name, "labels")
         else: 
             root_path = os.path.join(self.tmp_dir, self.zip_name, requested_split, "labels")
+        label_files = sorted(os.listdir(root_path))[start_index:end_index]
         
-        for root, directories, files in os.walk(root_path): 
-            for name in files: 
+        for name in label_files: 
                 if name.lower().endswith('.txt'): 
                     if self.type == "no-splits":
                         labels.append(os.path.join("/media", "tmp", self.tmp_name, self.zip_name, "labels", name))
@@ -77,9 +157,13 @@ class YoloData:
                         labels_full.append(os.path.join(settings.TMP_ROOT, self.tmp_name, self.zip_name, requested_split,'labels', name))
         return labels, labels_full
     
-    def get_labeled_images(self, requested_split:str) -> list: 
+    def get_labeled_images(self, requested_split:str, page_number:int, page_size:int) -> list: 
         labeled = []
         labeled_full = []
+
+        start_index = (page_number - 1) * page_size
+        end_index = start_index + page_size
+
         if not os.path.exists(self.tmp_dir): 
             return labeled, labeled_full
 
@@ -87,8 +171,10 @@ class YoloData:
                 root_path = os.path.join(self.tmp_dir, self.zip_name, "labeled_images")
         else: 
                 root_path = os.path.join(self.tmp_dir, self.zip_name, 'labeled_images', requested_split)
-        for root, directories, files in os.walk(root_path):
-            for name in files: 
+        
+        files = os.listdir(root_path)[start_index:end_index]
+        
+        for name in files: 
                 if name.lower().endswith(('.png', '.jpg','.jpeg')): 
                     if self.type == "no-splits": 
                         labeled.append(os.path.join("/media", "tmp", self.tmp_name, self.zip_name, "labeled_images", name))
@@ -98,25 +184,35 @@ class YoloData:
                         labeled_full.append(os.path.join(settings.TMP_ROOT, self.tmp_name, self.zip_name, 'labeled_images', requested_split, name))
         return labeled, labeled_full
   
-    def save_labels_in_image(self, image_files:list, labels_files:list, requested_split:str) : 
-        # labeled_images = []
-        # labeled_images_full =[]
-     
+    def save_labels_in_image(self, image_files:list, labels_files:list, requested_split:str, page_number:int) : 
+        #no nececesito calcular el tamaño del paginador porque ya le estoy pasando las imagenes que quiero, pero si 
+        # necesito el page_number para saber si ya he guardado o no las imagenes
         if not image_files or not labels_files: 
            return 
 
         if len(image_files) != len(labels_files): 
             return 
 
-        if self.type=='no-splits' and  not os.path.exists(os.path.join(self.tmp_dir, self.zip_name, 'labeled_images')):
+        if self.type=='no-splits' and page_number not in self.labeled_images:
             labeled_dir = os.path.join(self.tmp_dir, self.zip_name, 'labeled_images')
-            os.makedirs(labeled_dir, exist_ok=False) #raises an error if the directory already exists
-        elif not os.path.exists(os.path.join(self.tmp_dir, self.zip_name, 'labeled_images', requested_split)):
-            labeled_dir = os.path.join(self.tmp_dir, self.zip_name, 'labeled_images', requested_split)
-            os.makedirs(labeled_dir, exist_ok=False)
-        else: 
-            
-            return 
+            if not os.path.exists(labeled_dir):
+                os.makedirs(labeled_dir, exist_ok=False) #raises an error if the directory already exists
+            self.labeled_images.append(page_number)
+        else:
+            if (requested_split == "train" and page_number not in self.labeled_images_train) or (requested_split=="val" and page_number not in self.labeled_images_val) or (requested_split=="test" and page_number not in self.labeled_images_test):
+                labeled_dir = os.path.join(self.tmp_dir, self.zip_name, 'labeled_images', requested_split)
+                #solo creamos el archivo la primera vez
+                if not os.path.exists(labeled_dir):
+                    os.makedirs(labeled_dir, exist_ok=False)
+                if requested_split == "train": 
+                    self.labeled_images_train.append(page_number)
+                elif requested_split == "val": 
+                    self.labeled_images_val.append(page_number)
+                elif requested_split == "test": 
+                    self.labeled_images_test.append(page_number)
+                else: 
+                    return False
+
         
         for index in range(0, len(image_files)): 
             image = cv2.imread(image_files[index], cv2.IMREAD_UNCHANGED)

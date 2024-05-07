@@ -37,18 +37,20 @@ def datasets(request):
         
         # Obtener los datasets
         datasets = Datasets.objects.filter(Q(user=request.user) | Q(is_public=True))
+       
         if datasets.count() < datasetsPerPage:
             page_size = datasets.count()
         else:
             page_size = datasetsPerPage
-
-        # Calcular el número total de páginas
+        #division by zero control
+        
+            # Calcular el número total de páginas
         total_pages = math.ceil(datasets.count() / page_size)
         # puedo tener 10 datasets por pagina 
         
         # Verificar si hay datasets
         if not datasets: 
-            return JsonResponse({"message": "No datasets"}, status=status.HTTP_200_OK)
+            return JsonResponse({"mensaje": "No datasets"}, status=status.HTTP_200_OK)
         
         # Serializar los datasets
         serializer = DatasetsSerializers(datasets, many=True)
@@ -79,9 +81,12 @@ def datasets(request):
         privacy = request.POST.get('privacy') == 'true'
         
         print(name, description, uploaded_file, type, format, privacy)
+        #todo esta funcion tarda horrores en ejecutarse
         control_structure = utils.extract_and_verify_zip(uploaded_file, format, type)
+        print("verficacion de estructura", control_structure)
         if control_structure: 
-            print("control structure correcto")
+           #contamos el numero de imagenes que hay en el dataset 
+            num_images = utils.count_files_in_zip(uploaded_file)
             try:
                 dataset = Datasets(
                     name=name, 
@@ -90,11 +95,13 @@ def datasets(request):
                     type = type, 
                     format = format,
                     is_public = privacy,
-                    user = request.user
+                    user = request.user, 
+                    num_images = num_images
                 )
                 dataset.save()
                 print("dataset guardado")
                 #obtebemos la cover del dataset, solo cuando la estructura de control es correcta 
+                #todo esta funcion tarda mucho
                 if (utils.extract_cover(uploaded_file, name, format, type)):
                     print("cover extraida")
                     return JsonResponse({"id": dataset.dataset_id}
@@ -102,6 +109,7 @@ def datasets(request):
                 else: 
                    return JsonResponse({"error" : "no cover extrated for dataset"}
                                        , status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                
                 
             except IntegrityError as e:
                return JsonResponse("error", e.__str__, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -120,7 +128,7 @@ def get_dataset_info_by_id(request, dataset_id):
 
     if request.method == "GET":
         show_labels = request.GET.get('showLabels', False)
-        requested_split = request.GET.get('request-split', 'none')
+        requested_split = request.GET.get('request-split', "")
         page_number = int(request.GET.get('page', 1))
         page_size = int(request.GET.get('page_size', 100))
         print(show_labels, requested_split, page_number, page_size)
@@ -132,15 +140,13 @@ def get_dataset_info_by_id(request, dataset_id):
                 yolo_data_objects[dataset.dataset_id] = YoloData(dataset.name, dataset.type, dataset.url)
             yolo_data = yolo_data_objects[dataset.dataset_id]
             
-            # Extrae y procesa los datos
-            if not yolo_data.is_tmp:
-                yolo_data.extract_data_in_tmp()
+            yolo_data.extract_data_in_tmp(page_number, page_size, requested_split)
 
-            image_files, _ = yolo_data.get_images(requested_split)
+            image_files, image_files_full = yolo_data.get_images(requested_split, page_number, page_size)
             if show_labels == 'true':
-                _, labels_files_full = yolo_data.get_labels(requested_split)
-                yolo_data.save_labels_in_image(_, labels_files_full, requested_split)
-                images, _ = yolo_data.get_labeled_images(requested_split)
+                _, labels_files_full = yolo_data.get_labels(requested_split, page_number, page_size)
+                yolo_data.save_labels_in_image(image_files_full, labels_files_full, requested_split, page_number)
+                images, _ = yolo_data.get_labeled_images(requested_split, page_number, page_size)
             else:
                 images = image_files
         elif dataset.format == 'coco':
@@ -150,33 +156,38 @@ def get_dataset_info_by_id(request, dataset_id):
             
             coco_data = coco_data_objects[dataset.dataset_id]
 
-            if not coco_data.is_tmp:
-                coco_data.extract_data_in_tmp()
-            print("coco data extracted")
+            
+            coco_data.extract_data_in_tmp(page_number, page_size, requested_split)
 
-            image_files, _ = coco_data.get_images(requested_split)
-            print("getting images")
+            image_files, _ = coco_data.get_images(requested_split,page_number, page_size)
+            print("numero de imagenes extraidas", len(image_files))
+            
             if show_labels == 'true':
-                pass
+                
+                coco_data.save_labels_in_image(requested_split, page_number, page_size)
+                images, _ = coco_data.get_labeled_images(requested_split, page_number, page_size)
             else: 
                 images = image_files
         else:
             return JsonResponse({'error': 'Incorret dataset format'}, status=status.HTTP_400_BAD_REQUEST)
         
-        # Aplicar la paginación
-        paginator = Paginator(images, page_size)
-        try:
-            images_page = paginator.page(page_number)
-        except EmptyPage:
-            return Response({'error': 'No more pages'}, status=status.HTTP_404_NOT_FOUND)
+        #personal paginator 
+        num_pages = math.ceil(dataset.num_images/ page_size)
+        
+        # # Aplicar la paginación
+        # paginator = Paginator(images, page_size)
+        # try:
+        #     images_page = paginator.page(page_number)
+        # except EmptyPage:
+        #     return Response({'error': 'No more pages'}, status=status.HTTP_404_NOT_FOUND)
 
         # Crear respuesta paginada
         paginated_data = {
             'dataset_id': dataset.dataset_id,
             'name': dataset.name,
             'description': dataset.description,
-            'images': list(images_page),
-            'total_pages': paginator.num_pages
+            'images': images,
+            'total_pages': num_pages
         }
 
         return JsonResponse(paginated_data, safe=False)

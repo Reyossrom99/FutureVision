@@ -29,6 +29,7 @@ class Datasets(models.Model):
     format = models.CharField(max_length=10, choices=DATASET_FORMAT_CHOICES, default='coco')
     is_public = models.BooleanField(default=False) 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    num_images = models.IntegerField(default=0)
     
     
  

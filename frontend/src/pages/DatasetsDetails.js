@@ -1,20 +1,29 @@
-import React, { useEffect, useState, useContext } from 'react';
+import {useEffect, useState, useContext } from 'react';
 import { useParams } from 'react-router-dom';
 import { useCheckbox } from '../context/checkboxShowLabelContext';
-import { useSplitContext  } from '../context/selectSplitViewContext';
-import { useCreateSplitContext} from '../context/createSplitsContext'; 
-import styles from './datasets.module.css'
+import { useSplitContext } from '../context/selectSplitViewContext';
+import { useCreateSplitContext } from '../context/createSplitsContext';
+import styles from './datasets.module.css';
 import AuthContext from '../context/AuthContext';
+import { PaginatorButton } from '../elements/button';
+import { PageTitle } from '../elements/title';
+import { ContentContainer, PageContainer } from '../elements/containers';
+import Paginator from '../elements/paginator';
+
+import { css } from '@emotion/react';
+import { BeatLoader } from 'react-spinners';
+
 
 function DatasetsDetails() {
   const { id } = useParams();
   const [dataset, setDataset] = useState(null);
   const [isLoading, setIsLoading] = useState(true); // Loading state
   const [currentPage, setCurrentPage] = useState(1);
-  
-  const { showLabels } = useCheckbox(); 
-  const {selectedSplit} = useSplitContext();
-  const {buttonClicked} = useCreateSplitContext(); 
+  const [expandedImage, setExpandedImage] = useState(null);
+  const [total_pages, setTotalPages] = useState(1);
+  const { showLabels } = useCheckbox();
+  const { selectedSplit } = useSplitContext();
+  const { buttonClicked } = useCreateSplitContext();
   const { authTokens, logoutUser } = useContext(AuthContext);
 
   useEffect(() => {
@@ -27,13 +36,14 @@ function DatasetsDetails() {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + String(authTokens.access)
-        }
+          Authorization: 'Bearer ' + String(authTokens.access),
+        },
       });
       if (response.ok) {
         const data = await response.json();
         setDataset(data);
-        setIsLoading(false); 
+        setIsLoading(false);
+        setTotalPages(data.total_pages);
       } else if (response.status === 401) {
         logoutUser();
       }
@@ -45,43 +55,56 @@ function DatasetsDetails() {
 
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
-  }
+  };
+
+  const handleImageClick = (imageUrl) => {
+    setExpandedImage(expandedImage === imageUrl ? null : imageUrl);
+  };
 
   return (
-    <div className={styles.pageContainer}>
-      <div className={styles.contentContainer}>
+    <PageContainer>
+      
         {isLoading ? (
-          <p>Loading dataset details...</p>
+          <ContentContainer>
+           <BeatLoader color="#36D7B7" loading={isLoading} size={15}  />
+           </ContentContainer>
         ) : dataset && (
-          <div className={styles.datasetDetailsContainer}>
-            <h1 className={styles.pageName}>{dataset.name}</h1>
+          <ContentContainer>
+            <PageTitle className={styles.pageName}>{dataset.name}</PageTitle>
             <p>{dataset.description}</p>
+          <div className={styles.datasetDetailsContainer}>
             <div className={styles.imageGalery}>
-              {dataset.images.map(imageUrl => (
+              {dataset.images.map((imageUrl) => (
                 <img
                   key={imageUrl}
-                  src={imageUrl} // Set the URL as the src attribute
+                  src={imageUrl}
                   alt={imageUrl}
-                  className={styles.imageItem}
+                  className={`${styles.imageItem} ${expandedImage === imageUrl ? styles.expanded : ''}`}
+                  onClick={() => handleImageClick(imageUrl)}
                 />
               ))}
             </div>
+            {expandedImage && (
+              <div className={styles.overlay} onClick={() => setExpandedImage(null)}>
+                <img src={expandedImage} alt={expandedImage} className={styles.expandedImage} />
+              </div>
+            )}
           </div>
-        )}
-
-        <div className={styles.paginationControls}>
-          <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
-            Previous
-          </button>
+          <Paginator>
+          <PaginatorButton onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
+            previous
+          </PaginatorButton>
           <span>
-            Page {currentPage} of {dataset ? dataset.total_pages : 0}
+            page {currentPage} of {dataset ? total_pages : 0}
           </span>
-          <button onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === (dataset ? dataset.total_pages : 0)}>
-            Next
-          </button>
-        </div>
-      </div>
-    </div>
+          <PaginatorButton onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === (dataset ? total_pages : 0)}>
+            next
+          </PaginatorButton>
+        </Paginator>
+          </ContentContainer>
+        )}
+      
+    </PageContainer>
   );
 }
 

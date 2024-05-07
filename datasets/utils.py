@@ -95,6 +95,29 @@ def extract_cover(zip_path, dataset_name, format, type) :
         shutil.rmtree(temp_dir)
     return False
 
+"""
+    Count the number of files in the zip file
+"""
+def count_files_in_zip(zip_path):
+    temp_dir = tempfile.mkdtemp()
+    zip_name = zip_path.name.split(".zip")[0]
+    image_extensions = ('.png', '.jpg', '.jpeg')
+    total_image_files = 0
+
+    try:
+        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+            zip_ref.extractall(temp_dir)
+
+        for root, _, files in os.walk(temp_dir):
+            for file in files:
+                if file.lower().endswith(image_extensions):
+                    total_image_files += 1
+
+        return total_image_files
+
+    finally:
+        shutil.rmtree(temp_dir)
+
 def extract_data_values(zip_path, dataset_name): 
     temp_dir = tempfile.mkdtemp()
     print(temp_dir)
