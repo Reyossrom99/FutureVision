@@ -9,6 +9,7 @@ import zipfile
 from django.conf import settings
 import cv2 as cv 
 import pycocotools.coco as coco
+import yaml
 
 class CocoData:
     #type: splits, no splits
@@ -56,7 +57,7 @@ class CocoData:
                     zip_ref.extract(self.zip_name + "/annotations/val.json", self.tmp_dir)
                     zip_ref.extract(self.zip_name + "/annotations/test.json", self.tmp_dir)
 
-        if self.type == "no-splits" and page_number not in self.extracted_pages:
+        if split == "" and page_number not in self.extracted_pages:
 
             with zipfile.ZipFile(self.zip_path, 'r') as zip_ref:
                 file_list_no_splits = [file_name for file_name in self.file_list if file_name.lower().endswith(('.jpg', '.jpeg', '.png'))]
@@ -304,7 +305,7 @@ class CocoData:
     """
     def create_splits(self, train:int, val:int, test:int, num_images:int=0): 
         if self.modify == True: 
-            return False, "The dataset has already been modified"
+            return False, "The dataset has already been modified", 0, 0, 0
         
         #seleccionamos los elementos que van a ir a cada split de manera aletoria 
         train_number = math.ceil((train/100)*num_images)
@@ -319,29 +320,35 @@ class CocoData:
         self.modify_splits["test"] = [x for x in self.file_list if x not in self.modify_splits["train"] and x not in self.modify_splits["val"] and x.lower().endswith(('.jpg', '.jpeg', '.png'))]
 
         self.modify = True
-        return self.modify, "The splits have been created"
+        return self.modify, "The splits have been created", train_number, val_number, test_number
     
     """
         saves the splits modifications into permanent files in the zip file 
     """
     def save_modifications(self): 
         if self.modify == False: 
-            return False, "The dataset has not been modified"
+            return False, "The dataset has not been modified", 0, 0, 0
         
         with zipfile.ZipFile(self.zip_path, 'a') as zip_ref:
             # Crear nuevas carpetas dentro del archivo ZIP si no existen
             for carpeta_destino in ["train", "val", "test", "annotations"]:
                 if carpeta_destino not in self.file_list.namelist():
-                    self.file_list.writestr(os.path.join(self.zip_name, carpeta_destino, "images/"), "")
+                    zip_ref.writestr(os.path.join(self.zip_name, carpeta_destino, ""), "")
             
             #pasar las imagenes a las carpetas correspondientes
+            train_imgs = 0
             for images in self.modify_splits["train"]:
-                zip_ref.write(images, os.path.join(self.zip_name, "train",  os.path.basename(images)))
+                zip_ref.write(images, os.path.join(self.zip_name, "train"))
+                train_imgs += 1
+            val_imgs = 0
             for images in self.modify_splits["val"]:
-                zip_ref.write(images, os.path.join(self.zip_name, "val",  os.path.basename(images)))
+                zip_ref.write(images, os.path.join(self.zip_name, "val"))
+                val_imgs += 1
+            test_imgs = 0    
             for images in self.modify_splits["test"]:
-                zip_ref.write(images, os.path.join(self.zip_name, "test",  os.path.basename(images)))
-            
+                zip_ref.write(images, os.path.join(self.zip_name, "test"))
+                test_imgs += 1
+
             #pasar las anotaciones a los archivos correspondientes
             anotaciones_train, anotaciones_val, anotaciones_test = self.separate_annotations_in_splits(os.path.join(self.tmp_dir, self.zip_name, "annotations.json"))
             zip_ref.writestr(os.path.join(self.zip_name, "annotations", "train.json"), json.dumps(anotaciones_train))
@@ -361,7 +368,7 @@ class CocoData:
 
 
         
-        return True, "The modifications have been saved"
+        return True, "The modifications have been saved", train_imgs, val_imgs, test_imgs
     
     def separate_annotations_in_splits(self, annotations_file:str): 
 
@@ -391,11 +398,92 @@ class CocoData:
         
         return anotaciones_train, anotaciones_val, anotaciones_test
 
-"""
-    Deletes the tmp directory
-"""
-def delete_tmp_data(self): 
-    if os.path.exists(self.tmp_dir): 
-        shutil.rmtree(self.tmp_dir)
+    """
+        Deletes the tmp directory
+    """
+    def delete_tmp_data(self): 
+        if os.path.exists(self.tmp_dir): 
+            shutil.rmtree(self.tmp_dir)
+        
+        return True
     
-    return True
+    """
+        Converts the annotations to yolo format
+    """
+ 
+
+    def convertir_a_yolo(self): 
+        with zipfile.ZipFile(self.zip_path, 'a') as zip_ref:
+            if self.type == "no-splits":
+                annotation_file = os.path.join(self.tmp_dir, self.zip_name, "annotations.json")
+                if self.coco_data is None or self.categories is None or self.image_name_to_id is None or self.category_colors is None:
+                    self.extract_annotations(annotation_file)
+
+                labels_path = os.path.join(self.zip_name, "labels")
+                zip_ref.writestr(os.path.join(self.zip_name, labels_path, ""), "")
+
+                for imagen in self.coco_data["images"]:
+                    nombre_imagen = imagen["file_name"]
+                    ancho_imagen = imagen["width"]
+                    alto_imagen = imagen["height"]
+
+                    # Crear o abrir el archivo de anotaciones YOLO dentro del zip
+                    with zip_ref.open(os.path.join(labels_path, nombre_imagen.replace(".jpg", ".txt")), "w") as f:
+                        # Iterar sobre las anotaciones de la imagen
+                        for anotacion in self.coco_data["annotations"]:
+                            if anotacion["image_id"] == imagen["id"]:
+                                categoria = anotacion["category_id"]
+                                x, y, w, h = anotacion["bbox"]
+
+                                # Convertir coordenadas de COCO a YOLO
+                                x_centro = (x + w / 2) / ancho_imagen
+                                y_centro = (y + h / 2) / alto_imagen
+                                w_normalizado = w / ancho_imagen
+                                h_normalizado = h / alto_imagen
+
+                                # Guardar la anotación en el archivo YOLO
+                                f.write(f"{categoria} {x_centro} {y_centro} {w_normalizado} {h_normalizado}\n")
+
+                # Crear el archivo data.yaml dentro del zip
+                with zip_ref.open(os.path.join(self.zip_name, "data.yaml"), "w") as f:
+                    yaml.dump({"names": self.categories}, f)
+
+            elif self.type == "splits":
+                for split in ["train", "val", "test"]:
+                    annotation_file = os.path.join(self.tmp_dir, self.zip_name, "annotations", split + ".json")
+                    if self.coco_data is None or self.categories is None or self.image_name_to_id is None or self.category_colors is None:
+                        self.extract_annotations(annotation_file)
+
+                    labels_path = os.path.join(self.zip_name, split, "labels")
+                    zip_ref.writestr(os.path.join(self.zip_name, labels_path, ""), "")
+
+
+                    for imagen in self.coco_data["images"]:
+                        nombre_imagen = imagen["file_name"]
+                        ancho_imagen = imagen["width"]
+                        alto_imagen = imagen["height"]
+
+                        # Crear o abrir el archivo de anotaciones YOLO dentro del zip
+                        with zip_ref.open(os.path.join(labels_path, nombre_imagen.replace(".jpg", ".txt")), "w") as f:
+                            # Iterar sobre las anotaciones de la imagen
+                            for anotacion in self.coco_data["annotations"]:
+                                if anotacion["image_id"] == imagen["id"]:
+                                    categoria = anotacion["category_id"]
+                                    x, y, w, h = anotacion["bbox"]
+
+                                    # Convertir coordenadas de COCO a YOLO
+                                    x_centro = (x + w / 2) / ancho_imagen
+                                    y_centro = (y + h / 2) / alto_imagen
+                                    w_normalizado = w / ancho_imagen
+                                    h_normalizado = h / alto_imagen
+
+                                    # Guardar la anotación en el archivo YOLO
+                                    f.write(f"{categoria} {x_centro} {y_centro} {w_normalizado} {h_normalizado}\n")
+
+                # Crear el archivo data.yaml dentro del zip
+                with zip_ref.open(os.path.join(self.zip_name, "data.yaml"), "w") as f:
+                    yaml.dump({"names": self.categories}, f)
+
+                return True, "Los datos han sido convertidos al formato YOLO y guardados en el archivo ZIP."
+            else:
+                return False, "El tipo de dataset no es válido."

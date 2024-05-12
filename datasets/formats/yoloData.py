@@ -1,3 +1,4 @@
+import math
 import os 
 import random
 import zipfile
@@ -30,6 +31,10 @@ class YoloData:
         self.labeled_images_test = []
         self.file_list = None
         self.class_names = None
+        #modifications
+        self.modify = False 
+        self.modify_split = {"train": [], "val": [], "test": []}
+        self.modify_split_labels = {"train": [], "val": [], "test": []}
 
     """
         Extracts the data from the zip file into a temporary directory
@@ -44,7 +49,7 @@ class YoloData:
                 with zipfile.ZipFile(self.zip_path, 'r') as zip_ref:
                     zip_ref.extract(data_yaml_file, self.tmp_dir)
 
-        if self.type == "no-splits" and page_number not in self.extracted_pages:
+        if split=="" and page_number not in self.extracted_pages:
             with zipfile.ZipFile(self.zip_path, 'r') as zip_ref:
 
                 file_list_no_splits = [file_name for file_name in self.file_list if file_name.lower().endswith(('.jpg', '.jpeg', '.png'))]
@@ -63,8 +68,16 @@ class YoloData:
         elif split == "train" and page_number not in self.extracted_train: 
             with zipfile.ZipFile(self.zip_path, 'r') as zip_ref:
                 # Obtener lista de nombres de archivos en el zip
-                file_list_train = [file_name for file_name in self.file_list if 'train' in file_name and file_name.lower().endswith(('.jpg', '.jpeg', '.png'))]
-                file_list_train_txt = [file_name for file_name in self.file_list if 'train' in file_name and file_name.lower().endswith('.txt')]
+                if self.modify == "True": 
+                    file_list_train = [file_name.replace("/images/", "/train/images") 
+                        for file_name in self.modify_splits["train"] 
+                        if file_name.lower().endswith(('.jpg', '.jpeg', '.png'))] 
+                    file_list_train_txt = [file_name.replace("/labels/", "/train/labels") 
+                        for file_name in self.modify_splits_labels["train"] 
+                        if file_name.lower().endswith('.txt')]
+                else: 
+                    file_list_train = [file_name for file_name in self.file_list if 'train' in file_name and file_name.lower().endswith(('.jpg', '.jpeg', '.png'))]
+                    file_list_train_txt = [file_name for file_name in self.file_list if 'train' in file_name and file_name.lower().endswith('.txt')]
 
                 # Calcular el rango de archivos que se extraerán para la página actual
                 start_index = (page_number - 1) * page_size
@@ -78,9 +91,17 @@ class YoloData:
 
         elif split == "val" and page_number not in self.extracted_val: 
             with zipfile.ZipFile(self.zip_path, 'r') as zip_ref:
-                # Obtener lista de nombres de archivos en el zip
-                file_list_val= [file_name for file_name in self.file_list if 'val' in file_name and file_name.lower().endswith(('.jpg', '.jpeg', '.png'))]
-                file_list_val_txt = [file_name for file_name in self.file_list if 'val' in file_name and file_name.lower().endswith('.txt')]
+                if self.modify == "True":
+                    file_list_val = [file_name.replace("/images/", "/val/images") 
+                        for file_name in self.modify_splits["val"] 
+                        if file_name.lower().endswith(('.jpg', '.jpeg', '.png'))]
+                    file_list_val_txt = [file_name.replace("/labels/", "/val/labels") 
+                        for file_name in self.modify_splits_labels["val"] 
+                        if file_name.lower().endswith('.txt')]
+                else: 
+                    # Obtener lista de nombres de archivos en el zip
+                    file_list_val= [file_name for file_name in self.file_list if 'val' in file_name and file_name.lower().endswith(('.jpg', '.jpeg', '.png'))]
+                    file_list_val_txt = [file_name for file_name in self.file_list if 'val' in file_name and file_name.lower().endswith('.txt')]
                 # Calcular el rango de archivos que se extraerán para la página actual
                 start_index = (page_number - 1) * page_size
                 end_index = min(start_index + page_size, len(self.file_list))
@@ -95,8 +116,16 @@ class YoloData:
         
             with zipfile.ZipFile(self.zip_path, 'r') as zip_ref:
                 # Obtener lista de nombres de archivos en el zip
-                file_list_test = [file_name for file_name in self.file_list if 'test' in file_name and file_name.lower().endswith(('.jpg', '.jpeg', '.png'))]
-                file_list_test_txt = [file_name for file_name in self.file_list if 'test' in file_name and file_name.lower().endswith('.txt')]
+                if self.modify == "True":
+                    file_list_test = [file_name.replace("/images/", "/test/images") 
+                        for file_name in self.modify_splits["test"] 
+                        if file_name.lower().endswith(('.jpg', '.jpeg', '.png'))]
+                    file_list_test_txt = [file_name.replace("/labels/", "/test/labels") 
+                        for file_name in self.modify_splits_labels["test"] 
+                        if file_name.lower().endswith('.txt')]
+                else: 
+                    file_list_test = [file_name for file_name in self.file_list if 'test' in file_name and file_name.lower().endswith(('.jpg', '.jpeg', '.png'))]
+                    file_list_test_txt = [file_name for file_name in self.file_list if 'test' in file_name and file_name.lower().endswith('.txt')]
                 # Calcular el rango de archivos que se extraerán para la página actual
                 start_index = (page_number - 1) * page_size
                 end_index = min(start_index + page_size, len(self.file_list))
@@ -277,72 +306,82 @@ class YoloData:
         
         
     """
-        Funcion que sirve para convertir un dataset en formato no-splits a un dataset en formato splits
-    """
-
-    def convert_to_splits(self, porcentajes:list): 
-
-        #si ha tiene los splits hechos
-        if self.type == 'splits' or len(porcentajes)!=3: 
-            return 
+        Creates temporal splits for the dataset 
+    """                    
+    def create_splits(self, train:int, val:int, test:int, num_images:int=0): 
+        if self.modify == True: 
+            return False, "The dataset has already been modified", 0, 0, 0
         
-        #dentro de la carpeta tmp que tiene el siguiente formato: 
-        # root
-            #images
-            #labels
-        #creo una nueva carpeta que se llame splits 
+        #seleccionamos los elementos que van a ir a cada split de manera aletoria 
+        train_number = math.ceil((train/100)*num_images)
+        val_number = math.ceil((val/100)*num_images)
+        test_number = num_images - train_number - val_number
 
-        if not os.path.exists(os.path.join(self.tmp_dir, self.tmp_name, 'splitted')): 
-            os.makedirs(os.path.join(self.tmp_dir, self.tmp_name, 'splitted', 'train', 'labels'), exist_ok=True)
-            os.makedirs(os.path.join(self.tmp_dir, self.tmp_name, 'splitted', 'train', 'images'), exist_ok=True)
-            os.makedirs(os.path.join(self.tmp_dir, self.tmp_name, 'splitted', 'val', 'images'), exist_ok=True)
-            os.makedirs(os.path.join(self.tmp_dir, self.tmp_name, 'splitted', 'val', 'labels'), exist_ok=True)
-            os.makedirs(os.path.join(self.tmp_dir, self.tmp_name, 'splitted', 'test', 'images'), exist_ok=True)
-            os.makedirs(os.path.join(self.tmp_dir, self.tmp_name, 'splitted', 'test', 'labels'), exist_ok=True)
-
-        splitted_root = os.path.join(self.tmp_dir, self.tmp_name, 'splitted')
-        base_root = os.path.join(self.tmp_dir, self.tmp_name)
+        if train_number + val_number + test_number != num_images: 
+            return False, "The number of images in the splits is not equal to the total number of images"
         
-        #de momento los porcentajes van a ser 70->test, 20->val 10->test
-        #cuento los labels que hay
-        labels = os.listdir(os.path.join(base_root, 'labels'))
-        cnt_labels = len(labels)
+        self.modify_splits["train"] = random.sample([x for x in self.file_list if x.lower().endswith(('.jpg', '.jpeg', '.png'))], train)
+        self.modify_spltis["val"] = random.sample([x for x in self.file_list if x not in self.modify_splits["train"] and x.lower().endswith(('.jpg', '.jpeg', '.png'))], val)
+        self.modify_splits["test"] = [x for x in self.file_list if x not in self.modify_splits["train"] and x not in self.modify_splits["val"] and x.lower().endswith(('.jpg', '.jpeg', '.png'))]
+        
+        self.modify_splits_labels["train"] = random.sample([x for x in self.file_list if x.lower().endswith(('.txt'))], train)
+        self.modify_spltis_labels["val"] = random.sample([x for x in self.file_list if x not in self.modify_splits["train"] and x.lower().endswith(('.txt'))], val)
+        self.modify_splits_labels["test"] = [x for x in self.file_list if x not in self.modify_splits["train"] and x not in self.modify_splits["val"] and x.lower().endswith(('.txt'))]
 
-        #train split
-        cnt_train = cnt_labels * porcentajes[0]
-        for i in range(0, cnt_train): 
-            name_label = labels.pop()
-            name_img = name_label.split(".")[0] + ".jpg"
-            shutil.copy(os.path.join(base_root, 'images', name_img), os.path.join(splitted_root, 'train', 'images', name_img))
-            shutil.copy(os.path.join(base_root, 'labels', name_label), os.path.join(splitted_root, 'train', 'labels', name_label))
-
-        #val split
-        cnt_val= cnt_labels * porcentajes[1]
-        for i in range(0, cnt_val): 
-            name_label = labels.pop()
-            name_img = name_label.split(".")[0] + ".jpg"
-            shutil.copy(os.path.join(base_root, 'images', name_img), os.path.join(splitted_root, 'val', 'images', name_img))
-            shutil.copy(os.path.join(base_root, 'labels', name_label), os.path.join(splitted_root, 'val', 'labels', name_label))
-
-        #test split
-        cnt_test = cnt_labels * porcentajes[2]
-        for i in range(0, cnt_test): 
-            name_label = labels.pop()
-            name_img = name_label.split(".")[0] + ".jpg"
-            shutil.copy(os.path.join(base_root, 'images', name_img), os.path.join(splitted_root, 'test', 'images', name_img))
-            shutil.copy(os.path.join(base_root, 'labels', name_label), os.path.join(splitted_root, 'test', 'labels', name_label))
+        self.modify = True
+        return self.modify, "The splits have been created", train_number, val_number, test_number
     
-    def save_splits_created(self): 
-         
-        if not os.path.exists(os.path.join(self.tmp_dir, self.tmp_name, 'splitted')): 
-            return 
-        os.makedirs(os.path.join(self.tmp_dir,self.name, 'zip'))
-        #en el argumento cambiar a la carpeta donde se va a guardar en zip
-        with zipfile.ZipFile(os.path.join(self.tmp_dir, self.name, 'zip'), 'w', zipfile.ZIP_DEFLATED) as zipf:
-            for folder, _, files in os.walk(os.path.join(self.tmp_dir, self.name, 'splitted')):
-                for file in files:
-                    file_path = os.path.join(folder, file)
-                    arcname = os.path.relpath(file_path, os.path.join(self.tmp_dir, self.name, 'splitted'))  # Maintain directory structure
-                    zipf.write(file_path, arcname=arcname)
-                        
+    def save_modifications(self): 
+        if self.modify == False: 
+            return False, "The dataset has not been modified", 0, 0, 0
         
+        with zipfile.ZipFile(self.zip_path, 'a') as zip_ref:
+            # Crear nuevas carpetas dentro del archivo ZIP si no existen
+            for carpeta_destino in ["train", "val", "test"]:
+                if carpeta_destino not in self.file_list.namelist():
+                    # Crear la carpeta destino principal
+                    zip_ref.writestr(os.path.join(self.zip_name, carpeta_destino, ""), "")
+                    # Crear las subcarpetas "images" y "labels" dentro de la carpeta destino
+                    zip_ref.writestr(os.path.join(self.zip_name, carpeta_destino, "images", ""), "")
+                    zip_ref.writestr(os.path.join(self.zip_name, carpeta_destino, "labels", ""), "")
+            
+            #pasar las imagenes a las carpetas correspondientes
+            train_imgs = 0
+            for images in self.modify_splits["train"]:
+                zip_ref.write(images, os.path.join(self.zip_name, "train",  os.path.basename(images)))
+                train_imgs += 1
+            val_imgs = 0
+            for images in self.modify_splits["val"]:
+                zip_ref.write(images, os.path.join(self.zip_name, "val",  os.path.basename(images)))
+                val_imgs += 1
+            test_imgs = 0
+            for images in self.modify_splits["test"]:
+                zip_ref.write(images, os.path.join(self.zip_name, "test",  os.path.basename(images)))
+                test_imgs += 1
+            
+            #pasar las anotaciones a los archivos correspondientes
+            for labels in self.modify_splits_labels["train"]:
+                zip_ref.write(labels, os.path.join(self.zip_name, "train",  os.path.basename(labels)))
+            for labels in self.modify_splits_labels["val"]:
+                zip_ref.write(labels, os.path.join(self.zip_name, "val",  os.path.basename(labels)))
+            for labels in self.modify_splits_labels["test"]:
+                zip_ref.write(labels, os.path.join(self.zip_name, "test",  os.path.basename(labels)))
+
+
+            #Eliminar la carpeta de imagenes original
+            zip_ref.remove(os.path.join(self.zip_name, "images/"))
+            zip_ref.remove(os.path.join(self.zip_name, "labels/"))
+        
+        #change values 
+        self.type == "splits"
+
+
+        zip_ref.close()
+
+
+        
+        return True, "The modifications have been saved", train_imgs, val_imgs, test_imgs
+    
+    def delete_tmp(self):
+        shutil.rmtree(self.tmp_dir)
+        return True, "The temporary directory has been deleted"
