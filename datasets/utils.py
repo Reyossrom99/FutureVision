@@ -53,9 +53,11 @@ def check_directory_structure(root, structure):
         if isinstance(value, dict):
            
             if not check_directory_structure(item_path,  value):
+                print(f"La estructura del directorio {item} no es correcta")
                 return False
         elif isinstance(value, bool):
             if value and not os.path.exists(item_path):
+                print(f"El archivo {item} no existe en el directorio {root}")
                 return False
         else:
             return False
@@ -98,25 +100,46 @@ def extract_cover(zip_path, dataset_name, format, type) :
 """
     Count the number of files in the zip file
 """
-def count_files_in_zip(zip_path):
+def count_files_in_zip(zip_path, type):
     temp_dir = tempfile.mkdtemp()
-    zip_name = zip_path.name.split(".zip")[0]
-    image_extensions = ('.png', '.jpg', '.jpeg')
     total_image_files = 0
+    total_image_files_train = 0
+    total_image_files_val = 0
+    total_image_files_test = 0
 
     try:
         with zipfile.ZipFile(zip_path, 'r') as zip_ref:
             zip_ref.extractall(temp_dir)
 
-        for root, _, files in os.walk(temp_dir):
-            for file in files:
-                if file.lower().endswith(image_extensions):
-                    total_image_files += 1
+        if type == "no-splits":
+            image_extensions = ('.png', '.jpg', '.jpeg')
+            for root, _, files in os.walk(temp_dir):
+                for file in files:
+                    if file.lower().endswith(image_extensions):
+                        total_image_files += 1
 
-        return total_image_files
+            return total_image_files, 0, 0
+
+        else:
+            image_extensions = ('.png', '.jpg', '.jpeg')
+            for root, dirs, files in os.walk(temp_dir):
+                if 'train' in root:
+                    for file in files:
+                        if file.lower().endswith(image_extensions):
+                            total_image_files_train += 1
+                elif 'val' in root:
+                    for file in files:
+                        if file.lower().endswith(image_extensions):
+                            total_image_files_val += 1
+                elif 'test' in root:
+                    for file in files:
+                        if file.lower().endswith(image_extensions):
+                            total_image_files_test += 1
+
+            return total_image_files_train, total_image_files_val, total_image_files_test
 
     finally:
-        shutil.rmtree(temp_dir)
+        shutil.rmtree(temp_dir)              
 
 def extract_data_values(zip_path, dataset_name): 
     temp_dir = tempfile.mkdtemp()
@@ -247,4 +270,14 @@ def create_train_folder(datasetId):
     
     return train_path , None
 
-    
+def delete_dataset_files(datasetUrl)-> str: 
+    try: 
+        datasetName = os.path.basename(datasetUrl.name).split(".zip")[0]
+        if os.path.exists(settings.MEDIA_ROOT + "/tmp/" + datasetName): 
+            shutil.rmtree(settings.MEDIA_ROOT + "/tmp/" + datasetName)
+            return None
+        else: 
+            return "Dataset files not found in the server"    
+    except Exception as e: 
+        return e.__str__
+        

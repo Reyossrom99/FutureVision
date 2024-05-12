@@ -1,6 +1,9 @@
 
+import json
+import math
 import os
 import random
+import shutil
 import tempfile
 import zipfile
 from django.conf import settings
@@ -18,6 +21,7 @@ class CocoData:
         self.tmp_dir = tempfile.mkdtemp(dir = self.dir_root)
         self.tmp_name = os.path.basename(self.tmp_dir)
         #list of extracted pages
+        self.file.list = None
         self.extracted_pages = []
         self.extracted_train = []
         self.extracted_val = []
@@ -31,72 +35,96 @@ class CocoData:
         self.image_name_to_id = None
         self.categories = None
         self.category_colors = None
+        #modifications 
+        self.modify = False
+        self.modify_spltis = {"train": [], "val": [], "test": []}
+
 
     """
     Extracts the data from the zip file in the tmp directory
     """
     def extract_data_in_tmp(self, page_number:int, page_size:int, split:str="")  :
+        if self.file_list is None:
+            self.file_list = zipfile.ZipFile(self.zip_path, 'r').namelist()
+            #extracts annotions 
+            if self.type == "no-splits":
+                with zip.file.ZipFile(self.zip_path, 'r') as zip_ref:
+                    zip_ref.extract(self.zip_name + "/annotations.json", self.tmp_dir)
+            else: 
+                with zip.file.ZipFile(self.zip_path, 'r') as zip_ref:
+                    zip_ref.extract(self.zip_name + "/annotations/train.json", self.tmp_dir)
+                    zip_ref.extract(self.zip_name + "/annotations/val.json", self.tmp_dir)
+                    zip_ref.extract(self.zip_name + "/annotations/test.json", self.tmp_dir)
+
         if self.type == "no-splits" and page_number not in self.extracted_pages:
+
             with zipfile.ZipFile(self.zip_path, 'r') as zip_ref:
-                # Obtener lista de nombres de archivos en el zip
-                file_list = zip_ref.namelist()
-
-                # Calcular el rango de archivos que se extraerán para la página actual
+                file_list_no_splits = [file_name for file_name in self.file_list if file_name.lower().endswith(('.jpg', '.jpeg', '.png'))]
                 start_index = (page_number - 1) * page_size
-                end_index = min(start_index + page_size, len(file_list))
+                end_index = min(start_index + page_size, len(self.file_list))
 
-                # Extraer solo los archivos necesarios para la página actual
-                extracted_files = []
-                for file_name in file_list[start_index:end_index]:
+                for file_name in file_list_no_splits[start_index:end_index]:
                     zip_ref.extract(file_name, self.tmp_dir)
-            self.extracted_pages.append(page_number)
+
+                self.extracted_pages.append(page_number)    
+
         elif split == "train" and page_number not in self.extracted_train: 
+
             with zipfile.ZipFile(self.zip_path, 'r') as zip_ref:
-                # Obtener lista de nombres de archivos en el zip
-                file_list = zip_ref.namelist()
 
-                # Calcular el rango de archivos que se extraerán para la página actual
+                if self.modify == True: 
+                    file_list_train = [file_name.replace("/images/", "/train/") 
+                        for file_name in self.modify_splits["train"] 
+                        if file_name.lower().endswith(('.jpg', '.jpeg', '.png'))]
+
+                else: 
+                    file_list_train = [file_name for file_name in self.file_list if 'train' in file_name and file_name.lower().endswith(('.jpg', '.jpeg', '.png'))]
+
                 start_index = (page_number - 1) * page_size
-                end_index = min(start_index + page_size, len(file_list))
+                end_index = min(start_index + page_size, len(self.file_list))
 
-                # Extraer solo los archivos necesarios para la página actual
-                extracted_files = []
-                for file_name in file_list[start_index:end_index]:
-                    zip_ref.extract(file_name, os.path.join(self.tmp_dir, split))
+                for file_name in file_list_train[start_index:end_index]:
+                    zip_ref.extract(file_name, os.path.join(self.tmp_dir))
+
             self.extracted_train.append(page_number)
+
         elif split == "val" and page_number not in self.extracted_val: 
+
             with zipfile.ZipFile(self.zip_path, 'r') as zip_ref:
-                # Obtener lista de nombres de archivos en el zip
-                file_list = zip_ref.namelist()
-
-                # Calcular el rango de archivos que se extraerán para la página actual
+                if self.modify == True:
+                    file_list_val = [file_name.replace("/images/", "/val/") 
+                        for file_name in self.modify_splits["val"] 
+                        if file_name.lower().endswith(('.jpg', '.jpeg', '.png'))]
+                else: 
+                    file_list_val = [file_name for file_name in self.file_list if 'val' in file_name and file_name.lower().endswith(('.jpg', '.jpeg', '.png'))]
                 start_index = (page_number - 1) * page_size
-                end_index = min(start_index + page_size, len(file_list))
+                end_index = min(start_index + page_size, len(self.file_list))
 
-                # Extraer solo los archivos necesarios para la página actual
-                extracted_files = []
-                for file_name in file_list[start_index:end_index]:
-                    zip_ref.extract(file_name, os.path.join(self.tmp_dir, split))
+                for file_name in file_list_val[start_index:end_index]:
+                    zip_ref.extract(file_name, os.path.join(self.tmp_dir))
+
             self.extracted_val.append(page_number)
+            
         elif split == "test" and page_number not in self.extracted_test: 
             with zipfile.ZipFile(self.zip_path, 'r') as zip_ref:
-                # Obtener lista de nombres de archivos en el zip
-                file_list = zip_ref.namelist()
-
-                # Calcular el rango de archivos que se extraerán para la página actual
+                if self.modify == True:
+                    file_list_test = [file_name.replace("/images/", "/test/") 
+                        for file_name in self.modify_splits["test"] 
+                        if file_name.lower().endswith(('.jpg', '.jpeg', '.png'))]
+                else: 
+                    file_list_test = [file_name for file_name in self.file_list if 'test' in file_name and file_name.lower().endswith(('.jpg', '.jpeg', '.png'))]
                 start_index = (page_number - 1) * page_size
-                end_index = min(start_index + page_size, len(file_list))
+                end_index = min(start_index + page_size, len(self.file_list))
 
-                # Extraer solo los archivos necesarios para la página actual
-                extracted_files = []
-                for file_name in file_list[start_index:end_index]:
-                    zip_ref.extract(file_name, os.path.join(self.tmp_dir, split))
+                for file_name in file_list_test[start_index:end_index]:
+                    zip_ref.extract(file_name, os.path.join(self.tmp_dir))
+
             self.extracted_test.append(page_number)
 
     """
      Gets the images from the tmp directory
     """
-    def get_images(self, requested_split:str, page_number:int, page_size:int) -> list: 
+    def get_images(self, requested_split:str="", page_number:int=1, page_size:int=100) -> list: 
         
         images = []  #ruta relativa de las imagenes para mandarlas al front
         images_full = [] #ruta completa de las imagenes que necesita el back
@@ -107,7 +135,7 @@ class CocoData:
         if not os.path.exists(self.tmp_dir): 
             return images, images_full
         
-        if self.type == "no-splits": 
+        if self.type == "no-splits" and self.modify == False: 
             root_path = os.path.join(self.tmp_dir, self.zip_name, "images")
         else: 
             #get the images by split 
@@ -119,7 +147,7 @@ class CocoData:
         for name in image_files: 
                 if name.lower().endswith(('.png', '.jpg','.jpeg')): 
                   
-                    if self.type == "no-splits":
+                    if self.type == "no-splits" and self.modify == False:
                         images_full.append(os.path.join(settings.TMP_ROOT, self.tmp_name, self.zip_name, 'images', name))
                         images.append(os.path.join("/media", "tmp", self.tmp_name, self.zip_name,'images',name))
                     else: 
@@ -137,7 +165,7 @@ class CocoData:
         start_index = (page_number - 1) * page_size
         end_index = start_index + page_size
 
-        if self.type == "no-splits":
+        if self.type == "no-splits" and self.modify == False:
             root_path = os.path.join(self.tmp_dir, self.zip_name, "labeld_images")
         else: 
             root_path = os.path.join(self.tmp_dir, self.zip_name, "labeld_images", requested_split)
@@ -146,7 +174,7 @@ class CocoData:
      
         for name in labeled_files: 
                 if name.lower().endswith(('.png', '.jpg','.jpeg')): 
-                    if self.type == "no-splits":
+                    if self.type == "no-splits" and self.modify == False:
                         labeled_full.append(os.path.join(settings.TMP_ROOT, self.tmp_name, self.zip_name, 'labeld_images', name))
                         labeled.append(os.path.join("/media", "tmp", self.tmp_name, self.zip_name, 'labeld_images', name))
                     else: 
@@ -162,12 +190,9 @@ class CocoData:
         start_index = (page_number - 1) * page_size
         end_index = start_index + page_size
 
-        ##check if we have already saved the images with the labels
-        if (self.type == "no-splits" and page_number in self.labeled_images) or (requested_split=="train" and page_number in self.labeled_images_train) or (requested_split=="val" and page_number in self.labeled_images_val) or (requested_split=="test" and page_number in self.labeled_images_test):
-            return True
+
         #find the annotations folder 
-        if self.type == "no-splits" or requested_split == "": 
-            print("no splits")
+        if self.type == "no-splits" or requested_split == "" and self.modify == False: 
             image_dir = os.path.join(settings.TMP_ROOT, self.tmp_dir, self.zip_name, "images")
             annotation_file = os.path.join(settings.TMP_ROOT, self.tmp_name, self.zip_name, "annotations.json")
             if not os.path.exists(os.path.join(self.tmp_dir, self.zip_name, "labeld_images")): 
@@ -177,11 +202,17 @@ class CocoData:
             self.extract_data_in_tmp(page_number, page_size)
             self.labeled_images_train.append(page_number)    
         else: 
-            print("splits")
+            
             image_dir = os.path.join(settings.TMP_ROOT, self.tmp_dir, self.zip_name, requested_split)
-            annotation_file = os.path.join(settings.TMP_ROOT, self.tmp_name, self.zip_name, "annotations", requested_split + ".json")
+            #if file has been modified, the annotations are in the same folder as the no-splits
+            if self.modify == True:
+                annotation_file = os.path.join(settings.TMP_ROOT, self.tmp_name, self.zip_name, "annotations.json")
+            else: 
+                annotation_file = os.path.join(settings.TMP_ROOT, self.tmp_name, self.zip_name, "annotations", requested_split + ".json")
+
             if not os.path.exists(os.path.join(self.tmp_dir, self.zip_name, "labeld_images", requested_split)):
                 os.makedirs(os.path.join(self.tmp_dir, self.zip_name, "labeld_images", requested_split), exist_ok=False)
+
             images_label_dir = os.path.join(self.tmp_dir, self.zip_name, "labeld_images", requested_split)
             #verificar que la imagen original ya ha sido extraida
             self.extract_data_in_tmp(page_number, page_size, requested_split)
@@ -256,7 +287,7 @@ class CocoData:
     """
     Extracts the annotations from the annotation file and saves them in the object
     """
-    def extract_annotations(self, annotation_file:str): 
+    def extract_annotations(self, annotation_file:str, num_images:int = 0): 
         #cargar las anotaciones
         self.coco_data = coco.COCO(annotation_file)
         # Crear un diccionario para mapear nombres de archivos de imagen a IDs de imagen
@@ -267,4 +298,104 @@ class CocoData:
         # Definir una lista de colores aleatorios
         random.seed(42)  # Semilla para reproducibilidad
         self.category_colors = {category_name: (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)) for category_name in category_names}
+    
+    """
+        Creates temporal splits for the dataset
+    """
+    def create_splits(self, train:int, val:int, test:int, num_images:int=0): 
+        if self.modify == True: 
+            return False, "The dataset has already been modified"
         
+        #seleccionamos los elementos que van a ir a cada split de manera aletoria 
+        train_number = math.ceil((train/100)*num_images)
+        val_number = math.ceil((val/100)*num_images)
+        test_number = num_images - train_number - val_number
+
+        if train_number + val_number + test_number != num_images: 
+            return False, "The number of images in the splits is not equal to the total number of images"
+        
+        self.modify_splits["train"] = random.sample([x for x in self.file_list if x.lower().endswith(('.jpg', '.jpeg', '.png'))], train)
+        self.modify_spltis["val"] = random.sample([x for x in self.file_list if x not in self.modify_splits["train"] and x.lower().endswith(('.jpg', '.jpeg', '.png'))], val)
+        self.modify_splits["test"] = [x for x in self.file_list if x not in self.modify_splits["train"] and x not in self.modify_splits["val"] and x.lower().endswith(('.jpg', '.jpeg', '.png'))]
+
+        self.modify = True
+        return self.modify, "The splits have been created"
+    
+    """
+        saves the splits modifications into permanent files in the zip file 
+    """
+    def save_modifications(self): 
+        if self.modify == False: 
+            return False, "The dataset has not been modified"
+        
+        with zipfile.ZipFile(self.zip_path, 'a') as zip_ref:
+            # Crear nuevas carpetas dentro del archivo ZIP si no existen
+            for carpeta_destino in ["train", "val", "test", "annotations"]:
+                if carpeta_destino not in self.file_list.namelist():
+                    self.file_list.writestr(os.path.join(self.zip_name, carpeta_destino, "images/"), "")
+            
+            #pasar las imagenes a las carpetas correspondientes
+            for images in self.modify_splits["train"]:
+                zip_ref.write(images, os.path.join(self.zip_name, "train",  os.path.basename(images)))
+            for images in self.modify_splits["val"]:
+                zip_ref.write(images, os.path.join(self.zip_name, "val",  os.path.basename(images)))
+            for images in self.modify_splits["test"]:
+                zip_ref.write(images, os.path.join(self.zip_name, "test",  os.path.basename(images)))
+            
+            #pasar las anotaciones a los archivos correspondientes
+            anotaciones_train, anotaciones_val, anotaciones_test = self.separate_annotations_in_splits(os.path.join(self.tmp_dir, self.zip_name, "annotations.json"))
+            zip_ref.writestr(os.path.join(self.zip_name, "annotations", "train.json"), json.dumps(anotaciones_train))
+            zip_ref.writestr(os.path.join(self.zip_name, "annotations", "val.json"), json.dumps(anotaciones_val))
+            zip_ref.writestr(os.path.join(self.zip_name, "annotations", "test.json"), json.dumps(anotaciones_test))
+
+            # Eliminar el archivo de anotaciones original
+            zip_ref.remove(os.path.join(self.zip_name, "annotations.json"))
+            #Eliminar la carpeta de imagenes original
+            zip_ref.remove(os.path.join(self.zip_name, "images/"))
+        
+        #change values 
+        self.type == "splits"
+
+
+        zip_ref.close()
+
+
+        
+        return True, "The modifications have been saved"
+    
+    def separate_annotations_in_splits(self, annotations_file:str): 
+
+        with open(annotations_file, "r") as f:
+            anotaciones = json.load(f)
+    
+        # Filtrar las anotaciones por split
+        anotaciones_train = {"info": anotaciones["info"], "licenses": anotaciones["licenses"], "images": [], "annotations": []}
+        anotaciones_val = {"info": anotaciones["info"], "licenses": anotaciones["licenses"], "images": [], "annotations": []}
+        anotaciones_test = {"info": anotaciones["info"], "licenses": anotaciones["licenses"], "images": [], "annotations": []}
+
+        for image in anotaciones["images"]:
+            if image["file_name"] in self.modify_splits["train"]:
+                anotaciones_train["images"].append(image)
+            elif image["file_name"] in self.modify_splits["val"]:
+                anotaciones_val["images"].append(image)
+            elif image["file_name"] in self.modify_splits["test"]:
+                anotaciones_test["images"].append(image)
+        
+        for annotation in anotaciones["annotations"]:
+            if annotation["image_id"] in [img["id"] for img in anotaciones_train["images"]]:
+                anotaciones_train["annotations"].append(annotation)
+            elif annotation["image_id"] in [img["id"] for img in anotaciones_val["images"]]:
+                anotaciones_val["annotations"].append(annotation)
+            elif annotation["image_id"] in [img["id"] for img in anotaciones_test["images"]]:
+                anotaciones_test["annotations"].append(annotation)
+        
+        return anotaciones_train, anotaciones_val, anotaciones_test
+
+"""
+    Deletes the tmp directory
+"""
+def delete_tmp_data(self): 
+    if os.path.exists(self.tmp_dir): 
+        shutil.rmtree(self.tmp_dir)
+    
+    return True

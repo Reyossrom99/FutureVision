@@ -1,4 +1,5 @@
 import os 
+import random
 import zipfile
 from django.conf import settings
 import tempfile
@@ -7,6 +8,7 @@ import json
 import time
 import cv2 
 import numpy as np
+import yaml
 
 class YoloData: 
 
@@ -27,6 +29,7 @@ class YoloData:
         self.labeled_images_val = []
         self.labeled_images_test = []
         self.file_list = None
+        self.class_names = None
 
     """
         Extracts the data from the zip file into a temporary directory
@@ -34,6 +37,12 @@ class YoloData:
     def extract_data_in_tmp(self, page_number:int, page_size:int, split:str=""):
         if self.file_list is None:
             self.file_list = zipfile.ZipFile(self.zip_path, 'r').namelist()
+            data_yaml_file = [file_name for file_name in self.file_list if file_name.endswith('data.yaml')]
+            #extracts data yaml file 
+            if data_yaml_file:
+                data_yaml_file = data_yaml_file[0]  
+                with zipfile.ZipFile(self.zip_path, 'r') as zip_ref:
+                    zip_ref.extract(data_yaml_file, self.tmp_dir)
 
         if self.type == "no-splits" and page_number not in self.extracted_pages:
             with zipfile.ZipFile(self.zip_path, 'r') as zip_ref:
@@ -193,13 +202,18 @@ class YoloData:
         if len(image_files) != len(labels_files): 
             return 
 
-        if self.type=='no-splits' and page_number not in self.labeled_images:
+        if self.type=='no-splits': 
+            ##already saved images
+            if page_number in self.labeled_images: 
+                return 
             labeled_dir = os.path.join(self.tmp_dir, self.zip_name, 'labeled_images')
             if not os.path.exists(labeled_dir):
                 os.makedirs(labeled_dir, exist_ok=False) #raises an error if the directory already exists
             self.labeled_images.append(page_number)
         else:
-            if (requested_split == "train" and page_number not in self.labeled_images_train) or (requested_split=="val" and page_number not in self.labeled_images_val) or (requested_split=="test" and page_number not in self.labeled_images_test):
+                #already saved images
+                if (page_number in self.labeled_images_train and requested_split=="train")or (page_number in self.labeled_images_val and requested_split=="val") or (page_number in self.labeled_images_test and requested_split=="test"): 
+                    return
                 labeled_dir = os.path.join(self.tmp_dir, self.zip_name, 'labeled_images', requested_split)
                 #solo creamos el archivo la primera vez
                 if not os.path.exists(labeled_dir):
@@ -213,7 +227,14 @@ class YoloData:
                 else: 
                     return False
 
-        
+        #get class names 
+        if self.class_names is None:
+            with open(os.path.join(self.tmp_dir, self.zip_name, "data.yaml"), 'r') as yaml_file:
+                data = yaml.safe_load(yaml_file)
+                self.class_names = data['names']
+                random.seed(42)  # Semilla para reproducibilidad
+                self.category_colors = {category_name: (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)) for category_name in self.class_names}
+
         for index in range(0, len(image_files)): 
             image = cv2.imread(image_files[index], cv2.IMREAD_UNCHANGED)
 
@@ -226,20 +247,31 @@ class YoloData:
             file.close()
 
             for line in lines: 
-                class_id, x_center, y_center, width, height = map(float, line.strip().split())
+                try: 
+                    class_id, x_center, y_center, width, height = map(float, line.strip().split())
 
-                # Convert YOLO format to OpenCV format (x, y, width, height)
-               
-                x = int((x_center - width / 2) * image_width)
-                y = int((y_center - height / 2) * image_height)
-                w = int(width * image_width)
-                h = int(height * image_height)
-            
-                 # Draw bounding box on the image
-                cv2.rectangle(image, (x, y), (x + w, y + h), (255, 0, 0), 2)  # Green color, thickness=2
-            
-            name = os.path.basename(image_files[index])
-            cv2.imwrite(os.path.join(labeled_dir, name), image)
+                    # Convert YOLO format to OpenCV format (x, y, width, height)
+                
+                    x = int((x_center - width / 2) * image_width)
+                    y = int((y_center - height / 2) * image_height)
+                    w = int(width * image_width)
+                    h = int(height * image_height)
+                
+                    color = self.category_colors[self.class_names[int(class_id)]]
+                    # Draw bounding box on the image
+                    cv2.rectangle(image, (x, y), (x + w, y + h), color, 2)  # Green color, thickness=2
+
+                     # Obtener el nombre de la clase correspondiente
+                    class_name = self.class_names[int(class_id)]
+
+                    # Agregar el nombre de la clase a la imagen
+                    cv2.putText(image, class_name, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, color, 2)
+                
+                except: 
+                    print("Error en la linea", line)
+                    continue
+                name = os.path.basename(image_files[index])
+                cv2.imwrite(os.path.join(labeled_dir, name), image)
             # labeled_images_full.append(os.path.join(labeled_dir, name))
             # labeled_images.append(os.path.join("/media", "tmp", self.tmp_name, self.zip_name, "labeled_images", name))
         

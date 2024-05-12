@@ -4,8 +4,8 @@
         "val": true,
         "test": true, 
         "annotations": {
-            "train": true, 
-            "val": true
+            "train.json": true, 
+            "val.json": true
         }
     }
 }
