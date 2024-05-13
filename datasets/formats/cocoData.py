@@ -39,6 +39,9 @@ class CocoData:
         #modifications 
         self.modify = False
         self.modify_spltis = {"train": [], "val": [], "test": []}
+        self.summary = None
+        #is there are test labels
+        self.has_test = True
 
 
     """
@@ -451,6 +454,10 @@ class CocoData:
             elif self.type == "splits":
                 for split in ["train", "val", "test"]:
                     annotation_file = os.path.join(self.tmp_dir, self.zip_name, "annotations", split + ".json")
+                    #test puede no tener anotaciones
+                    if not os.path.exists(annotation_file) and split == "test":
+                        continue
+                    
                     if self.coco_data is None or self.categories is None or self.image_name_to_id is None or self.category_colors is None:
                         self.extract_annotations(annotation_file)
 
@@ -598,3 +605,103 @@ class CocoData:
         if check == False: 
             return False, err, ""
         return True, "The image has been deleted", image_split
+    
+    def get_summary(self): 
+        if self.is_modified == True: 
+            return True, None, "Save the modifications before getting the summary"
+        
+        if self.summary != None: 
+            return True, None, self.summary
+        
+        if self.type == "no-splits":
+            
+            if self.coco_data is None or self.categories is None or self.image_name_to_id is None or self.category_colors is None:
+                self.extract_annotations(os.path.join(self.tmp_dir, self.zip_name, "annotations.json"))
+            
+            num_images = len(self.coco_data["images"])
+            
+            num_categories = len(self.categories)
+
+            num_annotations = len(self.coco_data["annotations"])
+
+            name_categories = [category["name"] for category in self.categories]
+
+            #num of annotations per category
+            annotations_per_category = {category: 0 for category in name_categories}
+            for annotation in self.coco_data["annotations"]:
+                category_name = next(cat["name"] for cat in self.categories if cat["id"] == annotation["category_id"])
+                annotations_per_category[category_name] += 1
+            
+            self.summary = {
+                "num_images": num_images,
+                "num_categories": num_categories,
+                "num_annotations": num_annotations,
+                "annotations_per_category": annotations_per_category
+            }
+        
+        elif self.type == "splits": 
+            if self.coco_data is None or self.categories is None or self.image_name_to_id is None or self.category_colors is None:
+                self.extract_annotations(os.path.join(self.tmp_dir, self.zip_name, "annotations", "train.json"))
+            
+            num_images_train = len(self.coco_data["images"])
+            num_categories_train = len(self.categories)
+            num_annotations_train = len(self.coco_data["annotations"])
+            name_categories_train = [category["name"] for category in self.categories]
+            annotations_per_category_train = {category: 0 for category in name_categories_train}
+            for annotation in self.coco_data["annotations"]:
+                category_name = next(cat["name"] for cat in self.categories if cat["id"] == annotation["category_id"])
+                annotations_per_category_train[category_name] += 1
+
+            if self.coco_data is None or self.categories is None or self.image_name_to_id is None or self.category_colors is None:
+                self.extract_annotations(os.path.join(self.tmp_dir, self.zip_name, "annotations", "val.json"))
+            
+            num_images_val = len(self.coco_data["images"])
+            num_categories_val = len(self.categories)
+            num_annotations_val = len(self.coco_data["annotations"])
+            name_categories_val = [category["name"] for category in self.categories]
+            annotations_per_category_val = {category: 0 for category in name_categories_val}
+            for annotation in self.coco_data["annotations"]:
+                category_name = next(cat["name"] for cat in self.categories if cat["id"] == annotation["category_id"])
+                annotations_per_category_val[category_name] += 1
+
+            self.summary = {
+                "train": {
+                    "num_images": num_images_train,
+                    "num_categories": num_categories_train,
+                    "num_annotations": num_annotations_train,
+                    "annotations_per_category": annotations_per_category_train
+                },
+                "val": {
+                    "num_images": num_images_val,
+                    "num_categories": num_categories_val,
+                    "num_annotations": num_annotations_val,
+                    "annotations_per_category": annotations_per_category_val
+                }
+            }
+
+            if self.has_test == True:
+                if self.coco_data is None or self.categories is None or self.image_name_to_id is None or self.category_colors is None:
+                    self.extract_annotations(os.path.join(self.tmp_dir, self.zip_name, "annotations", "test.json"))
+                
+                num_images_test = len(self.coco_data["images"])
+                num_categories_test = len(self.categories)
+                num_annotations_test = len(self.coco_data["annotations"])
+                name_categories_test = [category["name"] for category in self.categories]
+                annotations_per_category_test = {category: 0 for category in name_categories_test}
+                for annotation in self.coco_data["annotations"]:
+                    category_name = next(cat["name"] for cat in self.categories if cat["id"] == annotation["category_id"])
+                    annotations_per_category_test
+            
+                self.summary["test"] = {
+                    "num_images": num_images_test,
+                    "num_categories": num_categories_test,
+                    "num_annotations": num_annotations_test,
+                    "annotations_per_category": annotations_per_category_test
+                }
+        else: 
+            return False, None,"The dataset type is not valid"
+
+        return True, self.summary, ""
+
+            
+           

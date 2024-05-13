@@ -400,6 +400,7 @@ def split_dataset(request, dataset_id):
 @api_view(["DELETE"])
 @permission_classes([IsAuthenticated])
 def modify_image(request, dataset_id, image_id): 
+
     if request.method == "DELETE": 
         dataset = Datasets.objects.get(dataset_id=dataset_id)
         if dataset.format == "yolo": 
@@ -454,6 +455,53 @@ def modify_image(request, dataset_id, image_id):
 
                 return JsonResponse({'message': 'Image deleted'}, status=status.HTTP_200_OK)
 
+        else: 
+            return JsonResponse({'error': 'Invalid dataset format'}, status=status.HTTP_400_BAD_REQUEST)
+    else: 
+        return JsonResponse({'error': 'Method not allowed'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+@api_view(["DELETE"])
+@permission_classes([IsAuthenticated])
+def modify_temporal_folder(request, dataset_id): 
+    if request.method == "DELETE": 
+        dataset = Datasets.objects.get(dataset_id=dataset_id)
+        if dataset.format == "yolo": 
+            if dataset.dataset_id not in yolo_data_objects: 
+                yolo_data_objects[dataset.dataset_id] = YoloData(dataset.name, dataset.type, dataset.url)
+            yolo_data = yolo_data_objects[dataset.dataset_id]
+            check, err = yolo_data.delete_tmp()
+            if not check: 
+                return JsonResponse({'error': err}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            else: 
+                return JsonResponse({'message': 'Temporal folder deleted'}, status=status.HTTP_200_OK)
+        elif dataset.format == "coco":
+            if dataset.dataset_id not in coco_data_objects:
+                coco_data_objects[dataset.dataset_id] = CocoData(dataset.name, dataset.type, dataset.url)
+            coco_data = coco_data_objects[dataset.dataset_id]
+            check, err = coco_data.delete_tmp()
+            if not check: 
+                return JsonResponse({'error': err}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            else: 
+                return JsonResponse({'message': 'Temporal folder deleted'}, status=status.HTTP_200_OK)
+        else: 
+            return JsonResponse({'error': 'Invalid dataset format'}, status=status.HTTP_400_BAD_REQUEST)
+    else: 
+        return JsonResponse({'error': 'Method not allowed'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def get_summary(request, dataset_id): 
+    if request.method == "GET": 
+        dataset = Datasets.objects.get(dataset_id=dataset_id)
+        if dataset.format == "coco":
+            if dataset.dataset_id not in coco_data_objects:
+                coco_data_objects[dataset.dataset_id] = CocoData(dataset.name, dataset.type, dataset.url)
+            coco_data = coco_data_objects[dataset.dataset_id]
+            err, summary, msgErr = coco_data.get_summary()
+            if err is not None:
+                return JsonResponse({'error': msgErr}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            else:
+                return JsonResponse(summary, safe=False)
         else: 
             return JsonResponse({'error': 'Invalid dataset format'}, status=status.HTTP_400_BAD_REQUEST)
     else: 

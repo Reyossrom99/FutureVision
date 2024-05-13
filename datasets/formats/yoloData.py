@@ -35,6 +35,8 @@ class YoloData:
         self.modify = False 
         self.modify_split = {"train": [], "val": [], "test": []}
         self.modify_split_labels = {"train": [], "val": [], "test": []}
+        #has test labels 
+        self.hasTest = True
 
     """
         Extracts the data from the zip file into a temporary directory
@@ -419,7 +421,7 @@ class YoloData:
             return False, err
         return True, "The zip file and the temporary directory have been deleted"
 
-    def delete_image(self, image_name):
+    def delete_image(self, image_name): 
 
         if self.modify == True: 
             return False, "Save the modifications before deleting an image", ""
@@ -460,4 +462,6 @@ class YoloData:
             return False, err, ""
         
         return True, "The image has been deleted", image_split
-                
+
+
+            
