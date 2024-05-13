@@ -487,3 +487,114 @@ class CocoData:
                 return True, "Los datos han sido convertidos al formato YOLO y guardados en el archivo ZIP."
             else:
                 return False, "El tipo de dataset no es válido."
+
+    def delete_splits(self): 
+        if self.modify != True: 
+            return False, "The dataset has not been modified"
+        #delete the forlders from the zip file 
+        with zipfile.ZipFile(self.zip_path, 'a') as zip_ref:
+            zip_ref.remove(os.path.join(self.zip_name, "train"))
+            zip_ref.remove(os.path.join(self.zip_name, "val"))
+            zip_ref.remove(os.path.join(self.zip_name, "test"))
+            zip_ref.remove(os.path.join(self.zip_name, "annotations"))
+        #delete the folders from the tmp directory
+        shutil.rmtree(os.path.join(self.tmp_dir, self.zip_name, "train"))
+        shutil.rmtree(os.path.join(self.tmp_dir, self.zip_name, "val"))
+        shutil.rmtree(os.path.join(self.tmp_dir, self.zip_name, "test"))
+        
+        #delete the modifications
+        self.modify_spltis = {"train": [], "val": [], "test": []}
+        self.modify = False
+
+        
+        return True, "The splits have been deleted"
+    
+    def delete_zip(self): 
+        if os.path.exists(self.zip_path): 
+            os.remove(self.zip_path)
+        return True
+    
+    def delete_all(self):
+        check, err = self.delete_tmp_data()
+        if check == False: 
+            return False, err
+        check, err = self.delete_zip()
+        if check == False: 
+            return False, err
+        return True
+    
+    def delete_image(self, image_name):
+        if self.modify == "True": 
+            return False,  "Save the modifications before deleting an image", ""
+        
+        image_split = ""
+
+        if self.type == "no-splits":
+            try: 
+                with zipfile.ZipFile(self.zip_path, 'a') as zip_ref:
+                    zip_ref.remove(os.path.join(self.zip_name, "images", image_name))
+
+            except KeyError: 
+                return False, "The image does not exist", ""
+            
+            except Exception as e: 
+                return False, str(e), ""
+            
+            #delete the image from the annotations file 
+            with open(os.path.join(self.tmp_dir, self.zip_name, "annotations.json"), "r") as f:
+                annotations = json.load(f)
+
+                for i in range(len(annotations["images"])):
+                    if annotations["images"][i]["file_name"] == image_name.split(".")[0]:
+                        annotations["images"].pop(i)
+                        break
+
+                for i in range(len(annotations["annotations"])):
+                    if annotations["annotations"][i]["image_id"] == image_name.split(".")[0]:
+                        annotations["annotations"].pop(i)
+                        break
+
+            #todo comprobar cuanto tardaria esta operacion
+            json.dump(annotations, os.path.join(self.tmp_dir, self.zip_name, "annotations.json"))
+        
+        else: 
+            try: 
+
+                with zipfile.ZipFile(self.zip_path, 'a') as zip_ref:
+                    
+                    for split in ["train", "val", "test"]:
+                      image_path = os.path.join(self.zip_name, split, image_name)
+
+                      if image_path in self.file_list: 
+                            zip_ref.remove(image_path)
+                            image_split = split
+
+            except KeyError: 
+                return False, "The image does not exist"
+            
+            except Exception as e: 
+                return False, str(e)
+            
+            #delete the image from the annotations file 
+            if image_split != "":
+
+                with open(os.path.join(self.tmp_dir, self.zip_name, "annotations", image_split+".json"), "r") as f:
+                    annotations = json.load(f)
+
+                    for i in range(len(annotations["images"])):
+                        if annotations["images"][i]["file_name"] == image_name:
+                            annotations["images"].pop(i)
+                            break
+
+                    for i in range(len(annotations["annotations"])):
+                        if annotations["annotations"][i]["image_id"] == image_name:
+                            annotations["annotations"].pop(i)
+                            break
+            
+            json.dump(annotations, os.path.join(self.tmp_dir, self.zip_name, "annotations", image_split+".json"))
+        
+        #delete the image from the tmp directory
+        check, err = self.delete_tmp_data()
+        if check == False: 
+            return False, err, ""
+        return True, "The image has been deleted", image_split

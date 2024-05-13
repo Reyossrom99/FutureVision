@@ -385,3 +385,79 @@ class YoloData:
     def delete_tmp(self):
         shutil.rmtree(self.tmp_dir)
         return True, "The temporary directory has been deleted"
+    
+    def delete_splits(self): 
+        if self.modify != True:
+            return False, "The dataset has not been modified"
+        #delete the zip folders for the splits
+        with zipfile.ZipFile(self.zip_path, 'a') as zip_ref:
+            for carpeta_destino in ["train", "val", "test"]:
+                zip_ref.remove(os.path.join(self.zip_name, carpeta_destino, "images/"))
+                zip_ref.remove(os.path.join(self.zip_name, carpeta_destino, "labels/"))
+        #delete the splits 
+        self.modify_splits = {"train": [], "val": [], "test": []}
+        self.modify_splits_labels = {"train": [], "val": [], "test": []}
+    
+        #delete the folders from the temporary directory
+        shutil.rmtree(os.path.join(self.tmp_dir, self.zip_name, "train"))
+        shutil.rmtree(os.path.join(self.tmp_dir, self.zip_name, "val"))
+        shutil.rmtree(os.path.join(self.tmp_dir, self.zip_name, "test"))
+
+
+        self.modify = False
+        return True, "The splits have been deleted"
+    
+    def delete_zip(self): 
+        os.remove(self.zip_path)
+        return True, "The zip file has been deleted"
+    def delete_all (self): 
+        check, err = self.delete_tmp()
+        if check != True: 
+            return False, err
+        check, err = self.delete_zip()
+        if check != True: 
+            return False, err
+        return True, "The zip file and the temporary directory have been deleted"
+
+    def delete_image(self, image_name):
+
+        if self.modify == True: 
+            return False, "Save the modifications before deleting an image", ""
+        
+        image_label = image_name.split(".")[0] + ".txt"
+        image_split= ""
+
+        if self.type == "no-splits":
+            try: 
+                with zipfile.ZipFile(self.zip_path, 'a') as zip_ref:
+                    zip_ref.remove(os.path.join(self.zip_name, "images", image_name))
+                    zip_ref.remove(os.path.join(self.zip_name, "labels", image_label))
+            except KeyError:
+                return False, "The image does not exist", ""
+            except Exception as e: 
+                return False, str(e) 
+        else: 
+            try: 
+                with zipfile.ZipFile(self.zip_path, 'a') as zip_ref:
+                    for split in ["train", "val", "test"]:
+                        image_path = os.path.join(self.zip_name, split, "images", image_name)
+                        label_path = os.path.join(self.zip_name, split, "labels", image_label)
+                        if image_path in self.file_list: 
+                            image_split = split
+                            zip_ref.remove(image_path)
+                        if label_path in self.file_list:
+                            image_split = split 
+                            zip_ref.remove(label_path)
+                            break 
+            except KeyError:
+                return False, "The image does not exist", ""
+            except Exception as e:
+                return False, str(e), ""
+            
+        #clean the tmp folder of the image
+        check, err = self.delete_tmp()
+        if check != True: 
+            return False, err, ""
+        
+        return True, "The image has been deleted", image_split
+                
