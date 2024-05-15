@@ -3,13 +3,12 @@ import { NavLink, useLocation, useParams } from 'react-router-dom';
 import { useCheckbox } from '../context/checkboxShowLabelContext';
 import { useSplitContext } from '../context/selectSplitViewContext';
 import { useCreateNewButtonContext, useCreateNewProjectContext, useCreateNewTrainContext } from '../context/createNewContext';
+import { useDeleteDatasetContext } from '../context/deleteContext';
 import AuthContext from '../context/AuthContext';
 import { navData } from '../lib/navData';
 import { TopNavContainer, TopNavItem, TopNavItems, TopNavButton, LastItem } from '../elements/topNavContainer';
-import Button from '../elements/button';
 import { SideNavButton, TopNavLink, NavContainer} from '../elements/SideNavContainer';
 
-import palette from '../palette';
 import { SlMenu, SlLogout } from "react-icons/sl";
 
 function TopNav() {
@@ -20,9 +19,17 @@ function TopNav() {
   const { handleNewButtonClick } = useCreateNewButtonContext();
   const { handleNewProjectButtonClick } = useCreateNewProjectContext();
   const { handleNewTrainButtonClick } = useCreateNewTrainContext();
+  const { handleDeleteButtonClick } = useDeleteDatasetContext();
   const [menuVisible, setMenuVisible] = useState(false);
 
-  let { user, loginUser, logoutUser } = useContext(AuthContext)
+  let { user, loginUser, logoutUser } = useContext(AuthContext); 
+
+  //delete dataset 
+  const {askForConfirmation} = useDeleteDatasetContext();
+
+  const handleDeleteDataset = () => {
+    askForConfirmation(true);
+  }; 
 
   const handleButtonClick = () => {
     handleNewButtonClick();
@@ -40,7 +47,9 @@ function TopNav() {
   const handleCheckboxChange = () => {
     setShowLabels(!showLabels);
   };
-
+  const handleDeleteProject = () => { 
+    handleDeleteButtonClick();
+  };
 
 
   return (
@@ -78,6 +87,7 @@ function TopNav() {
               onChange={handleSplitChange}
               value={selectedSplit}
             >
+              <option value="">Select Split</option>
               <option value="train">Train</option>
               <option value="val">Validation</option>
               <option value="test">Test</option>
@@ -91,6 +101,11 @@ function TopNav() {
               <TopNavButton onClick={() => handleButtonClick(true)}>
               create splits
             </TopNavButton>
+            </TopNavItem>
+            <TopNavItem>
+              <TopNavButton onClick={handleDeleteDataset} >
+                Delete Dataset
+                </TopNavButton>
             </TopNavItem>
             </>
         )}

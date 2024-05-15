@@ -1,57 +1,96 @@
-import {useEffect, useState, useContext } from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useEffect, useState, useContext } from 'react';
+import { Navigate, useParams, useNavigate} from 'react-router-dom';
 import { useCheckbox } from '../context/checkboxShowLabelContext';
 import { useSplitContext } from '../context/selectSplitViewContext';
 import { useCreateSplitContext } from '../context/createSplitsContext';
+import { useDeleteDatasetContext } from '../context/deleteContext';
 import styles from './datasets.module.css';
 import AuthContext from '../context/AuthContext';
 import { PaginatorButton } from '../elements/button';
 import { PageTitle } from '../elements/title';
 import { ContentContainer, PageContainer } from '../elements/containers';
 import Paginator from '../elements/paginator';
-
 import { css } from '@emotion/react';
 import { BeatLoader } from 'react-spinners';
-
 
 function DatasetsDetails() {
   const { id } = useParams();
   const [dataset, setDataset] = useState(null);
-  const [isLoading, setIsLoading] = useState(true); // Loading state
+  const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [expandedImage, setExpandedImage] = useState(null);
   const [total_pages, setTotalPages] = useState(1);
   const { showLabels } = useCheckbox();
   const { selectedSplit } = useSplitContext();
-  const { buttonClicked } = useCreateSplitContext();
   const { authTokens, logoutUser } = useContext(AuthContext);
+  const { buttonClicked } = useCreateSplitContext();
+  const {askForConfirmation} = useDeleteDatasetContext();
+  const {confirmDeleteDataset} = useDeleteDatasetContext();
+
+  const navigate = useNavigate();
+
+  let last_request_split = "";
+
+  const deleteDataset = async (datasetId) => {
+    let url = `/datasets/${datasetId}`;
+    const response = await fetch(url, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + String(authTokens.access),
+      },
+    });
+    if (response.ok) {
+      navigate('/datasets');
+    }; 
+  }; 
 
   useEffect(() => {
-    getDataset(id, showLabels, selectedSplit, currentPage);
-  }, [id, showLabels, selectedSplit, currentPage]);
-
-  const getDataset = async (datasetId, shouldShowLabels, requestSplitView, page) => {
-    try {
-      const response = await fetch(`/datasets/${datasetId}?showLabels=${shouldShowLabels}&request-split=${requestSplitView}&page=${page}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: 'Bearer ' + String(authTokens.access),
-        },
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setDataset(data);
-        setIsLoading(false);
-        setTotalPages(data.total_pages);
-      } else if (response.status === 401) {
-        logoutUser();
+    if (confirmDeleteDataset) {
+      if (window.confirm(`Do you want to delete this dataset?: ${id}`)) {
+        deleteDataset(id);
       }
-    } catch (error) {
-      console.error('Error fetching dataset:', error);
-      setIsLoading(false);
     }
-  };
+    const getDataset = async (datasetId, shouldShowLabels, requestSplitView, page, last_request_split) => {
+      let currentPage = page; 
+     
+    
+      if (last_request_split != requestSplitView) {
+        currentPage = 1; 
+        last_request_split = requestSplitView;
+      }
+    
+      try {
+        let url = `/datasets/${datasetId}?showLabels=${shouldShowLabels}&page=${currentPage}`;
+    
+        if (requestSplitView !== "") {
+          url += `&request-split=${requestSplitView}`;
+        }
+    
+        const response = await fetch(url, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + String(authTokens.access),
+          },
+        });
+    
+        if (response.ok) {
+          const data = await response.json();
+          setDataset(data);
+          setIsLoading(false);
+          setTotalPages(data.total_pages);
+        } else if (response.status === 401) {
+          logoutUser();
+        }
+      } catch (error) {
+        console.error('Error fetching dataset:', error);
+        setIsLoading(false);
+      }
+    };
+
+    getDataset(id, showLabels, selectedSplit, currentPage, last_request_split);
+  }, [id, showLabels, selectedSplit, currentPage, last_request_split, confirmDeleteDataset]);
 
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
@@ -63,15 +102,14 @@ function DatasetsDetails() {
 
   return (
     <PageContainer>
-      
-        {isLoading ? (
-          <ContentContainer>
-           <BeatLoader color="#36D7B7" loading={isLoading} size={15}  />
-           </ContentContainer>
-        ) : dataset && (
-          <ContentContainer>
-            <PageTitle className={styles.pageName}>{dataset.name}</PageTitle>
-            <p>{dataset.description}</p>
+      {isLoading ? (
+        <ContentContainer>
+          <BeatLoader color="#36D7B7" loading={isLoading} size={15} />
+        </ContentContainer>
+      ) : dataset && (
+        <ContentContainer>
+          <PageTitle className={styles.pageName}>{dataset.name}</PageTitle>
+          <p>{dataset.description}</p>
           <div className={styles.datasetDetailsContainer}>
             <div className={styles.imageGalery}>
               {dataset.images.map((imageUrl) => (
@@ -91,25 +129,20 @@ function DatasetsDetails() {
             )}
           </div>
           <Paginator>
-          <PaginatorButton onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
-            previous
-          </PaginatorButton>
-          <span>
-            page {currentPage} of {dataset ? total_pages : 0}
-          </span>
-          <PaginatorButton onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === (dataset ? total_pages : 0)}>
-            next
-          </PaginatorButton>
-        </Paginator>
-          </ContentContainer>
-        )}
-      
+            <PaginatorButton onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
+              previous
+            </PaginatorButton>
+            <span>
+              page {currentPage} of {dataset ? total_pages : 0}
+            </span>
+            <PaginatorButton onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === (dataset ? total_pages : 0)}>
+              next
+            </PaginatorButton>
+          </Paginator>
+        </ContentContainer>
+      )}
     </PageContainer>
   );
 }
 
 export default DatasetsDetails;
-
-
-
-

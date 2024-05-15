@@ -203,6 +203,7 @@ def dataset(request, dataset_id):
 
         return JsonResponse(paginated_data, safe=False)
     elif request.method == "DELETE":
+    
         #borrar el dataset de la base de datos 
         dataset = Datasets.objects.get(dataset_id=dataset_id)
         if dataset.format == "yolo": 
@@ -210,19 +211,24 @@ def dataset(request, dataset_id):
                 yolo_data = yolo_data_objects[dataset.dataset_id]
 
             yolo_data = yolo_data_objects[dataset.dataset_id]
+     
             check, err = yolo_data.delete_all()
             if not check :
                     return JsonResponse({'error': err}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             #borrar el dataset de la base de datos
+           
             del yolo_data_objects[dataset.dataset_id]
             try: 
                 dataset.delete()
-            except:
+            except Exception as e:
+                print(e)
                 return JsonResponse({'error': 'Cannot delete dataset'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return JsonResponse({'message': 'Dataset deleted'}, status=status.HTTP_200_OK)
         elif dataset.format == "coco":
             if dataset.dataset_id in coco_data_objects: 
                 coco_data = coco_data_objects[dataset.dataset_id]
             coco_data = coco_data_objects[dataset.dataset_id]
+          
             check, err = coco_data.delete_all()
             if not check :
                     return JsonResponse({'error': err}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -232,8 +238,10 @@ def dataset(request, dataset_id):
                 dataset.delete()
             except:
                 return JsonResponse({'error': 'Cannot delete dataset'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return JsonResponse({'message': 'Dataset deleted'}, status=status.HTTP_200_OK)
         else: 
             return JsonResponse({'error': 'Invalid dataset format'}, status=status.HTTP_400_BAD_REQUEST)
+        
     elif request.method == "PATCH":
         try:
             dataset = Datasets.objects.get(dataset_id=dataset_id)

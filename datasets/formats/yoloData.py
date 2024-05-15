@@ -410,8 +410,10 @@ class YoloData:
         return True, "The splits have been deleted"
     
     def delete_zip(self): 
-        os.remove(self.zip_path)
+        print(os.path.join(settings.MEDIA_ROOT, self.zip_path.name))
+        os.remove(os.path.join(settings.MEDIA_ROOT, self.zip_path.name))
         return True, "The zip file has been deleted"
+    
     def delete_all (self): 
         check, err = self.delete_tmp()
         if check != True: 

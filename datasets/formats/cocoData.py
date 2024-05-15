@@ -517,9 +517,11 @@ class CocoData:
         return True, "The splits have been deleted"
     
     def delete_zip(self): 
-        if os.path.exists(self.zip_path): 
-            os.remove(self.zip_path)
-        return True
+        if os.path.exists(os.path.join(settings.MEDIA_ROOT, self.zip_path)): 
+            os.remove(os.path.join(settings.MEDIA_ROOT, self.zip_path))
+            return True
+        else: 
+            return False, "The zip file does not exist"
     
     def delete_all(self):
         check, err = self.delete_tmp_data()
