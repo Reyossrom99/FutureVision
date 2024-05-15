@@ -206,6 +206,9 @@ def dataset(request, dataset_id):
     
         #borrar el dataset de la base de datos 
         dataset = Datasets.objects.get(dataset_id=dataset_id)
+        if dataset.user != request.user and dataset.is_public: 
+            return JsonResponse({'error': 'Cannot delete a public dataset if does not belong to you'}, status=status.HTTP_401_UNAUTHORIZED)
+
         if dataset.format == "yolo": 
             if dataset.dataset_id in yolo_data_objects: 
                 yolo_data = yolo_data_objects[dataset.dataset_id]

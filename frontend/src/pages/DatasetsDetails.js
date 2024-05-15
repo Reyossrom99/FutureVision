@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { Navigate, useParams, useNavigate} from 'react-router-dom';
+import { Navigate, useParams, useNavigate } from 'react-router-dom';
 import { useCheckbox } from '../context/checkboxShowLabelContext';
 import { useSplitContext } from '../context/selectSplitViewContext';
 import { useCreateSplitContext } from '../context/createSplitsContext';
@@ -24,8 +24,8 @@ function DatasetsDetails() {
   const { selectedSplit } = useSplitContext();
   const { authTokens, logoutUser } = useContext(AuthContext);
   const { buttonClicked } = useCreateSplitContext();
-  const {askForConfirmation} = useDeleteDatasetContext();
-  const {confirmDeleteDataset} = useDeleteDatasetContext();
+  const { askForConfirmation } = useDeleteDatasetContext();
+  const { confirmDeleteDataset } = useDeleteDatasetContext();
 
   const navigate = useNavigate();
 
@@ -40,10 +40,17 @@ function DatasetsDetails() {
         Authorization: 'Bearer ' + String(authTokens.access),
       },
     });
+    const data = await response.json();
     if (response.ok) {
       navigate('/datasets');
-    }; 
-  }; 
+      askForConfirmation(false);
+    }
+    else {
+      if (data && data.error) {
+        console.error('Error deleting dataset:', data.error);
+      }
+    }
+  };
 
   useEffect(() => {
     if (confirmDeleteDataset) {
@@ -52,21 +59,21 @@ function DatasetsDetails() {
       }
     }
     const getDataset = async (datasetId, shouldShowLabels, requestSplitView, page, last_request_split) => {
-      let currentPage = page; 
-     
-    
+      let currentPage = page;
+
+
       if (last_request_split != requestSplitView) {
-        currentPage = 1; 
+        currentPage = 1;
         last_request_split = requestSplitView;
       }
-    
+
       try {
         let url = `/datasets/${datasetId}?showLabels=${shouldShowLabels}&page=${currentPage}`;
-    
+
         if (requestSplitView !== "") {
           url += `&request-split=${requestSplitView}`;
         }
-    
+
         const response = await fetch(url, {
           method: 'GET',
           headers: {
@@ -74,7 +81,7 @@ function DatasetsDetails() {
             Authorization: 'Bearer ' + String(authTokens.access),
           },
         });
-    
+
         if (response.ok) {
           const data = await response.json();
           setDataset(data);
