@@ -12,6 +12,8 @@ import { ContentContainer, PageContainer } from '../elements/containers';
 import Paginator from '../elements/paginator';
 import { css } from '@emotion/react';
 import { BeatLoader } from 'react-spinners';
+import { useModifyContext } from '../context/modifyContext';
+import ModifyDatasetDialog from '../components/modifyDatasetDialogForm';
 
 function DatasetsDetails() {
   const { id } = useParams();
@@ -26,6 +28,11 @@ function DatasetsDetails() {
   const { buttonClicked } = useCreateSplitContext();
   const { askForConfirmation } = useDeleteDatasetContext();
   const { confirmDeleteDataset } = useDeleteDatasetContext();
+  const {isModifyDialogOpen, handleCloseModifyDialog} = useModifyContext();
+  const {modify, setModify} = useModifyContext();
+  const {privacy, setPrivacy} = useModifyContext();
+ const {description, setDescription} = useModifyContext();
+  
 
   const navigate = useNavigate();
 
@@ -87,6 +94,9 @@ function DatasetsDetails() {
           setDataset(data);
           setIsLoading(false);
           setTotalPages(data.total_pages);
+          //for modify context dialog
+          setDescription(data.description);
+          setPrivacy(data.privacy);
         } else if (response.status === 401) {
           logoutUser();
         }
@@ -146,6 +156,7 @@ function DatasetsDetails() {
               next
             </PaginatorButton>
           </Paginator>
+          <ModifyDatasetDialog isOpen={isModifyDialogOpen} onRequestClose={handleCloseModifyDialog} privacy={privacy} description={description} id={id}/>
         </ContentContainer>
       )}
     </PageContainer>

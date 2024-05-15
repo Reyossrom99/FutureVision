@@ -1,0 +1,22 @@
+import React, {createContext, useContext, useState} from "react";
+
+const ModifyContext= createContext();
+export function useModifyContext() {
+  return useContext(ModifyContext);
+}
+export function ModifyProvider({children}) {
+    const [modify, setModify] = useState(false);
+    const [isModifyDialogOpen, SetIsModifyDialogOpen] = useState(false);
+    const [privacy, setPrivacy] = useState(false);
+    const [description, setDescription] = useState('');
+    
+    const askForModify = (data) => {
+        setModify(true);
+        SetIsModifyDialogOpen(true);
+    }
+    return (
+        <ModifyContext.Provider value={{modify, modifyData, askForModify}}>
+        {children}
+        </ModifyContext.Provider>
+    );
+    }

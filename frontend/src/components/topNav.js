@@ -107,6 +107,11 @@ function TopNav() {
                 Delete Dataset
                 </TopNavButton>
             </TopNavItem>
+            <TopNavItem>
+              <TopNavButton onClick={handleNewTrain} >
+                Modify
+              </TopNavButton>
+            </TopNavItem>
             </>
         )}
         {location.pathname === '/projects' && (

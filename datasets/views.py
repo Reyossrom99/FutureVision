@@ -248,74 +248,75 @@ def dataset(request, dataset_id):
     elif request.method == "PATCH":
         try:
             dataset = Datasets.objects.get(dataset_id=dataset_id)
-            field = request.data.get('field')
-            value = request.data.get('value')
-            if field == 'description':
-                dataset.description = value
-                dataset.save()
-            elif field == 'privacy':
-                dataset.is_public = value
-                dataset.save()
-            elif field == 'splits': 
-                #check if changes have been made 
-                if dataset.format == "coco": 
-                    if dataset.dataset_id not in coco_data_objects:
-                        coco_data_objects[dataset.dataset_id] = CocoData(dataset.name, dataset.type, dataset.url)
-                    coco_data = coco_data_objects[dataset.dataset_id]
-                    check, err, train_imgs, val_imgs, test_imgs= coco_data.save_modifications()
-                    if not check: 
-                        return JsonResponse({'error': err}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-                    else: 
-                        check, err = coco_data.delete_tmp()
-                        if not check :
+            fields = request.data.get('fields')
+            values = request.data.get('values')
+            for i in range(len(fields)): 
+                if fields[i] == 'description':
+                    dataset.description = values[i]
+                    dataset.save()
+                elif fields[i] == 'privacy':
+                    dataset.is_public = values[i]
+                    dataset.save()
+                elif fields[i] == 'splits': 
+                    #check if changes have been made 
+                    if dataset.format == "coco": 
+                        if dataset.dataset_id not in coco_data_objects:
+                            coco_data_objects[dataset.dataset_id] = CocoData(dataset.name, dataset.type, dataset.url)
+                        coco_data = coco_data_objects[dataset.dataset_id]
+                        check, err, train_imgs, val_imgs, test_imgs= coco_data.save_modifications()
+                        if not check: 
                             return JsonResponse({'error': err}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-                        #delete from the dictionary
-                        del coco_data_objects[dataset.dataset_id]
-                        #change status in database 
-                        dataset.type = "no-splits"
-                        dataset.num_images_train = train_imgs
-                        dataset.num_images_val = val_imgs
-                        dataset.num_images_test = test_imgs
-                        return JsonResponse({'message': 'Dataset updated'}, status=status.HTTP_200_OK)
-                    
-                elif dataset.format == "yolo":
-                    if dataset.dataset_id not in yolo_data_objects: 
-                        yolo_data_objects[dataset.dataset_id] = YoloData(dataset.name, dataset.type, dataset.url)
-                    yolo_data = yolo_data_objects[dataset.dataset_id]
-                    check, err, train_imgs, val_imgs, test_imgs= yolo_data.save_modifications()
-                    if not check: 
-                        return JsonResponse({'error': err}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-                    else: 
-                        check, err = yolo_data.delete_tmp()
-                        if not check :
+                        else: 
+                            check, err = coco_data.delete_tmp()
+                            if not check :
+                                return JsonResponse({'error': err}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                            #delete from the dictionary
+                            del coco_data_objects[dataset.dataset_id]
+                            #change status in database 
+                            dataset.type = "no-splits"
+                            dataset.num_images_train = train_imgs
+                            dataset.num_images_val = val_imgs
+                            dataset.num_images_test = test_imgs
+                            return JsonResponse({'message': 'Dataset updated'}, status=status.HTTP_200_OK)
+                        
+                    elif dataset.format == "yolo":
+                        if dataset.dataset_id not in yolo_data_objects: 
+                            yolo_data_objects[dataset.dataset_id] = YoloData(dataset.name, dataset.type, dataset.url)
+                        yolo_data = yolo_data_objects[dataset.dataset_id]
+                        check, err, train_imgs, val_imgs, test_imgs= yolo_data.save_modifications()
+                        if not check: 
                             return JsonResponse({'error': err}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                        else: 
+                            check, err = yolo_data.delete_tmp()
+                            if not check :
+                                return JsonResponse({'error': err}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                            #delete from the dictionary
+                            del yolo_data_objects[dataset.dataset_id]
+                            #change status in database 
+                            dataset.type = "no-splits"
+                            dataset.num_images_train = train_imgs
+                            dataset.num_images_val = val_imgs
+                            dataset.num_images_test = test_imgs
+                            dataset.save()
+                            return JsonResponse({'message': 'Dataset updated'}, status=status.HTTP_200_OK)
+                    else: 
+                        return JsonResponse({'error': 'Invalid dataset format'}, status=status.HTTP_400_BAD_REQUEST)
+                #convert form coco to yolo
+                elif fields[i]== "format": 
+                    if dataset.format == "yolo": 
+                        if dataset.dataset_id not in yolo_data_objects: 
+                            yolo_data_objects[dataset.dataset_id] = YoloData(dataset.name, dataset.type, dataset.url)
+                        yolo_data = yolo_data_objects[dataset.dataset_id]
+                        yolo_data.convert_to_coco()
+                        #delete data
+                        yolo_data.delete_tmp()
                         #delete from the dictionary
                         del yolo_data_objects[dataset.dataset_id]
-                        #change status in database 
-                        dataset.type = "no-splits"
-                        dataset.num_images_train = train_imgs
-                        dataset.num_images_val = val_imgs
-                        dataset.num_images_test = test_imgs
+                        dataset.format = "coco"
                         dataset.save()
-                        return JsonResponse({'message': 'Dataset updated'}, status=status.HTTP_200_OK)
-                else: 
-                    return JsonResponse({'error': 'Invalid dataset format'}, status=status.HTTP_400_BAD_REQUEST)
-            #convert form coco to yolo
-            elif field == "format": 
-                if dataset.format == "yolo": 
-                    if dataset.dataset_id not in yolo_data_objects: 
-                        yolo_data_objects[dataset.dataset_id] = YoloData(dataset.name, dataset.type, dataset.url)
-                    yolo_data = yolo_data_objects[dataset.dataset_id]
-                    yolo_data.convert_to_coco()
-                    #delete data
-                    yolo_data.delete_tmp()
-                    #delete from the dictionary
-                    del yolo_data_objects[dataset.dataset_id]
-                    dataset.format = "coco"
-                    dataset.save()
 
-            else:
-                return JsonResponse({'error': 'Invalid field'}, status=status.HTTP_404_NOT_FOUND)
+                else:
+                    return JsonResponse({'error': 'Invalid field'}, status=status.HTTP_404_NOT_FOUND)
             
             return JsonResponse({'message': 'Dataset updated'}, status=status.HTTP_200_OK)
         except:

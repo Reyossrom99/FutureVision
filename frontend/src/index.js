@@ -7,6 +7,7 @@ import { SplitProvider } from './context/selectSplitViewContext';
 import { ButtonClickProvider } from './context/createSplitsContext';
 import { CreateNewButtonProvider, CreateNewProjectProvider, CreateNewTrainProvider } from './context/createNewContext';
 import { DeleteDatasetProvider } from './context/deleteContext';
+import { ModifyProvider } from './context/modifyContext';
 
 import palette from './palette';
 
@@ -16,22 +17,23 @@ root.render(
   <React.StrictMode>
     <BrowserRouter>
 
-      <DeleteDatasetProvider>
-        <CreateNewButtonProvider>
-          <CreateNewProjectProvider>
-            <CreateNewTrainProvider>
-              <CheckboxProvider>
-                <SplitProvider>
-                  <ButtonClickProvider>
-                    <App palette={palette} />
-                  </ButtonClickProvider>
-                </SplitProvider>
-              </CheckboxProvider>
-            </CreateNewTrainProvider>
-          </CreateNewProjectProvider>
-        </CreateNewButtonProvider>
-
-      </DeleteDatasetProvider>
+      <ModifyProvider>
+        <DeleteDatasetProvider>
+          <CreateNewButtonProvider>
+            <CreateNewProjectProvider>
+              <CreateNewTrainProvider>
+                <CheckboxProvider>
+                  <SplitProvider>
+                    <ButtonClickProvider>
+                      <App palette={palette} />
+                    </ButtonClickProvider>
+                  </SplitProvider>
+                </CheckboxProvider>
+              </CreateNewTrainProvider>
+            </CreateNewProjectProvider>
+          </CreateNewButtonProvider>
+        </DeleteDatasetProvider>
+      </ModifyProvider>
 
 
 
