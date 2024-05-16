@@ -123,6 +123,7 @@ def datasets(request):
 @api_view(["GET", "DELETE", "PATCH"])
 @permission_classes([IsAuthenticated])
 def dataset(request, dataset_id):
+    print("dataset")
     global yolo_data_objects
     global coco_data_objects
 
@@ -246,17 +247,24 @@ def dataset(request, dataset_id):
             return JsonResponse({'error': 'Invalid dataset format'}, status=status.HTTP_400_BAD_REQUEST)
         
     elif request.method == "PATCH":
+     
         try:
             dataset = Datasets.objects.get(dataset_id=dataset_id)
             fields = request.data.get('fields')
             values = request.data.get('values')
+            print("fields", fields)
             for i in range(len(fields)): 
+                print(fields[i], values[i])
                 if fields[i] == 'description':
+                    print("descripcion: ", values[i])
                     dataset.description = values[i]
                     dataset.save()
+                    print(dataset.description)
                 elif fields[i] == 'privacy':
+                    print("privacy", values[i])
                     dataset.is_public = values[i]
                     dataset.save()
+                    print("dataset", dataset.is_public)
                 elif fields[i] == 'splits': 
                     #check if changes have been made 
                     if dataset.format == "coco": 
@@ -319,7 +327,8 @@ def dataset(request, dataset_id):
                     return JsonResponse({'error': 'Invalid field'}, status=status.HTTP_404_NOT_FOUND)
             
             return JsonResponse({'message': 'Dataset updated'}, status=status.HTTP_200_OK)
-        except:
+        except Exception as e:
+            print("error", e)
             return JsonResponse({'error': 'Cannot update dataset'}, status=status.HTTP_404_NOT_FOUND)    
     else: 
         return JsonResponse({'error': 'Method not allowed'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)

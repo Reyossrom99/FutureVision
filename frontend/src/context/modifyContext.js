@@ -10,12 +10,16 @@ export function ModifyProvider({children}) {
     const [privacy, setPrivacy] = useState(false);
     const [description, setDescription] = useState('');
     
-    const askForModify = (data) => {
+    const askForModify = () => {
         setModify(true);
         SetIsModifyDialogOpen(true);
     }
+    const handleCloseModifyDialog = () => {
+        setModify(false); 
+        SetIsModifyDialogOpen(false);
+    }
     return (
-        <ModifyContext.Provider value={{modify, modifyData, askForModify}}>
+        <ModifyContext.Provider value={{modify, isModifyDialogOpen, privacy, description, askForModify, handleCloseModifyDialog}}>
         {children}
         </ModifyContext.Provider>
     );

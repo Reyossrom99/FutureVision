@@ -4,6 +4,7 @@ import { useCheckbox } from '../context/checkboxShowLabelContext';
 import { useSplitContext } from '../context/selectSplitViewContext';
 import { useCreateNewButtonContext, useCreateNewProjectContext, useCreateNewTrainContext } from '../context/createNewContext';
 import { useDeleteDatasetContext } from '../context/deleteContext';
+import { useModifyContext } from '../context/modifyContext';
 import AuthContext from '../context/AuthContext';
 import { navData } from '../lib/navData';
 import { TopNavContainer, TopNavItem, TopNavItems, TopNavButton, LastItem } from '../elements/topNavContainer';
@@ -21,6 +22,8 @@ function TopNav() {
   const { handleNewTrainButtonClick } = useCreateNewTrainContext();
   const { handleDeleteButtonClick } = useDeleteDatasetContext();
   const [menuVisible, setMenuVisible] = useState(false);
+  const {askForModify } = useModifyContext();
+  
 
   let { user, loginUser, logoutUser } = useContext(AuthContext); 
 
@@ -50,7 +53,9 @@ function TopNav() {
   const handleDeleteProject = () => { 
     handleDeleteButtonClick();
   };
-
+  const handleModifyDataset = () => { 
+    askForModify();
+  }
 
   return (
     <TopNavContainer>
@@ -108,7 +113,7 @@ function TopNav() {
                 </TopNavButton>
             </TopNavItem>
             <TopNavItem>
-              <TopNavButton onClick={handleNewTrain} >
+              <TopNavButton onClick={handleModifyDataset} >
                 Modify
               </TopNavButton>
             </TopNavItem>

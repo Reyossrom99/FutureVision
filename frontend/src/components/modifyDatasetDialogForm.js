@@ -5,29 +5,33 @@ import styles from './newDatasetForm.module.css';
 import AuthContext from "../context/AuthContext";
 import { useNavigate } from 'react-router-dom';
 
-const ModifyDatasetDialog = ({ isOpen, onRequestClose, privacy, description, id}) => {
+const ModifyDatasetDialog = ({ isOpen, onRequestClose, privacy, description, datasetId}) => {
 
     const [setDescription, setDescriptionModify] = useState(description);
     const [privacyModify, setPrivacyModify] = useState(privacy);
     const fields = []
     const values = []
     const authContext = useContext(AuthContext);
+    const navigate = useNavigate();
 
     const handleAccept = async () => {
-        
+        fields.length = 0
+        values.length = 0
         if (description !== setDescription) {
+            
             fields.push('description')
             values.push(setDescription)
         }
         if (privacy !== privacyModify) {
+           
             fields.push('privacy')
-            values.push(privacy === 'public') // 'privacy' es un booleano
+            values.push(privacyModify === 'public') // 'privacy' es un booleano
         } 
         try {
-            const response = await fetch(`dataset/${id}`, {
+            const response = await fetch(`/datasets/${datasetId}`, {
                 method: 'PATCH', // Cambia 'POST' a 'PATCH'
                 headers: {
-                    // No establecer 'Content-Type': 'application/json' aquí
+                    'Content-Type': 'application/json',
                     // FormData establece el encabezado 'Content-Type' a 'multipart/form-data' automáticamente
                     'Authorization': 'Bearer ' + String(authContext.authTokens.access)
                 },
@@ -37,17 +41,17 @@ const ModifyDatasetDialog = ({ isOpen, onRequestClose, privacy, description, id}
                 }),
             });
     
-            if (response.status == HttpStatusCode.Created) {
+            if (response.status == HttpStatusCode.Ok) {
                 onRequestClose();
-                setIsLoaded(true);
-                navigate(`/dataset/${id}`)
+                navigate(`/dataset/${datasetId}`)
+                fields.length = 0
+                values.length = 0
             } else {
-                setIsLoaded(true);
+               
                 const data = await response.json();
                 console.log('Error:', data);
             }
         } catch (error) {
-            setIsLoaded(true);
             console.log('Error creating dataset:', error);
         }
     };

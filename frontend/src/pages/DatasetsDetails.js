@@ -156,7 +156,7 @@ function DatasetsDetails() {
               next
             </PaginatorButton>
           </Paginator>
-          <ModifyDatasetDialog isOpen={isModifyDialogOpen} onRequestClose={handleCloseModifyDialog} privacy={privacy} description={description} id={id}/>
+          <ModifyDatasetDialog isOpen={isModifyDialogOpen} onRequestClose={handleCloseModifyDialog} privacy={privacy} description={description} datasetId={id}/>
         </ContentContainer>
       )}
     </PageContainer>
