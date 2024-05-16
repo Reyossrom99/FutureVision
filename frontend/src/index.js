@@ -4,7 +4,7 @@ import App from './App';
 import { BrowserRouter } from 'react-router-dom';
 import { CheckboxProvider } from './context/checkboxShowLabelContext';
 import { SplitProvider } from './context/selectSplitViewContext';
-import { ButtonClickProvider } from './context/createSplitsContext';
+import { CreateSplitProvider } from './context/createSplitsContext';
 import { CreateNewButtonProvider, CreateNewProjectProvider, CreateNewTrainProvider } from './context/createNewContext';
 import { DeleteDatasetProvider } from './context/deleteContext';
 import { ModifyProvider } from './context/modifyContext';
@@ -24,9 +24,9 @@ root.render(
               <CreateNewTrainProvider>
                 <CheckboxProvider>
                   <SplitProvider>
-                    <ButtonClickProvider>
+                    <CreateSplitProvider>
                       <App palette={palette} />
-                    </ButtonClickProvider>
+                    </CreateSplitProvider>
                   </SplitProvider>
                 </CheckboxProvider>
               </CreateNewTrainProvider>

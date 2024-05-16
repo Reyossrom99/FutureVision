@@ -9,7 +9,7 @@ import AuthContext from '../context/AuthContext';
 import { navData } from '../lib/navData';
 import { TopNavContainer, TopNavItem, TopNavItems, TopNavButton, LastItem } from '../elements/topNavContainer';
 import { SideNavButton, TopNavLink, NavContainer} from '../elements/SideNavContainer';
-
+import { useCreateSplitContext } from '../context/createSplitsContext';
 import { SlMenu, SlLogout } from "react-icons/sl";
 
 function TopNav() {
@@ -23,7 +23,7 @@ function TopNav() {
   const { handleDeleteButtonClick } = useDeleteDatasetContext();
   const [menuVisible, setMenuVisible] = useState(false);
   const {askForModify } = useModifyContext();
-  
+  const {handleCreateSplitDialog} = useCreateSplitContext(); 
 
   let { user, loginUser, logoutUser } = useContext(AuthContext); 
 
@@ -55,6 +55,9 @@ function TopNav() {
   };
   const handleModifyDataset = () => { 
     askForModify();
+  }
+  const handleCreateSplits = () => {
+    handleCreateSplitDialog(); 
   }
 
   return (
@@ -103,9 +106,7 @@ function TopNav() {
               type="checkbox"
               checked={showLabels}
               onChange={handleCheckboxChange} /><label> Show Labels</label>
-              <TopNavButton onClick={() => handleButtonClick(true)}>
-              create splits
-            </TopNavButton>
+             
             </TopNavItem>
             <TopNavItem>
               <TopNavButton onClick={handleDeleteDataset} >
@@ -117,6 +118,12 @@ function TopNav() {
                 Modify
               </TopNavButton>
             </TopNavItem>
+              <TopNavItem>
+                <TopNavButton onClick={handleCreateSplits}>
+                  Create splits
+                </TopNavButton>
+              </TopNavItem>
+            
             </>
         )}
         {location.pathname === '/projects' && (

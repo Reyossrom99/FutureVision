@@ -14,6 +14,7 @@ import { css } from '@emotion/react';
 import { BeatLoader } from 'react-spinners';
 import { useModifyContext } from '../context/modifyContext';
 import ModifyDatasetDialog from '../components/modifyDatasetDialogForm';
+import CreateSplitsDialog from '../components/createSplitsDialog';
 
 function DatasetsDetails() {
   const { id } = useParams();
@@ -26,12 +27,13 @@ function DatasetsDetails() {
   const { selectedSplit } = useSplitContext();
   const { authTokens, logoutUser } = useContext(AuthContext);
   const { buttonClicked } = useCreateSplitContext();
-  const { askForConfirmation } = useDeleteDatasetContext();
+  const { askForConfirmation , deleteConfirmation} = useDeleteDatasetContext();
   const { confirmDeleteDataset } = useDeleteDatasetContext();
   const {isModifyDialogOpen, handleCloseModifyDialog} = useModifyContext();
   const {modify, setModify} = useModifyContext();
   const {privacy, setPrivacy} = useModifyContext();
  const {description, setDescription} = useModifyContext();
+ const {isCreateSplitDialogOpen, handleCloseCreateSplitDialog, handleCreateSplitDialog} = useCreateSplitContext();
   
 
   const navigate = useNavigate();
@@ -50,11 +52,12 @@ function DatasetsDetails() {
     const data = await response.json();
     if (response.ok) {
       navigate('/datasets');
-      askForConfirmation(false);
+      deleteConfirmation(); 
     }
     else {
       if (data && data.error) {
         console.error('Error deleting dataset:', data.error);
+        deleteConfirmation(); 
       }
     }
   };
@@ -63,16 +66,14 @@ function DatasetsDetails() {
     if (confirmDeleteDataset) {
       if (window.confirm(`Do you want to delete this dataset?: ${id}`)) {
         deleteDataset(id);
+      }else{
+          deleteConfirmation(); 
       }
     }
     const getDataset = async (datasetId, shouldShowLabels, requestSplitView, page, last_request_split) => {
       let currentPage = page;
 
-
-      if (last_request_split != requestSplitView) {
-        currentPage = 1;
-        last_request_split = requestSplitView;
-      }
+        //TODO CUANDO CAMBIE DE SPLIT VOLVER A LA PAGINA 1 -> TENER EN CUENTA EL CAMNIO DE SPLIT//TODO CUANDO CAMBIE DE SPLIT VOLVER A LA PAGINA 1 -> TENER EN CUENTA EL CAMNIO DE SPLIT
 
       try {
         let url = `/datasets/${datasetId}?showLabels=${shouldShowLabels}&page=${currentPage}`;
@@ -157,6 +158,7 @@ function DatasetsDetails() {
             </PaginatorButton>
           </Paginator>
           <ModifyDatasetDialog isOpen={isModifyDialogOpen} onRequestClose={handleCloseModifyDialog} privacy={privacy} description={description} datasetId={id}/>
+          <CreateSplitsDialog isOpen={isCreateSplitDialogOpen} onRequestClose={handleCloseCreateSplitDialog} datasetId={id} />
         </ContentContainer>
       )}
     </PageContainer>

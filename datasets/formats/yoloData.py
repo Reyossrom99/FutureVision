@@ -33,8 +33,8 @@ class YoloData:
         self.class_names = None
         #modifications
         self.modify = False 
-        self.modify_split = {"train": [], "val": [], "test": []}
-        self.modify_split_labels = {"train": [], "val": [], "test": []}
+        self.modify_splits= {"train": [], "val": [], "test": []}
+        self.modify_splits_labels = {"train": [], "val": [], "test": []}
         #has test labels 
         self.hasTest = True
 
@@ -42,8 +42,10 @@ class YoloData:
         Extracts the data from the zip file into a temporary directory
     """
     def extract_data_in_tmp(self, page_number:int, page_size:int, split:str=""):
+
         if self.file_list is None:
             self.file_list = zipfile.ZipFile(self.zip_path, 'r').namelist()
+            
             data_yaml_file = [file_name for file_name in self.file_list if file_name.endswith('data.yaml')]
             #extracts data yaml file 
             if data_yaml_file:
@@ -68,63 +70,153 @@ class YoloData:
             self.extracted_pages.append(page_number)
 
         elif split == "train" and page_number not in self.extracted_train: 
+           
             with zipfile.ZipFile(self.zip_path, 'r') as zip_ref:
                 # Obtener lista de nombres de archivos en el zip
-                if self.modify == "True": 
-                    file_list_train = [file_name.replace("/images/", "/train/images") 
-                        for file_name in self.modify_splits["train"] 
-                        if file_name.lower().endswith(('.jpg', '.jpeg', '.png'))] 
-                    file_list_train_txt = [file_name.replace("/labels/", "/train/labels") 
-                        for file_name in self.modify_splits_labels["train"] 
-                        if file_name.lower().endswith('.txt')]
+               
+                if self.modify == True:
+                    
+                    file_list_train = [file_name for file_name in self.modify_splits["train"] if file_name.lower().endswith(('.jpg', '.jpeg', '.png')) ]
+                    file_list_train_txt = [file_name for file_name in self.modify_splits_labels["train"] if file_name.lower().endswith('.txt')]
+                    
+                    start_index = (page_number -1)*page_size
+                    end_index =min(start_index + page_size, len(self.file_list)) 
+
+                    interchange_folder = os.path.join(settings.MEDIA_ROOT, self.tmp_dir, self.zip_name, "change")
+                    if not os.path.exists(interchange_folder): 
+                        os.mkdir(interchange_folder)
+
+                    images_train = os.path.join(settings.MEDIA_ROOT, self.tmp_dir, self.zip_name, "train", "images")
+                    labels_train = os.path.join(settings.MEDIA_ROOT,self.tmp_dir, self.zip_name, "train", "labels")
+
+                    if not os.path.exists(images_train): 
+                        os.makedirs(images_train)
+                    
+                    if not os.path.exists(labels_train): 
+                        os.makedirs(labels_train)
+                    
+                    for file_name in file_list_train[start_index:end_index]: 
+                        try: 
+                            zip_ref.extract(file_name, interchange_folder)
+                        
+                            base_name = os.path.basename(file_name)
+                       
+                            shutil.move(os.path.join(interchange_folder, self.zip_name, "images", base_name), os.path.join(images_train, base_name) )
+                        except Exception as e: 
+                            print("error: ", e)
+
+                    for file_name in file_list_train_txt[start_index:end_index]: 
+                        try: 
+                            zip_ref.extract(file_name, interchange_folder)
+                            base_name = os.path.basename(file_name)
+                            shutil.move(os.path.join(interchange_folder, self.zip_name, "labels", base_name), os.path.join(labels_train, base_name) )
+                        except Exception as e: 
+                            print("error: ", e)
                 else: 
                     file_list_train = [file_name for file_name in self.file_list if 'train' in file_name and file_name.lower().endswith(('.jpg', '.jpeg', '.png'))]
                     file_list_train_txt = [file_name for file_name in self.file_list if 'train' in file_name and file_name.lower().endswith('.txt')]
 
-                # Calcular el rango de archivos que se extraerán para la página actual
-                start_index = (page_number - 1) * page_size
-                end_index = min(start_index + page_size, len(self.file_list))
-                
-                for file_name in file_list_train[start_index:end_index]:
-                    zip_ref.extract(file_name, self.tmp_dir)
-                for file_name in file_list_train_txt[start_index:end_index]:
-                    zip_ref.extract(file_name, self.tmp_dir)    
+                    # Calcular el rango de archivos que se extraerán para la página actual
+                    start_index = (page_number - 1) * page_size
+                    end_index = min(start_index + page_size, len(self.file_list))
+
+                    for file_name in file_list_train[start_index:end_index]:
+                        zip_ref.extract(file_name, self.tmp_dir)
+                    for file_name in file_list_train_txt[start_index:end_index]:
+                        zip_ref.extract(file_name, self.tmp_dir)
+
             self.extracted_train.append(page_number)
+            
 
         elif split == "val" and page_number not in self.extracted_val: 
             with zipfile.ZipFile(self.zip_path, 'r') as zip_ref:
-                if self.modify == "True":
-                    file_list_val = [file_name.replace("/images/", "/val/images") 
-                        for file_name in self.modify_splits["val"] 
-                        if file_name.lower().endswith(('.jpg', '.jpeg', '.png'))]
-                    file_list_val_txt = [file_name.replace("/labels/", "/val/labels") 
-                        for file_name in self.modify_splits_labels["val"] 
-                        if file_name.lower().endswith('.txt')]
+                if self.modify == True:
+                    file_list_val = [file_name for file_name in self.modify_splits["val"] if file_name.lower().endswith(('.jpg', '.jpeg', '.png')) ]
+                    file_list_val_txt = [file_name for file_name in self.modify_splits_labels["val"] if file_name.lower().endswith('.txt')]
+                    
+                    interchange_folder = os.path.join(settings.MEDIA_ROOT, self.tmp_dir, self.zip_name, "change")
+                    if not os.path.exists(interchange_folder): 
+                        os.mkdir(interchange_folder)
+
+                    images_val = os.path.join(settings.MEDIA_ROOT, self.tmp_dir, self.zip_name, "val", "images")
+                    labels_val = os.path.join(settings.MEDIA_ROOT,self.tmp_dir, self.zip_name, "val", "labels")
+
+                    if not os.path.exists(images_val): 
+                        os.makedirs(images_val)
+                    
+                    if not os.path.exists(labels_val): 
+                        os.makedirs(labels_val)
+                    
+                    for file_name in file_list_val[start_index:end_index]: 
+                        try: 
+                            zip_ref.extract(file_name, interchange_folder)
+                        
+                            base_name = os.path.basename(file_name)
+                       
+                            shutil.move(os.path.join(interchange_folder, self.zip_name, "images", base_name), os.path.join(images_train, base_name) )
+                        except Exception as e: 
+                            print("error: ", e)
+
+                    for file_name in file_list_val_txt[start_index:end_index]: 
+                        try: 
+                            zip_ref.extract(file_name, interchange_folder)
+                            base_name = os.path.basename(file_name)
+                            shutil.move(os.path.join(interchange_folder, self.zip_name, "labels", base_name), os.path.join(labels_train, base_name) )
+                        except Exception as e: 
+                            print("error: ", e) 
                 else: 
                     # Obtener lista de nombres de archivos en el zip
                     file_list_val= [file_name for file_name in self.file_list if 'val' in file_name and file_name.lower().endswith(('.jpg', '.jpeg', '.png'))]
                     file_list_val_txt = [file_name for file_name in self.file_list if 'val' in file_name and file_name.lower().endswith('.txt')]
-                # Calcular el rango de archivos que se extraerán para la página actual
-                start_index = (page_number - 1) * page_size
-                end_index = min(start_index + page_size, len(self.file_list))
+                    # Calcular el rango de archivos que se extraerán para la página actual
+                    start_index = (page_number - 1) * page_size
+                    end_index = min(start_index + page_size, len(self.file_list))
 
-                for file_name in file_list_val[start_index:end_index]:
-                    zip_ref.extract(file_name, self.tmp_dir)
-                for file_name in file_list_val_txt[start_index:end_index]:
-                    zip_ref.extract(file_name, self.tmp_dir)    
+                    for file_name in file_list_val[start_index:end_index]:
+                        zip_ref.extract(file_name, self.tmp_dir)
+                    for file_name in file_list_val_txt[start_index:end_index]:
+                        zip_ref.extract(file_name, self.tmp_dir)   
+
             self.extracted_val.append(page_number)
 
         elif split == "test" and page_number not in self.extracted_test: 
         
             with zipfile.ZipFile(self.zip_path, 'r') as zip_ref:
                 # Obtener lista de nombres de archivos en el zip
-                if self.modify == "True":
-                    file_list_test = [file_name.replace("/images/", "/test/images") 
-                        for file_name in self.modify_splits["test"] 
-                        if file_name.lower().endswith(('.jpg', '.jpeg', '.png'))]
-                    file_list_test_txt = [file_name.replace("/labels/", "/test/labels") 
-                        for file_name in self.modify_splits_labels["test"] 
-                        if file_name.lower().endswith('.txt')]
+                if self.modify == True:
+                    file_list_test = [file_name for file_name in self.modify_splits["test"] if file_name.lower().endswith(('.jpg', '.jpeg', '.png')) ]
+                    file_list_test_txt = [file_name for file_name in self.modify_splits_labels["test"] if file_name.lower().endswith('.txt')]
+                    
+                    interchange_folder = os.path.join(settings.MEDIA_ROOT, self.tmp_dir, self.zip_name, "change")
+                    if not os.path.exists(interchange_folder): 
+                        os.mkdir(interchange_folder)
+
+                    images_test = os.path.join(settings.MEDIA_ROOT, self.tmp_dir, self.zip_name, "test", "images")
+                    labels_test = os.path.join(settings.MEDIA_ROOT,self.tmp_dir, self.zip_name, "test", "labels")
+
+                    if not os.path.exists(images_test): 
+                        os.makedirs(images_test)
+                    
+                    if not os.path.exists(labels_test): 
+                        os.makedirs(labels_test)
+                    
+                    for file_name in file_list_test[start_index:end_index]: 
+                        try: 
+                            zip_ref.extract(file_name, interchange_folder)
+                        
+                            base_name = os.path.basename(file_name)
+                       
+                            shutil.move(os.path.join(interchange_folder, self.zip_name, "images", base_name), os.path.join(images_train, base_name) )
+                        except Exception as e: 
+                            print("error: ", e)
+
+                    for file_name in file_list_test_txt[start_index:end_index]: 
+                        try: 
+                            zip_ref.extract(file_name, interchange_folder)
+                            base_name = os.path.basename(file_name)
+                            shutil.move(os.path.join(interchange_folder, self.zip_name, "labels", base_name), os.path.join(labels_train, base_name) )
+                        except Exception as e: 
+                            print("error: ", e)
                 else: 
                     file_list_test = [file_name for file_name in self.file_list if 'test' in file_name and file_name.lower().endswith(('.jpg', '.jpeg', '.png'))]
                     file_list_test_txt = [file_name for file_name in self.file_list if 'test' in file_name and file_name.lower().endswith('.txt')]
@@ -142,6 +234,7 @@ class YoloData:
 
     #obtiene una list que contiene las rutas de todas las imagenes de la carpeta
     def get_images(self, requested_split:str, page_number:int, page_size:int) -> list: 
+        print("getting images")
         
         images = []  #ruta relativa de las imagenes para mandarlas al front
         images_full = [] #ruta completa de las imagenes que necesita el back
@@ -152,20 +245,25 @@ class YoloData:
         if not os.path.exists(self.tmp_dir): 
             return images, images_full
         
-        if self.type == "no-splits": 
+        if self.type == "no-splits" and self.modify == False: 
             root_path = os.path.join(self.tmp_dir, self.zip_name, "images")
         else: 
+            print("getting split")
+            print("requested : ", requested_split)
             #get the images by split 
             root_path = os.path.join(self.tmp_dir, self.zip_name, requested_split, "images")
 
         image_files = sorted(os.listdir(root_path))[start_index:end_index]
+
+        print(image_files)
         
         for name in image_files: 
                 if name.lower().endswith(('.png', '.jpg','.jpeg')): 
-                    if self.type == "no-splits":
+                    if self.type == "no-splits" and self.modify ==False:
                         images_full.append(os.path.join(settings.TMP_ROOT, self.tmp_name, self.zip_name, 'images', name))
                         images.append(os.path.join("/media", "tmp", self.tmp_name, self.zip_name,'images',name))
                     else: 
+                        print("returning images")
                         images.append(os.path.join("/media", "tmp", self.tmp_name, self.zip_name, requested_split,'images',name))
                         images_full.append(os.path.join(settings.TMP_ROOT, self.tmp_name, self.zip_name, requested_split ,'images', name))
         return images, images_full
@@ -181,7 +279,7 @@ class YoloData:
         if not os.path.exists(self.tmp_dir): 
             return labels, labels_full
         
-        if self.type == "no-splits": 
+        if self.type == "no-splits" and self.modify== False: 
             root_path = os.path.join(self.tmp_dir, self.zip_name, "labels")
         else: 
             root_path = os.path.join(self.tmp_dir, self.zip_name, requested_split, "labels")
@@ -207,7 +305,7 @@ class YoloData:
         if not os.path.exists(self.tmp_dir): 
             return labeled, labeled_full
 
-        if self.type == "no-splits": 
+        if self.type == "no-splits" and self.modify == False: 
                 root_path = os.path.join(self.tmp_dir, self.zip_name, "labeled_images")
         else: 
                 root_path = os.path.join(self.tmp_dir, self.zip_name, 'labeled_images', requested_split)
@@ -233,7 +331,7 @@ class YoloData:
         if len(image_files) != len(labels_files): 
             return 
 
-        if self.type=='no-splits': 
+        if self.type=='no-splits' and self.modify==False: 
             ##already saved images
             if page_number in self.labeled_images: 
                 return 
@@ -311,23 +409,31 @@ class YoloData:
         Creates temporal splits for the dataset 
     """                    
     def create_splits(self, train:int, val:int, test:int, num_images:int=0): 
+
         if self.modify == True: 
             return False, "The dataset has already been modified", 0, 0, 0
         
+        if self.file_list is None:
+            self.file_list = zipfile.ZipFile(self.zip_path, 'r').namelist()
+        
+        print(self.modify)
         #seleccionamos los elementos que van a ir a cada split de manera aletoria 
         train_number = math.ceil((train/100)*num_images)
         val_number = math.ceil((val/100)*num_images)
         test_number = num_images - train_number - val_number
+        
+        print(train_number, val_number, test_number)
 
         if train_number + val_number + test_number != num_images: 
             return False, "The number of images in the splits is not equal to the total number of images"
         
-        self.modify_splits["train"] = random.sample([x for x in self.file_list if x.lower().endswith(('.jpg', '.jpeg', '.png'))], train)
-        self.modify_spltis["val"] = random.sample([x for x in self.file_list if x not in self.modify_splits["train"] and x.lower().endswith(('.jpg', '.jpeg', '.png'))], val)
+        print(self.file_list)
+        self.modify_splits["train"] = random.sample([x for x in self.file_list if x.lower().endswith(('.jpg', '.jpeg', '.png'))], train_number)
+        self.modify_splits["val"] = random.sample([x for x in self.file_list if x not in self.modify_splits["train"] and x.lower().endswith(('.jpg', '.jpeg', '.png'))], val_number)
         self.modify_splits["test"] = [x for x in self.file_list if x not in self.modify_splits["train"] and x not in self.modify_splits["val"] and x.lower().endswith(('.jpg', '.jpeg', '.png'))]
         
         self.modify_splits_labels["train"] = random.sample([x for x in self.file_list if x.lower().endswith(('.txt'))], train)
-        self.modify_spltis_labels["val"] = random.sample([x for x in self.file_list if x not in self.modify_splits["train"] and x.lower().endswith(('.txt'))], val)
+        self.modify_splits_labels["val"] = random.sample([x for x in self.file_list if x not in self.modify_splits["train"] and x.lower().endswith(('.txt'))], val)
         self.modify_splits_labels["test"] = [x for x in self.file_list if x not in self.modify_splits["train"] and x not in self.modify_splits["val"] and x.lower().endswith(('.txt'))]
 
         self.modify = True

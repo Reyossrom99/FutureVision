@@ -12,8 +12,11 @@ export function DeleteDatasetProvider({children}) {
   const askForConfirmation= () => {
     setConfirmDeleteDataset(true);
   }
+  const deleteConfirmation = () => {
+    setConfirmDeleteDataset(false)
+  }
   return (
-    <DeleteDatasetContext.Provider value={{confirmDeleteDataset, askForConfirmation}}>
+    <DeleteDatasetContext.Provider value={{confirmDeleteDataset, askForConfirmation, deleteConfirmation}}>
       {children}
     </DeleteDatasetContext.Provider>
   );
