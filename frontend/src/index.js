@@ -8,6 +8,7 @@ import { CreateSplitProvider } from './context/createSplitsContext';
 import { CreateNewButtonProvider, CreateNewProjectProvider, CreateNewTrainProvider } from './context/createNewContext';
 import { DeleteDatasetProvider } from './context/deleteContext';
 import { ModifyProvider } from './context/modifyContext';
+import { SaveDatasetProvider } from './context/saveContext';
 
 import palette from './palette';
 
@@ -17,6 +18,7 @@ root.render(
   <React.StrictMode>
     <BrowserRouter>
 
+      <SaveDatasetProvider>
       <ModifyProvider>
         <DeleteDatasetProvider>
           <CreateNewButtonProvider>
@@ -34,6 +36,7 @@ root.render(
           </CreateNewButtonProvider>
         </DeleteDatasetProvider>
       </ModifyProvider>
+      </SaveDatasetProvider>
 
 
 

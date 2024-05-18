@@ -137,6 +137,10 @@ class YoloData:
                     interchange_folder = os.path.join(settings.MEDIA_ROOT, self.tmp_dir, self.zip_name, "change")
                     if not os.path.exists(interchange_folder): 
                         os.mkdir(interchange_folder)
+                    
+                    # Calcular el rango de archivos que se extraerán para la página actual
+                    start_index = (page_number - 1) * page_size
+                    end_index = min(start_index + page_size, len(self.file_list))
 
                     images_val = os.path.join(settings.MEDIA_ROOT, self.tmp_dir, self.zip_name, "val", "images")
                     labels_val = os.path.join(settings.MEDIA_ROOT,self.tmp_dir, self.zip_name, "val", "labels")
@@ -153,7 +157,7 @@ class YoloData:
                         
                             base_name = os.path.basename(file_name)
                        
-                            shutil.move(os.path.join(interchange_folder, self.zip_name, "images", base_name), os.path.join(images_train, base_name) )
+                            shutil.move(os.path.join(interchange_folder, self.zip_name, "images", base_name), os.path.join(images_val, base_name) )
                         except Exception as e: 
                             print("error: ", e)
 
@@ -161,7 +165,7 @@ class YoloData:
                         try: 
                             zip_ref.extract(file_name, interchange_folder)
                             base_name = os.path.basename(file_name)
-                            shutil.move(os.path.join(interchange_folder, self.zip_name, "labels", base_name), os.path.join(labels_train, base_name) )
+                            shutil.move(os.path.join(interchange_folder, self.zip_name, "labels", base_name), os.path.join(labels_val, base_name) )
                         except Exception as e: 
                             print("error: ", e) 
                 else: 
@@ -187,6 +191,10 @@ class YoloData:
                     file_list_test = [file_name for file_name in self.modify_splits["test"] if file_name.lower().endswith(('.jpg', '.jpeg', '.png')) ]
                     file_list_test_txt = [file_name for file_name in self.modify_splits_labels["test"] if file_name.lower().endswith('.txt')]
                     
+                    # Calcular el rango de archivos que se extraerán para la página actual
+                    start_index = (page_number - 1) * page_size
+                    end_index = min(start_index + page_size, len(self.file_list))
+    
                     interchange_folder = os.path.join(settings.MEDIA_ROOT, self.tmp_dir, self.zip_name, "change")
                     if not os.path.exists(interchange_folder): 
                         os.mkdir(interchange_folder)
@@ -206,7 +214,7 @@ class YoloData:
                         
                             base_name = os.path.basename(file_name)
                        
-                            shutil.move(os.path.join(interchange_folder, self.zip_name, "images", base_name), os.path.join(images_train, base_name) )
+                            shutil.move(os.path.join(interchange_folder, self.zip_name, "images", base_name), os.path.join(images_test, base_name) )
                         except Exception as e: 
                             print("error: ", e)
 
@@ -214,7 +222,7 @@ class YoloData:
                         try: 
                             zip_ref.extract(file_name, interchange_folder)
                             base_name = os.path.basename(file_name)
-                            shutil.move(os.path.join(interchange_folder, self.zip_name, "labels", base_name), os.path.join(labels_train, base_name) )
+                            shutil.move(os.path.join(interchange_folder, self.zip_name, "labels", base_name), os.path.join(labels_test, base_name) )
                         except Exception as e: 
                             print("error: ", e)
                 else: 
@@ -255,17 +263,22 @@ class YoloData:
 
         image_files = sorted(os.listdir(root_path))[start_index:end_index]
 
-        print(image_files)
+        print("image files: ", image_files)
         
         for name in image_files: 
                 if name.lower().endswith(('.png', '.jpg','.jpeg')): 
+                    print(self.type, self.modify)
                     if self.type == "no-splits" and self.modify ==False:
+                        print("returning images from no-splits")
                         images_full.append(os.path.join(settings.TMP_ROOT, self.tmp_name, self.zip_name, 'images', name))
                         images.append(os.path.join("/media", "tmp", self.tmp_name, self.zip_name,'images',name))
                     else: 
                         print("returning images")
                         images.append(os.path.join("/media", "tmp", self.tmp_name, self.zip_name, requested_split,'images',name))
                         images_full.append(os.path.join(settings.TMP_ROOT, self.tmp_name, self.zip_name, requested_split ,'images', name))
+                else: 
+                    print("no image found")
+        print("images returned:", images)
         return images, images_full
     
     
@@ -442,27 +455,31 @@ class YoloData:
     def save_modifications(self): 
         if self.modify == False: 
             return False, "The dataset has not been modified", 0, 0, 0
+        print("saving modifications")
         
         with zipfile.ZipFile(self.zip_path, 'a') as zip_ref:
             # Crear nuevas carpetas dentro del archivo ZIP si no existen
-            for carpeta_destino in ["train", "val", "test"]:
-                if carpeta_destino not in self.file_list.namelist():
-                    # Crear la carpeta destino principal
-                    zip_ref.writestr(os.path.join(self.zip_name, carpeta_destino, ""), "")
-                    # Crear las subcarpetas "images" y "labels" dentro de la carpeta destino
-                    zip_ref.writestr(os.path.join(self.zip_name, carpeta_destino, "images", ""), "")
-                    zip_ref.writestr(os.path.join(self.zip_name, carpeta_destino, "labels", ""), "")
+            # for carpeta_destino in ["train", "val", "test"]:
+            #     if carpeta_destino not in zip_ref.namelist():
+            #         # Crear la carpeta destino principal
+            #         zip_ref.writestr(os.path.join(self.zip_name, carpeta_destino, ""), "")
+            #         # Crear las subcarpetas "images" y "labels" dentro de la carpeta destino
+            #         zip_ref.writestr(os.path.join(self.zip_name, carpeta_destino, "images", ""), "")
+            #         zip_ref.writestr(os.path.join(self.zip_name, carpeta_destino, "labels", ""), "")
             
             #pasar las imagenes a las carpetas correspondientes
             train_imgs = 0
             for images in self.modify_splits["train"]:
+                print(images)
                 zip_ref.write(images, os.path.join(self.zip_name, "train",  os.path.basename(images)))
                 train_imgs += 1
             val_imgs = 0
+
             for images in self.modify_splits["val"]:
                 zip_ref.write(images, os.path.join(self.zip_name, "val",  os.path.basename(images)))
                 val_imgs += 1
             test_imgs = 0
+
             for images in self.modify_splits["test"]:
                 zip_ref.write(images, os.path.join(self.zip_name, "test",  os.path.basename(images)))
                 test_imgs += 1
@@ -470,8 +487,10 @@ class YoloData:
             #pasar las anotaciones a los archivos correspondientes
             for labels in self.modify_splits_labels["train"]:
                 zip_ref.write(labels, os.path.join(self.zip_name, "train",  os.path.basename(labels)))
+
             for labels in self.modify_splits_labels["val"]:
                 zip_ref.write(labels, os.path.join(self.zip_name, "val",  os.path.basename(labels)))
+
             for labels in self.modify_splits_labels["test"]:
                 zip_ref.write(labels, os.path.join(self.zip_name, "test",  os.path.basename(labels)))
 

@@ -11,6 +11,8 @@ import { TopNavContainer, TopNavItem, TopNavItems, TopNavButton, LastItem } from
 import { SideNavButton, TopNavLink, NavContainer} from '../elements/SideNavContainer';
 import { useCreateSplitContext } from '../context/createSplitsContext';
 import { SlMenu, SlLogout } from "react-icons/sl";
+import { useSaveDatasetContext } from '../context/saveContext';
+
 
 function TopNav() {
   const location = useLocation();
@@ -24,7 +26,7 @@ function TopNav() {
   const [menuVisible, setMenuVisible] = useState(false);
   const {askForModify } = useModifyContext();
   const {handleCreateSplitDialog} = useCreateSplitContext(); 
-
+  const {askForConfirmationSaveDataset} = useSaveDatasetContext();
   let { user, loginUser, logoutUser } = useContext(AuthContext); 
 
   //delete dataset 
@@ -59,7 +61,9 @@ function TopNav() {
   const handleCreateSplits = () => {
     handleCreateSplitDialog(); 
   }
-
+  const handleSaveDataset = () => {
+    askForConfirmationSaveDataset();
+  }
   return (
     <TopNavContainer>
       <TopNavItems>
@@ -121,6 +125,11 @@ function TopNav() {
               <TopNavItem>
                 <TopNavButton onClick={handleCreateSplits}>
                   Create splits
+                </TopNavButton>
+              </TopNavItem>
+              <TopNavItem>
+                <TopNavButton onClick={handleSaveDataset}>
+                  Save
                 </TopNavButton>
               </TopNavItem>
             

@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { Navigate, useParams, useNavigate } from 'react-router-dom';
+import { Navigate, useParams, useNavigate} from 'react-router-dom';
 import { useCheckbox } from '../context/checkboxShowLabelContext';
 import { useSplitContext } from '../context/selectSplitViewContext';
 import { useCreateSplitContext } from '../context/createSplitsContext';
@@ -15,6 +15,8 @@ import { BeatLoader } from 'react-spinners';
 import { useModifyContext } from '../context/modifyContext';
 import ModifyDatasetDialog from '../components/modifyDatasetDialogForm';
 import CreateSplitsDialog from '../components/createSplitsDialog';
+import { useSaveDatasetContext } from '../context/saveContext';
+
 
 function DatasetsDetails() {
   const { id } = useParams();
@@ -34,7 +36,10 @@ function DatasetsDetails() {
   const {privacy, setPrivacy} = useModifyContext();
  const {description, setDescription} = useModifyContext();
  const {isCreateSplitDialogOpen, handleCloseCreateSplitDialog, handleCreateSplitDialog} = useCreateSplitContext();
-  
+ const {confirmSaveDataset, saveConfirmationSaveDataset} = useSaveDatasetContext();
+ 
+  const fields = []; 
+  const values = [];
 
   const navigate = useNavigate();
 
@@ -62,19 +67,43 @@ function DatasetsDetails() {
     }
   };
 
-  useEffect(() => {
-    if (confirmDeleteDataset) {
-      if (window.confirm(`Do you want to delete this dataset?: ${id}`)) {
-        deleteDataset(id);
-      }else{
-          deleteConfirmation(); 
+  const saveDatasetChanges = async(datasetId, fields, values) => {
+    fields.length = 0
+    values.length = 0
+    fields.push('splits')
+    values.push(true)
+
+    try{
+      const response = await fetch(`/datasets/${datasetId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer ' + String(authTokens.access),
+        },
+        body: JSON.stringify({
+          fields: fields,
+          values: values,
+        }),
+      });
+      if (response.ok) {
+        fields.length = 0
+        values.length = 0
+        saveConfirmationSaveDataset(); 
+        navigate(`/datasets`);
+      } else {
+        const data = await response.json();
+        console.error('Error:', data);
+        saveConfirmationSaveDataset();
       }
-    }
-    const getDataset = async (datasetId, shouldShowLabels, requestSplitView, page, last_request_split) => {
+    }catch (error) {
+            console.log('Error creating dataset:', error);
+        }
+  }; 
+  const getDataset = async (datasetId, shouldShowLabels, requestSplitView, page, last_request_split) => {
       let currentPage = page;
 
         //TODO CUANDO CAMBIE DE SPLIT VOLVER A LA PAGINA 1 -> TENER EN CUENTA EL CAMNIO DE SPLIT//TODO CUANDO CAMBIE DE SPLIT VOLVER A LA PAGINA 1 -> TENER EN CUENTA EL CAMNIO DE SPLIT
-
+       
       try {
         let url = `/datasets/${datasetId}?showLabels=${shouldShowLabels}&page=${currentPage}`;
 
@@ -107,8 +136,28 @@ function DatasetsDetails() {
       }
     };
 
+  useEffect(() => {
+    if (confirmDeleteDataset) {
+      if (window.confirm(`Do you want to delete this dataset?: ${id}`)) {
+        deleteDataset(id);
+      }else{
+          deleteConfirmation(); 
+      }
+    }
+
+    if (confirmSaveDataset) {
+      if (window.confirm(`Do you want to save the changes made to this dataset?: ${id}`)) {
+        saveDatasetChanges(id, fields, values);
+      }else{
+          saveConfirmationSaveDataset();
+      }
+    }
+
+  }, [ confirmDeleteDataset, confirmSaveDataset, fields, values]);
+
+  useEffect(() => {
     getDataset(id, showLabels, selectedSplit, currentPage, last_request_split);
-  }, [id, showLabels, selectedSplit, currentPage, last_request_split, confirmDeleteDataset]);
+  }, [currentPage, showLabels, selectedSplit, last_request_split, id]);
 
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);

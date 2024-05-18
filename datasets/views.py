@@ -148,8 +148,8 @@ def dataset(request, dataset_id):
             num_pages = math.ceil(dataset.num_images_test/ page_size)    
 
         #para no permitir que se pase de paginas cuando cambiamos de splits 
-        if page_number > num_pages:
-            page_number = num_pages
+        # if page_number > num_pages:
+        #     page_number = num_pages
         
         if dataset.format == 'yolo' :
             # Comprueba si el objeto YoloData ya existe para este dataset
@@ -205,6 +205,7 @@ def dataset(request, dataset_id):
             'images': images,
             'total_pages': num_pages
         }
+        print(paginated_data, paginated_data)
 
         return JsonResponse(paginated_data, safe=False)
     elif request.method == "DELETE":
@@ -269,6 +270,7 @@ def dataset(request, dataset_id):
                     dataset.save()
                    
                 elif fields[i] == 'splits': 
+                    print("Modifying splits")
                     #check if changes have been made 
                     if dataset.format == "coco": 
                         if dataset.dataset_id not in coco_data_objects:
@@ -291,6 +293,7 @@ def dataset(request, dataset_id):
                             return JsonResponse({'message': 'Dataset updated'}, status=status.HTTP_200_OK)
                         
                     elif dataset.format == "yolo":
+                        print("modifying splits yolo")
                         if dataset.dataset_id not in yolo_data_objects: 
                             yolo_data_objects[dataset.dataset_id] = YoloData(dataset.name, dataset.type, dataset.url)
                         yolo_data = yolo_data_objects[dataset.dataset_id]
@@ -372,6 +375,7 @@ def split_dataset(request, dataset_id):
                     dataset.num_images_val = val_num
                     dataset.num_images_test = test_num
                     dataset.save()
+                    return JsonResponse({'message': 'Dataset splitted'}, status=status.HTTP_200_OK)
 
                 elif dataset.format == "coco":
                     if dataset.dataset_id not in coco_data_objects:
@@ -385,6 +389,7 @@ def split_dataset(request, dataset_id):
                     dataset.num_images_val = val
                     dataset.num_images_test = test
                     dataset.save()
+                    return JsonResponse({'message': 'Dataset splitted'}, status=status.HTTP_200_OK)
                 else: 
                     return JsonResponse({'error': 'Invalid dataset format'}, status=status.HTTP_400_BAD_REQUEST)
 
