@@ -1,7 +1,7 @@
 import {
-  Routes,
-  Route,
-  useLocation
+	Routes,
+	Route,
+	useLocation
 } from "react-router-dom";
 import SideNav from './components/SideNav';
 import TopNav from "./components/topNav";
@@ -29,31 +29,31 @@ const Container = styled.div`
 
 
 function App() {
-  const location = useLocation();
+	const location = useLocation();
 
-  return (
-    <div className="App">
-      <Container palette={palette}>
-        <AuthProvider>
-        {!(location.pathname === '/login' || location.pathname === '/signup') && <PrivateRoute><TopNav /></PrivateRoute>}
-          <main>
-            <Routes>
-              <Route path="/datasets" element={<PrivateRoute><Datasets /></PrivateRoute>} />
-              <Route path="/dataset/:id" element={<PrivateRoute><DatasetsDetails /></PrivateRoute>} />
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/signup" element={<SignupPage />} />
-              <Route path="/user" element={<PrivateRoute><Profile /></PrivateRoute>} />
-              <Route path="/user/add" element={<PrivateRoute><NewUser /></PrivateRoute>} />
-              <Route path="/users" element={<PrivateRoute><ViewUsers /></PrivateRoute>} />
-              <Route path="/projects" element={<PrivateRoute><Proyects /></PrivateRoute>} />
-              <Route path="/project/:id" element={<PrivateRoute><ProyectDetails /></PrivateRoute>} />
-            </Routes>
-          </main>
-        </AuthProvider>
-      </Container>
+	return (
+		<div className="App">
+			<Container palette={palette}>
+				<AuthProvider>
+					{!(location.pathname === '/login' || location.pathname === '/signup') && <PrivateRoute><TopNav /></PrivateRoute>}
+					<main>
+						<Routes>
+							<Route path="/datasets" element={<PrivateRoute><Datasets /></PrivateRoute>} />
+							<Route path="/dataset/:id" element={<PrivateRoute><DatasetsDetails /></PrivateRoute>} />
+							<Route path="/login" element={<LoginPage />} />
+							<Route path="/signup" element={<SignupPage />} />
+							<Route path="/user" element={<PrivateRoute><Profile /></PrivateRoute>} />
+							<Route path="/user/add" element={<PrivateRoute><NewUser /></PrivateRoute>} />
+							<Route path="/users" element={<PrivateRoute><ViewUsers /></PrivateRoute>} />
+							<Route path="/projects" element={<PrivateRoute><Proyects /></PrivateRoute>} />
+							<Route path="/project/:id" element={<PrivateRoute><ProyectDetails /></PrivateRoute>} />
+						</Routes>
+					</main>
+				</AuthProvider>
+			</Container>
 
-    </div>
-  );
+		</div>
+	);
 }
 
 export default App;
