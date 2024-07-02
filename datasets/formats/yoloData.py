@@ -42,7 +42,7 @@ class YoloData:
         Extracts the data from the zip file into a temporary directory
     """
     def extract_data_in_tmp(self, page_number:int, page_size:int, split:str=""):
-
+        print("extracting data")
         if self.file_list is None:
             self.file_list = zipfile.ZipFile(self.zip_path, 'r').namelist()
             
@@ -300,12 +300,14 @@ class YoloData:
         
         for name in label_files: 
                 if name.lower().endswith('.txt'): 
-                    if self.type == "no-splits":
+                    if self.type == "no-splits" and self.modify == False:
                         labels.append(os.path.join("/media", "tmp", self.tmp_name, self.zip_name, "labels", name))
                         labels_full.append(os.path.join(settings.TMP_ROOT, self.tmp_name, self.zip_name, 'labels', name))
                     else: 
+                        print("labels split")
                         labels.append(os.path.join("/media", "tmp", self.tmp_name, self.zip_name,requested_split, "labels", name))
                         labels_full.append(os.path.join(settings.TMP_ROOT, self.tmp_name, self.zip_name, requested_split,'labels', name))
+        print("return labels")           
         return labels, labels_full
     
     def get_labeled_images(self, requested_split:str, page_number:int, page_size:int) -> list: 
@@ -335,14 +337,14 @@ class YoloData:
                         labeled_full.append(os.path.join(settings.TMP_ROOT, self.tmp_name, self.zip_name, 'labeled_images', requested_split, name))
         return labeled, labeled_full
   
+
     def save_labels_in_image(self, image_files:list, labels_files:list, requested_split:str, page_number:int) : 
         #no nececesito calcular el tamaño del paginador porque ya le estoy pasando las imagenes que quiero, pero si 
         # necesito el page_number para saber si ya he guardado o no las imagenes
         if not image_files or not labels_files: 
-           return 
-
-        if len(image_files) != len(labels_files): 
             return 
+        print(len(labels_files))
+        print(len(image_files))
 
         if self.type=='no-splits' and self.modify==False: 
             ##already saved images
@@ -353,14 +355,20 @@ class YoloData:
                 os.makedirs(labeled_dir, exist_ok=False) #raises an error if the directory already exists
             self.labeled_images.append(page_number)
         else:
+                print("este log")
                 #already saved images
                 if (page_number in self.labeled_images_train and requested_split=="train")or (page_number in self.labeled_images_val and requested_split=="val") or (page_number in self.labeled_images_test and requested_split=="test"): 
+                    print("returning")
                     return
+
                 labeled_dir = os.path.join(self.tmp_dir, self.zip_name, 'labeled_images', requested_split)
+                print("dir: "+ labeled_dir)
                 #solo creamos el archivo la primera vez
                 if not os.path.exists(labeled_dir):
                     os.makedirs(labeled_dir, exist_ok=False)
+            
                 if requested_split == "train": 
+                    print("train")
                     self.labeled_images_train.append(page_number)
                 elif requested_split == "val": 
                     self.labeled_images_val.append(page_number)
@@ -377,7 +385,7 @@ class YoloData:
                 random.seed(42)  # Semilla para reproducibilidad
                 self.category_colors = {category_name: (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)) for category_name in self.class_names}
 
-        for index in range(0, len(image_files)): 
+        for index in range(0, len(labels_files)): 
             image = cv2.imread(image_files[index], cv2.IMREAD_UNCHANGED)
 
             image_height, image_width, _ = image.shape

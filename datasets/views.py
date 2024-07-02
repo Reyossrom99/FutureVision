@@ -152,7 +152,7 @@ def dataset(request, dataset_id):
         #     page_number = num_pages
         
         if dataset.format == 'yolo' :
-
+            print("yolo")
             # Comprueba si el objeto YoloData ya existe para este dataset
             if dataset.dataset_id not in yolo_data_objects: 
                 yolo_data_objects[dataset.dataset_id] = YoloData(dataset.name, dataset.type, dataset.url)
@@ -166,12 +166,14 @@ def dataset(request, dataset_id):
             elif dataset.type == 'splits' and requested_split == "" and yolo_data.modify == False:
                 requested_split = "train"
 
+            print("requested split", requested_split)    
             #Extraer los datos pedidos en la carpeta temporal    
             yolo_data.extract_data_in_tmp(page_number, page_size, requested_split)
 
             image_files, image_files_full = yolo_data.get_images(requested_split, page_number, page_size)
 
             if show_labels == 'true':
+                print("show labels")
                 _, labels_files_full = yolo_data.get_labels(requested_split, page_number, page_size)
                 yolo_data.save_labels_in_image(image_files_full, labels_files_full, requested_split, page_number)
                 images, _ = yolo_data.get_labeled_images(requested_split, page_number, page_size)
@@ -411,6 +413,7 @@ def split_dataset(request, dataset_id):
         except Exception as e:
             print("error", e)
             return JsonResponse({'error': 'Cannot split dataset'}, status=status.HTTP_404_NOT_FOUND)
+
     elif request.method == "DELETE": 
         dataset = Datasets.objects.get(dataset_id=dataset_id)
         if dataset.format == "yolo": 
