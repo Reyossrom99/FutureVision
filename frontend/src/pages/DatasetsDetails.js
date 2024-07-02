@@ -107,10 +107,10 @@ function DatasetsDetails() {
       try {
         let url = `/datasets/${datasetId}?showLabels=${shouldShowLabels}&page=${currentPage}`;
 
-        if (requestSplitView !== "") {
-          url += `&request-split=${requestSplitView}`;
-        }
+	 if (requestSplitView !== "" ){
 
+          url += `&request-split=${requestSplitView}`;
+	}
         const response = await fetch(url, {
           method: 'GET',
           headers: {

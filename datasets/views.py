@@ -152,37 +152,48 @@ def dataset(request, dataset_id):
         #     page_number = num_pages
         
         if dataset.format == 'yolo' :
+
             # Comprueba si el objeto YoloData ya existe para este dataset
             if dataset.dataset_id not in yolo_data_objects: 
                 yolo_data_objects[dataset.dataset_id] = YoloData(dataset.name, dataset.type, dataset.url)
+               
+            #extrae el objecto de la lista     
             yolo_data = yolo_data_objects[dataset.dataset_id]
 
-            print("requested split", requested_split)
-            print("modify: ", yolo_data.modify)
+            #comprobar el split solicitado
             if dataset.type == 'no-splits' and requested_split != "" and yolo_data.modify == False:
                 requested_split = ""
-            
-            print("requested split", requested_split)
+            elif dataset.type == 'splits' and requested_split == "" and yolo_data.modify == False:
+                requested_split = "train"
+
+            #Extraer los datos pedidos en la carpeta temporal    
             yolo_data.extract_data_in_tmp(page_number, page_size, requested_split)
 
             image_files, image_files_full = yolo_data.get_images(requested_split, page_number, page_size)
+
             if show_labels == 'true':
                 _, labels_files_full = yolo_data.get_labels(requested_split, page_number, page_size)
                 yolo_data.save_labels_in_image(image_files_full, labels_files_full, requested_split, page_number)
                 images, _ = yolo_data.get_labeled_images(requested_split, page_number, page_size)
             else:
                 images = image_files
+
         elif dataset.format == 'coco':
-            if dataset.type == 'no-splits' and requested_split != "":
-                requested_split = ""
-            elif dataset.type == 'splits' and requested_split == "":
-                requested_split = "train"   
+            
+            #comprobar si el dataset ya ha sido abierto
             if dataset.dataset_id not in coco_data_objects:
                 coco_data_objects[dataset.dataset_id] = CocoData(dataset.name, dataset.type, dataset.url)
             
+            #Extraer el objeto de la lista de objetos
             coco_data = coco_data_objects[dataset.dataset_id]
-
             
+            #comprobar el split solicitado
+            if dataset.type == 'no-splits' and requested_split != "" and coco_data.modify == False:
+                requested_split = ""
+            elif dataset.type == 'splits' and requested_split == "" and coco_data.modify == False:
+                requested_split = "train"   
+
+            #Extraer los datos pedidos en la carpeta temporal     
             coco_data.extract_data_in_tmp(page_number, page_size, requested_split)
 
             image_files, _ = coco_data.get_images(requested_split,page_number, page_size)
@@ -297,9 +308,12 @@ def dataset(request, dataset_id):
                         if dataset.dataset_id not in yolo_data_objects: 
                             yolo_data_objects[dataset.dataset_id] = YoloData(dataset.name, dataset.type, dataset.url)
                         yolo_data = yolo_data_objects[dataset.dataset_id]
+
                         check, err, train_imgs, val_imgs, test_imgs= yolo_data.save_modifications()
+                        
                         if not check: 
                             return JsonResponse({'error': err}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                        
                         else: 
                             check, err = yolo_data.delete_tmp()
                             if not check :

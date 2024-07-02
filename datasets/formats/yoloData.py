@@ -453,8 +453,10 @@ class YoloData:
         return self.modify, "The splits have been created", train_number, val_number, test_number
     
     def save_modifications(self): 
+        
         if self.modify == False: 
             return False, "The dataset has not been modified", 0, 0, 0
+
         print("saving modifications")
         
         with zipfile.ZipFile(self.zip_path, 'a') as zip_ref:
