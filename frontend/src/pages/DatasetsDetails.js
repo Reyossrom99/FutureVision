@@ -16,6 +16,7 @@ import { useModifyContext } from '../context/modifyContext';
 import ModifyDatasetDialog from '../components/modifyDatasetDialogForm';
 import CreateSplitsDialog from '../components/createSplitsDialog';
 import { useSaveDatasetContext } from '../context/saveContext';
+import { ImageContainer, StyledImage, ImageGallery} from '../elements/image';
 
 
 function DatasetsDetails() {
@@ -169,32 +170,39 @@ function DatasetsDetails() {
 
   return (
     <PageContainer>
+
       {isLoading ? (
+
         <ContentContainer>
           <BeatLoader color="#36D7B7" loading={isLoading} size={15} />
         </ContentContainer>
+
       ) : dataset && (
+	<>			
+	<PageTitle className={styles.pageName}>{dataset.name}</PageTitle>
+						
         <ContentContainer>
-          <PageTitle className={styles.pageName}>{dataset.name}</PageTitle>
-          <p>{dataset.description}</p>
-          <div className={styles.datasetDetailsContainer}>
-            <div className={styles.imageGalery}>
-              {dataset.images.map((imageUrl) => (
-                <img
+		<ImageGallery>
+                {dataset.images.map((imageUrl) => (
+		<ImageContainer key={imageUrl}>						
+                <StyledImage
                   key={imageUrl}
                   src={imageUrl}
                   alt={imageUrl}
                   className={`${styles.imageItem} ${expandedImage === imageUrl ? styles.expanded : ''}`}
                   onClick={() => handleImageClick(imageUrl)}
                 />
+		</ImageContainer>
               ))}
-            </div>
+	      </ImageGallery>
+           
             {expandedImage && (
               <div className={styles.overlay} onClick={() => setExpandedImage(null)}>
                 <img src={expandedImage} alt={expandedImage} className={styles.expandedImage} />
               </div>
             )}
-          </div>
+        
+	 							
           <Paginator>
             <PaginatorButton onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
               previous
@@ -206,9 +214,12 @@ function DatasetsDetails() {
               next
             </PaginatorButton>
           </Paginator>
+
           <ModifyDatasetDialog isOpen={isModifyDialogOpen} onRequestClose={handleCloseModifyDialog} privacy={privacy} description={description} datasetId={id}/>
           <CreateSplitsDialog isOpen={isCreateSplitDialogOpen} onRequestClose={handleCloseCreateSplitDialog} datasetId={id} />
+
         </ContentContainer>
+	</>	
       )}
     </PageContainer>
   );
