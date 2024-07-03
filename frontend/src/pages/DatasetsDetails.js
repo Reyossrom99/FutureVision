@@ -202,7 +202,7 @@ function DatasetsDetails() {
               </div>
             )}
         
-	 							
+	 </ContentContainer>						
           <Paginator>
             <PaginatorButton onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
               previous
@@ -218,7 +218,7 @@ function DatasetsDetails() {
           <ModifyDatasetDialog isOpen={isModifyDialogOpen} onRequestClose={handleCloseModifyDialog} privacy={privacy} description={description} datasetId={id}/>
           <CreateSplitsDialog isOpen={isCreateSplitDialogOpen} onRequestClose={handleCloseCreateSplitDialog} datasetId={id} />
 
-        </ContentContainer>
+       
 	</>	
       )}
     </PageContainer>

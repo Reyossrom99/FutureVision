@@ -61,3 +61,10 @@ export const CardDescription = styled.p`
   color: ${palette.neutralBlack};
   text-transform: lowercase;
 `;
+
+export const CardGroup = styled.div`
+flex: 1;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+`; 

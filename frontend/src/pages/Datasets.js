@@ -9,7 +9,7 @@ import AuthContext from '../context/AuthContext';
 import { PaginatorButton } from '../elements/button';
 import { PageTitle } from '../elements/title';
 import { ContentContainer, PageContainer } from '../elements/containers';
-import {CardContainer, CardImage, CardTitle, CardLabel, CardDescription, CardLabels}from '../elements/card';
+import {CardContainer, CardImage, CardTitle, CardLabel, CardDescription, CardLabels, CardGroup}from '../elements/card';
 import palette from '../palette';
 
 function Datasets() {
@@ -55,12 +55,10 @@ function Datasets() {
       <PageContainer>
         <PageTitle>DATASETS</PageTitle>
         <ContentContainer>
-        
-          {datasets.length > 0 ? (
-            datasets.map(dataset => (
-              <Link to={`/dataset/${dataset.dataset_id}`} key={dataset.id} >
-                <CardContainer key={dataset.id} >
-                  <CardImage
+				<CardGroup>
+	{datasets.length > 0 ? 
+	( datasets.map(dataset => 
+	( <Link to={`/dataset/${dataset.dataset_id}`} key={dataset.id} > <CardContainer key={dataset.id} > <CardImage
                     src={dataset.cover_url} //dataset url
                     alt={dataset.name}
                     className={styles.datasetImage}
@@ -80,7 +78,8 @@ function Datasets() {
           ) : (
             <p>No datasets available</p>
           )}
-          
+	</CardGroup>
+          </ContentContainer>
           <Paginator>
             <PaginatorButton onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
               previous
@@ -93,7 +92,7 @@ function Datasets() {
             </PaginatorButton>
           </Paginator>
         <FormDialog isOpen={isDialogOpen} onRequestClose={handleCloseDialog} />
-    </ContentContainer>
+    
     </PageContainer>
   );
 }

@@ -33,16 +33,27 @@ export const SingupContainer = styled.div`
   left: 0; /* Colocar el contenedor en la parte izquierda */
   `;
 
-export const ContentContainer = styled.div` 
+export const ContentContainerColum = styled.div` 
 flex-grow: 1;
 padding-top: 40px; /* Altura de la barra superior */
 display: flex;
+flex-direction: column;
+min-height: 100vh;
 `; 
 
 export const PageContainer = styled.div`  
 padding-top: 60px; /* Altura de la barra superior */
 margin: 20px 20px 20px 20px; /* Margen fijo en los cuatro bordes */
 flex-grow: 1;
+min-height: 100vh;
+`; 
+
+
+export const ContentContainer = styled.div` 
+flex-grow: 1;
+padding-top: 40px; /* Altura de la barra superior */
 display: flex;
+flex-direction: column;
+min-height: 100vh;
 `; 
 

@@ -24,3 +24,4 @@ export const ImageGallery = styled.div`
   gap: 20px; /* Espacio entre las imágenes */
   justify-content: center; /* Centra las imágenes horizontalmente */
 `
+
