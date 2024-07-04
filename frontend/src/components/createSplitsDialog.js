@@ -4,6 +4,8 @@ import axios, { HttpStatusCode } from 'axios';
 import styles from './newDatasetForm.module.css';
 import AuthContext from "../context/AuthContext";
 import { useNavigate } from 'react-router-dom';
+import {Form, Input, SubmitInput, Title, Label, Select, ButtonContainer, CustomModal} from '../elements/formSyles';
+import {Button} from '../elements/button';
 
 const CreateSplitsDialog = ({ isOpen, onRequestClose, datasetId}) => {
 
@@ -61,35 +63,40 @@ const CreateSplitsDialog = ({ isOpen, onRequestClose, datasetId}) => {
     }
 
     return (
-        <Modal
+        <CustomModal
             isOpen={isOpen}
             onRequestClose={onRequestClose}
             contentLabel="Form Modal"
-            className={styles.formContent}
         >
 
-            <form classname={styles.formElements}>
+            <Form>
+		
+		<Title>
+		New Splits
+		</Title>
 
-                <label>
-                    Train:
-                    <input type="number" value={train} onChange={handleTrainChange} min="0" max="100"/>
-                </label>
-                <label>
-                    Validation:
-                    <input type="number" value={validation} onChange={handleValidationChange} min="0" max="100"/>
-                </label>
-                <label>
-                    Test:
-                    <input type="number" value={test} onChange={handleTestChange} min="0" max="100"/>
-                </label>
+                <Label>
+                    Train
+		</Label>
+                <Input type="number" value={train} onChange={handleTrainChange} min="0" max="100"/>
 
-                <div class={styles.buttonContainer}>
-                    <button type="button" onClick={onRequestClose}>Close</button>
-                    <button type="button" onClick={() => handleAccept()}>Accept</button>
+                <Label>
+                    Validation
+		</Label>
+                <Input type="number" value={validation} onChange={handleValidationChange} min="0" max="100"/>
 
-                </div>
-            </form>
-        </Modal>
+                 <Label>
+                    Test
+		</Label>
+                <Input type="number" value={test} onChange={handleTestChange} min="0" max="100"/>
+                
+                <ButtonContainer class={styles.buttonContainer}>
+                    <Button type="button" onClick={onRequestClose}>Close</Button>
+                    <Button type="button" onClick={() => handleAccept()}>Accept</Button>
+
+                </ButtonContainer>
+            </Form>
+        </CustomModal>
     );
 };
 

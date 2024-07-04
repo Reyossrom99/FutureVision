@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import palette from '../palette';
+import Modal from 'react-modal';
 
 export const Form = styled.form`
 display: flex;
@@ -53,6 +54,12 @@ export const Title = styled.h2`
   margin-top: 0;
 `;
 
+export const Label = styled.label`
+color: ${palette.neutralBlack};
+font-size: 16px;
+margin-bottom: 10px;
+`;
+
 export const Select = styled.select`
   padding: 12px;
   border: 1px solid ${palette.gray};
@@ -81,3 +88,26 @@ export const Option = styled.option`
   }
 `;
 
+export const ButtonContainer = 	styled.div`
+display: flex;
+  justify-content: center;
+  margin-top: 20px;
+`; 
+
+export const CustomModal = styled(Modal)`
+  position: absolute;
+  top: 55%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  max-width: 80%;
+  max-height: 80%;
+  overflow: auto;
+  outline: none;
+  // Ancho y altura personalizados
+  width: 600px; /* Ajusta el ancho del modal */
+ 
+`;

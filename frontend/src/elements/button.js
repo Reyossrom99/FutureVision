@@ -1,7 +1,8 @@
 import styled from 'styled-components';
 import palette from '../palette';
+
 export const Button = styled.button`
-  background-color: ${props => palette.primary };
+  background-color: ${palette.primary };
   border: none;
   border-radius: 20px; /* Bordes redondeados */
   padding: 10px 20px; /* Ajusta el espaciado interno */

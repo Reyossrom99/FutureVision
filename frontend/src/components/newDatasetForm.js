@@ -1,9 +1,10 @@
 import React, { useContext, useState } from "react";
 import Modal from 'react-modal';
 import axios, { HttpStatusCode } from 'axios';
-import styles from './newDatasetForm.module.css';
 import AuthContext from "../context/AuthContext";
 import { useNavigate } from 'react-router-dom';
+import {Form, Input, SubmitInput, Title, Label, Select, ButtonContainer, CustomModal} from '../elements/formSyles';
+import {Button} from '../elements/button';
 
 const FormDialog = ({ isOpen, onRequestClose }) => {
     const navigate = useNavigate();
@@ -81,50 +82,52 @@ const FormDialog = ({ isOpen, onRequestClose }) => {
     };
 
     return (
-        <Modal
+        <CustomModal
             isOpen={isOpen}
             onRequestClose={onRequestClose}
             contentLabel="Form Modal"
-            className={styles.formContent}
         >
 
-            <form classname={styles.formElements}>
-                <h2 id={styles.headerLabel}>Create new dataset</h2> <br></br>
-                <label htmlFor="name" id={styles.nameLabel}>Name</label><br></br><br></br>
-                <input type="text" id={styles.nameInput} name="name" value={name} onChange={(e) => setName(e.target.value)} /><br /><br />
+            <Form >
+                <Title> Create new dataset </Title> 
 
-                <label htmlFor="description" id={styles.descriptionLabel}>Description</label><br></br><br></br>
-                <input type="text" id={styles.descriptionInput} name="description" value={description} onChange={(e) => setDescription(e.target.value)} /><br /><br />
+		<Label htmlFor="name" >Name</Label>               
+		<Input type="text" name="name" value={name} onChange={(e) => setName(e.target.value)} />
 
-                <label htmlFor='type' id={styles.typeLabel}>Select the type of the dataset</label>
-                <select htmlFor='type-select' id={styles.typeInput} onChange={handleTypeChange}>
+                <Label htmlFor="description" >Description</Label> 
+		<Input type="text" name="description" value={description} onChange={(e) => setDescription(e.target.value)} />
+
+                <Label htmlFor='type' >Select the type of the dataset</Label>
+                <Select htmlFor='type-select'  onChange={handleTypeChange}>
                     <option value="splits"> splits created</option>
                     <option value="no-splits"> no splits</option>
-                </select> <br /><br />
+                </Select> 
 
-                <label htmlFor="format" id={styles.formatLabel}>Select the format of the dataset</label>
-                <select htmlFor="format-select" id={styles.formatInput} onChange={handleFormatChange}>
+                <Label htmlFor="format">Select the format of the dataset</Label>
+                <Select htmlFor="format-select" onChange={handleFormatChange}>
                     <option value="yolo"> Yolo </option>
                     <option value="coco"> CoCo</option>
-                </select><br /><br />
+                </Select>
 
-                <label htmlFor="privacy" id={styles.formatLabel}>Select how you want to share the dataset</label>
-                <select htmlFor="privacy-select" id={styles.formatInput} onChange={handlePrivacyChange}>
+                <Label htmlFor="privacy" >Select how you want to share the dataset</Label>
+                <Select htmlFor="privacy-select"  onChange={handlePrivacyChange}>
                     <option value="private"> Private </option>
                     <option value="public"> Public</option>
-                </select><br /><br />
+                </Select>
 
-                <label htmlFor="dir" id={styles.dirLabel}>Select the dataset directory</label> <br></br><br></br>
-                <input type="file" id={styles.dirInput} name="dir" accept=".zip" onChange={handleDirectoryInput} /> <br></br>
+                <Label htmlFor="dir">Select the dataset directory</Label> 
+		<Input type="file" name="dir" accept=".zip" onChange={handleDirectoryInput} />
+
                 {isLoaded ? (
-                    <div class={styles.buttonContainer}>
-                        <button type="button" onClick={onRequestClose}>Close</button>
-                        <button type="button" onClick={() => handleAccept()}>Accept</button>
+                    <ButtonContainer>
+                        <Button type="button" onClick={onRequestClose}>Close</Button>
+                        <Button type="button" onClick={() => handleAccept()}>Accept</Button>
+			</ButtonContainer>
 
-                    </div>) : <div><p>Loading data</p></div>
+                    ) : <div><p>Loading data</p></div>
                 }
-            </form>
-        </Modal>
+            </Form>
+        </CustomModal>
     );
 };
 

@@ -4,6 +4,8 @@ import axios, { HttpStatusCode } from 'axios';
 import styles from './newDatasetForm.module.css';
 import AuthContext from "../context/AuthContext";
 import { useNavigate } from 'react-router-dom';
+import {Form, Input, SubmitInput, ErrorMessage, LinkForm, Title, Label, CustomModal, Select, ButtonContainer} from '../elements/formSyles';
+import {Button} from '../elements/button';
 
 const ModifyDatasetDialog = ({ isOpen, onRequestClose, privacy, description, datasetId}) => {
 
@@ -61,31 +63,29 @@ const ModifyDatasetDialog = ({ isOpen, onRequestClose, privacy, description, dat
     };
 
     return (
-        <Modal
+        <CustomModal
             isOpen={isOpen}
             onRequestClose={onRequestClose}
             contentLabel="Form Modal"
-            className={styles.formContent}
-        >
+                   >
 
-            <form classname={styles.formElements}>
+            <Form classname={styles.formElements}>
+		<Title>Modify Dataset</Title>
+                <Label htmlFor="description" >Description</Label>       
+		<Input type="text" name="description" value={setDescription} onChange={(e) => setDescriptionModify(e.target.value)} />
 
-                <label htmlFor="description" id={styles.descriptionLabel}>Description</label><br></br><br></br>
-                <input type="text" id={styles.descriptionInput} name="description" value={setDescription} onChange={(e) => setDescriptionModify(e.target.value)} /><br /><br />
-
-
-                <label htmlFor="privacy" id={styles.formatLabel}>Select how you want to share the dataset</label>
-                <select htmlFor="privacy-select" id={styles.formatInput} onChange={handlePrivacyChange} value={privacyModify}>
+                <Label htmlFor="privacy" >Select how you want to share the dataset</Label>
+                <Select htmlFor="privacy-select"  onChange={handlePrivacyChange} value={privacyModify}>
                     <option value="private"> Private </option>
                     <option value="public"> Public</option>
-                </select><br /><br />
-                <div class={styles.buttonContainer}>
-                    <button type="button" onClick={onRequestClose}>Close</button>
-                    <button type="button" onClick={() => handleAccept()}>Accept</button>
+                </Select>      
+		<ButtonContainer>
+                    <Button type="button" onClick={onRequestClose}>Close</Button>
+                    <Button type="button" onClick={() => handleAccept()}>Accept</Button>
 
-                </div>
-            </form>
-        </Modal>
+                </ButtonContainer>
+            </Form>
+        </CustomModal>
     );
 };
 
