@@ -39,6 +39,7 @@ function Datasets() {
         const data = await response.json();
         setDatasets(data.datasets);
         setTotalPages(data.total_pages);
+	window.scrollTo(0, 0);
       } else if (response.status === 401) {
         logoutUser();
       }

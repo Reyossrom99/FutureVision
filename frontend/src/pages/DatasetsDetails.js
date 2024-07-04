@@ -134,6 +134,7 @@ function DatasetsDetails() {
       } catch (error) {
         console.error('Error fetching dataset:', error);
         setIsLoading(false);
+	window.scrollTo(0,0);
       }
     };
 

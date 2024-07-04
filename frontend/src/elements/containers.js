@@ -33,13 +33,6 @@ export const SingupContainer = styled.div`
   left: 0; /* Colocar el contenedor en la parte izquierda */
   `;
 
-export const ContentContainerColum = styled.div` 
-flex-grow: 1;
-padding-top: 40px; /* Altura de la barra superior */
-display: flex;
-flex-direction: column;
-min-height: 100vh;
-`; 
 
 export const PageContainer = styled.div`  
 padding-top: 60px; /* Altura de la barra superior */
