@@ -50,3 +50,11 @@ flex-direction: column;
 min-height: 100vh;
 `; 
 
+export const SpinnerContainer = styled.div`
+display: flex;
+justify-content: center;
+fle-direction: column;
+align-items: center;
+height: 100vh;
+  margin-top: -50px; /* Ajusta este valor según necesites */
+`;

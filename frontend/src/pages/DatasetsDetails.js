@@ -8,10 +8,10 @@ import styles from './datasets.module.css';
 import AuthContext from '../context/AuthContext';
 import { PaginatorButton } from '../elements/button';
 import { PageTitle } from '../elements/title';
-import { ContentContainer, PageContainer } from '../elements/containers';
+import { ContentContainer, PageContainer , SpinnerContainer} from '../elements/containers';
 import Paginator from '../elements/paginator';
 import { css } from '@emotion/react';
-import { BeatLoader } from 'react-spinners';
+import { ClipLoader } from 'react-spinners';
 import { useModifyContext } from '../context/modifyContext';
 import ModifyDatasetDialog from '../components/modifyDatasetDialogForm';
 import CreateSplitsDialog from '../components/createSplitsDialog';
@@ -38,7 +38,7 @@ function DatasetsDetails() {
  const {description, setDescription} = useModifyContext();
  const {isCreateSplitDialogOpen, handleCloseCreateSplitDialog, handleCreateSplitDialog} = useCreateSplitContext();
  const {confirmSaveDataset, saveConfirmationSaveDataset} = useSaveDatasetContext();
- 
+const  {datasetName, setDatasetName} = useState("");
   const fields = []; 
   const values = [];
 
@@ -86,6 +86,7 @@ function DatasetsDetails() {
           values: values,
         }),
       });
+	setIsLoading(true);
       if (response.ok) {
         fields.length = 0
         values.length = 0
@@ -104,6 +105,8 @@ function DatasetsDetails() {
       let currentPage = page;
 
         //TODO CUANDO CAMBIE DE SPLIT VOLVER A LA PAGINA 1 -> TENER EN CUENTA EL CAMNIO DE SPLIT//TODO CUANDO CAMBIE DE SPLIT VOLVER A LA PAGINA 1 -> TENER EN CUENTA EL CAMNIO DE SPLIT
+	window.scrollTo(0, 0);
+	setIsLoading(true);
        
       try {
         let url = `/datasets/${datasetId}?showLabels=${shouldShowLabels}&page=${currentPage}`;
@@ -119,7 +122,6 @@ function DatasetsDetails() {
             Authorization: 'Bearer ' + String(authTokens.access),
           },
         });
-
         if (response.ok) {
           const data = await response.json();
           setDataset(data);
@@ -128,13 +130,14 @@ function DatasetsDetails() {
           //for modify context dialog
           setDescription(data.description);
           setPrivacy(data.privacy);
+	  setDatasetName(data.namesetDatasetName(data.name));
         } else if (response.status === 401) {
           logoutUser();
         }
       } catch (error) {
         console.error('Error fetching dataset:', error);
         setIsLoading(false);
-	window.scrollTo(0,0);
+	
       }
     };
 
@@ -175,7 +178,10 @@ function DatasetsDetails() {
       {isLoading ? (
 
         <ContentContainer>
-          <BeatLoader color="#36D7B7" loading={isLoading} size={15} />
+	<PageTitle className={styles.pageName}>{datasetName}</PageTitle>
+	<SpinnerContainer>
+          <ClipLoader color="#7F5A83" loading={isLoading} size={35} />
+	  </SpinnerContainer>
         </ContentContainer>
 
       ) : dataset && (
