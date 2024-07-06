@@ -7,7 +7,7 @@ import { useDeleteDatasetContext } from '../context/deleteContext';
 import { useModifyContext } from '../context/modifyContext';
 import AuthContext from '../context/AuthContext';
 import { navData } from '../lib/navData';
-import { TopNavContainer, TopNavItem, TopNavItems, TopNavButton, LastItem } from '../elements/topNavContainer';
+import { TopNavContainer, TopNavItem, TopNavItems, TopNavButton, LastItem, TopNavSelect, TopNavCheckbox, TopNavLabel } from '../elements/topNavContainer';
 import { SideNavButton, TopNavLink, NavContainer} from '../elements/SideNavContainer';
 import { useCreateSplitContext } from '../context/createSplitsContext';
 import { SlMenu, SlLogout } from "react-icons/sl";
@@ -85,6 +85,7 @@ function TopNav() {
             )
           }
         </TopNavItem>
+
         <TopNavItem>
           {location.pathname === '/datasets' && (
             <TopNavButton onClick={handleButtonClick}>
@@ -92,9 +93,10 @@ function TopNav() {
             </TopNavButton>
           )}
         </TopNavItem>
+
         {location.pathname.startsWith('/dataset/') && (
           <><TopNavItem>
-            <select
+            <TopNavSelect
               id="splitSelect"
               onChange={handleSplitChange}
               value={selectedSplit}
@@ -103,15 +105,16 @@ function TopNav() {
               <option value="train">Train</option>
               <option value="val">Validation</option>
               <option value="test">Test</option>
-            </select>
+	  </TopNavSelect>	
           </TopNavItem>
           <TopNavItem>
-          <input
+          <TopNavCheckbox
               type="checkbox"
               checked={showLabels}
-              onChange={handleCheckboxChange} /><label> Show Labels</label>
+              onChange={handleCheckboxChange} /><TopNavLabel> Show Labels</TopNavLabel>
              
             </TopNavItem>
+
             <TopNavItem>
               <TopNavButton onClick={handleDeleteDataset} >
                 Delete Dataset
@@ -151,7 +154,7 @@ function TopNav() {
         )}
      
      
-      <LastItem style={{marginLeft:'auto'}}>
+      <LastItem>
         <SideNavButton onClick={logoutUser}>
           <SlLogout style={{fontSize: '24px' }}/>
         </SideNavButton>

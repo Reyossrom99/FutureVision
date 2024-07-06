@@ -2,7 +2,7 @@ import styled from 'styled-components';
 import palette from '../palette';
 
 export const TopNavContainer = styled.nav`
-  background-color: ${props => palette.neutralWhite};
+  background-color: ${palette.neutralWhite};
   height: 60px;
   display: flex;
   align-items: center;
@@ -15,23 +15,26 @@ export const TopNavContainer = styled.nav`
   border-bottom: 1px solid ${palette.neutralBlack};
 `;
 
-
-
-
 export const TopNavItems = styled.div`
   display: flex;
   align-items: center;
-  margin-left: 10px;
-  margin-right: 10px; /* Espacio entre el último elemento y el borde derecho */
-`;
+  flex:1; 
+  justify-content:space-between; 
+ `;
+
+
 
 export const TopNavItem = styled.div`
-  margin-right: 100px; /* Espacio entre elementos */
-`;
-export const LastItem = styled.div`
-  
-  margin-right: auto;
-`;
+  display: flex;
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+
+  &:first-child{
+  	flex:0; 
+  }
+  `;
+
 
 export const TopNavButton = styled.button`
   background: none;
@@ -40,3 +43,8 @@ export const TopNavButton = styled.button`
   color: ${palette.neutralBlack};
   font-size: 16px;
 `;  
+
+export const LastItem = styled.div`
+  
+  margin-right: 40px;
+`;
