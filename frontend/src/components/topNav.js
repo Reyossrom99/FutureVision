@@ -85,6 +85,7 @@ function TopNav() {
             )
           }
         </TopNavItem>
+
         <TopNavItem>
           {location.pathname === '/datasets' && (
             <TopNavButton onClick={handleButtonClick}>
@@ -92,6 +93,7 @@ function TopNav() {
             </TopNavButton>
           )}
         </TopNavItem>
+
         {location.pathname.startsWith('/dataset/') && (
           <><TopNavItem>
             <select
@@ -151,7 +153,7 @@ function TopNav() {
         )}
      
      
-      <LastItem style={{marginLeft:'auto'}}>
+      <LastItem>
         <SideNavButton onClick={logoutUser}>
           <SlLogout style={{fontSize: '24px' }}/>
         </SideNavButton>
