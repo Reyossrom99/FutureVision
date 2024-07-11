@@ -212,6 +212,8 @@ def dataset(request, dataset_id):
             else: 
                 images = image_files
             type = utils.oposite_value(coco_data)
+
+            images = coco_data.add_url(images)
         else:
             return JsonResponse({'error': 'Incorret dataset format'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -225,8 +227,9 @@ def dataset(request, dataset_id):
             'total_pages': num_pages, 
             'type': type,
         }
-        print("type", type)
+        
         return JsonResponse(paginated_data, safe=False)
+
     elif request.method == "DELETE":
     
         #borrar el dataset de la base de datos 
