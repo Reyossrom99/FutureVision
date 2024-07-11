@@ -42,7 +42,7 @@ class YoloData:
         Extracts the data from the zip file into a temporary directory
     """
     def extract_data_in_tmp(self, page_number:int, page_size:int, split:str=""):
-        print("extracting data")
+       
         if self.file_list is None:
             self.file_list = zipfile.ZipFile(self.zip_path, 'r').namelist()
             
@@ -601,4 +601,9 @@ class YoloData:
         return True, "The image has been deleted", image_split
 
 
-            
+    def add_url(self, images):
+        images_url = []
+        for img in images: 
+            img = "http://localhost:8000" + img
+            images_url.append(img)
+        return images_url

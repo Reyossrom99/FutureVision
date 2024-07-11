@@ -11,6 +11,7 @@ import { PageTitle } from '../elements/title';
 import { ContentContainer, PageContainer } from '../elements/containers';
 import {CardContainer, CardImage, CardTitle, CardLabel, CardDescription, CardLabels, CardGroup}from '../elements/card';
 import palette from '../palette';
+import {useTypeContext} from '../context/typeContext';
 
 function Datasets() {
   const [datasets, setDatasets] = useState([]); //get the data from the backend
@@ -20,6 +21,7 @@ function Datasets() {
   const { authTokens, logoutUser } = useContext(AuthContext);
   const [currentPage, setCurrentPage] = useState(1);
   const [total_pages, setTotalPages] = useState(1);
+  const {setType} = useTypeContext();
 
   useEffect(() => {
     getDatasets(currentPage);
@@ -28,7 +30,7 @@ function Datasets() {
 
   const getDatasets = async (page) => {
     try {
-      const response = await fetch(`/datasets?page=${page}`, {
+      const response = await fetch(`http://localhost:8000/datasets?page=${page}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -40,6 +42,7 @@ function Datasets() {
         setDatasets(data.datasets);
         setTotalPages(data.total_pages);
 	window.scrollTo(0, 0);
+	setType(data.type); 
       } else if (response.status === 401) {
         logoutUser();
       }
@@ -59,22 +62,33 @@ function Datasets() {
 				<CardGroup>
 	{datasets.length > 0 ? 
 	( datasets.map(dataset => 
-	( <Link to={`/dataset/${dataset.dataset_id}`} key={dataset.id} > <CardContainer key={dataset.id} > <CardImage
-                    src={dataset.cover_url} //dataset url
-                    alt={dataset.name}
-                    className={styles.datasetImage}
-                  />
-                  <div >
-                    <CardTitle>{dataset.name}</CardTitle>
-                    <CardLabels>
-                    <CardLabel style={{backgroundColor: palette.secondary }}>{dataset.format}</CardLabel>
-                    {dataset.is_public ? <CardLabel style={{backgroundColor: palette.accent }} >Public</CardLabel> : <CardLabel style={{backgroundColor: palette.accent }}>Private</CardLabel>}
-                    <CardLabel style={{backgroundColor: palette.primary }}>{dataset.type}</CardLabel>
-                    </CardLabels>
-                  </div>
-                </CardContainer>
-              </Link>
-            ))
+	(     <Link 
+            to={{ 
+              pathname: `/dataset/${dataset.dataset_id}`,
+	                              }} 
+            key={dataset.id}
+          >
+{console.log('Dataset Type:', dataset.type)}
+            <CardContainer key={dataset.id}>
+              <CardImage
+                src={dataset.cover_url}
+                alt={dataset.name}
+                className={styles.datasetImage}
+              />
+              <div>
+                <CardTitle>{dataset.type}</CardTitle>
+                <CardLabels>
+                  <CardLabel style={{backgroundColor: palette.secondary }}>{dataset.format}</CardLabel>
+                  {dataset.is_public ? (
+                    <CardLabel style={{backgroundColor: palette.accent }}>Public</CardLabel>
+                  ) : (
+                    <CardLabel style={{backgroundColor: palette.accent }}>Private</CardLabel>
+                  )}
+                  <CardLabel style={{backgroundColor: palette.primary }}>{dataset.type}</CardLabel>
+                </CardLabels>
+              </div>
+            </CardContainer>
+          </Link>        ))
             
           ) : (
             <p>No datasets available</p>

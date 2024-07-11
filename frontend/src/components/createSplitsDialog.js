@@ -5,13 +5,18 @@ import styles from './newDatasetForm.module.css';
 import AuthContext from "../context/AuthContext";
 import { useNavigate } from 'react-router-dom';
 import {Form, Input, SubmitInput, Title, Label, Select, ButtonContainer, CustomModal} from '../elements/formSyles';
-import {Button} from '../elements/button';
+import {Button} from '../elements/button'; 
+import {useCreateSplitContext} from '../context/createSplitsContext';
+import {useTypeContext} from '../context/typeContext';
+
 
 const CreateSplitsDialog = ({ isOpen, onRequestClose, datasetId}) => {
 
     const [train, setTrain] = useState(70);
     const [validation, setValidation] = useState(20);
     const [test, setTest] = useState(10);
+    const {setReloadDataset} = useCreateSplitContext();
+    const {setType} = useTypeContext();
 
     const authContext = useContext(AuthContext);
     const navigate = useNavigate();
@@ -24,7 +29,7 @@ const CreateSplitsDialog = ({ isOpen, onRequestClose, datasetId}) => {
         }
         
         try {
-            const response = await fetch(`/datasets/${datasetId}/splits`, {
+            const response = await fetch(`http://localhost:8000/datasets/${datasetId}/splits`, {
                 method: 'PATCH', // Cambia 'POST' a 'PATCH'
                 headers: {
                     'Content-Type': 'application/json',
@@ -40,7 +45,9 @@ const CreateSplitsDialog = ({ isOpen, onRequestClose, datasetId}) => {
     
             if (response.status == HttpStatusCode.Ok) {
                 onRequestClose();
-                navigate(`/dataset/${datasetId}`)
+		//navigate(`/dataset/${datasetId}`)
+		setReloadDataset(true);
+		setType("splits");
                             
             } else {
                

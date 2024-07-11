@@ -9,6 +9,7 @@ import { CreateNewButtonProvider, CreateNewProjectProvider, CreateNewTrainProvid
 import { DeleteDatasetProvider } from './context/deleteContext';
 import { ModifyProvider } from './context/modifyContext';
 import { SaveDatasetProvider } from './context/saveContext';
+import { TypeProvider } from './context/typeContext';
 
 import palette from './palette';
 
@@ -17,8 +18,9 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     <BrowserRouter>
-
-      <SaveDatasetProvider>
+     
+      <TypeProvider>	
+           <SaveDatasetProvider>
       <ModifyProvider>
         <DeleteDatasetProvider>
           <CreateNewButtonProvider>
@@ -37,8 +39,7 @@ root.render(
         </DeleteDatasetProvider>
       </ModifyProvider>
       </SaveDatasetProvider>
-
-
+            </TypeProvider>
 
     </BrowserRouter>
   </React.StrictMode>

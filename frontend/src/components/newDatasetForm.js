@@ -31,7 +31,7 @@ const FormDialog = ({ isOpen, onRequestClose }) => {
         uploadData.append('privacy', privacy === 'public');
         
         try {
-            const response = await fetch('/datasets/', {
+            const response = await fetch('http://localhost:8000/datasets/', {
                 method: 'POST',
                 headers: {
                     // No establecer 'Content-Type': 'application/json' aquí

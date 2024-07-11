@@ -327,3 +327,14 @@ def delete_dataset_files(datasetUrl) -> str:
             return "Dataset files not found in the server"
     except Exception as e:
         return e.__str__
+
+def oposite_value(dataset): 
+    print("oposite value")
+    if dataset.modify:
+            print("modify")
+            if dataset.type == "splits":
+                return "no-splits"
+            else:
+                return "splits"
+    else: 
+       return dataset.type

@@ -63,7 +63,7 @@ export const TopNavSelect = styled.select`
   }
 `; 
 
-export const StyledCheckbox = styled.input.attrs({ type: 'checkbox' })`
+export const TopNavCheckbox= styled.input.attrs({ type: 'checkbox' })`
   appearance: none; /* Oculta el estilo predeterminado del checkbox */
   padding: 10px;
   border: 1px solid ${palette.gray};

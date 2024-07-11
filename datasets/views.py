@@ -180,6 +180,10 @@ def dataset(request, dataset_id):
             else:
                 images = image_files
 
+            type = utils.oposite_value(yolo_data)
+
+            images = yolo_data.add_url(images)
+
         elif dataset.format == 'coco':
             
             #comprobar si el dataset ya ha sido abierto
@@ -207,19 +211,21 @@ def dataset(request, dataset_id):
                 images, _ = coco_data.get_labeled_images(requested_split, page_number, page_size)
             else: 
                 images = image_files
+            type = utils.oposite_value(coco_data)
         else:
             return JsonResponse({'error': 'Incorret dataset format'}, status=status.HTTP_400_BAD_REQUEST)
 
         # Crear respuesta paginada
+
         paginated_data = {
             'dataset_id': dataset.dataset_id,
             'name': dataset.name,
             'description': dataset.description,
             'images': images,
-            'total_pages': num_pages
+            'total_pages': num_pages, 
+            'type': type,
         }
-        print(paginated_data, paginated_data)
-
+        print("type", type)
         return JsonResponse(paginated_data, safe=False)
     elif request.method == "DELETE":
     

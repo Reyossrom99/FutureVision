@@ -17,10 +17,19 @@ import ModifyDatasetDialog from '../components/modifyDatasetDialogForm';
 import CreateSplitsDialog from '../components/createSplitsDialog';
 import { useSaveDatasetContext } from '../context/saveContext';
 import { ImageContainer, StyledImage, ImageGallery} from '../elements/image';
+import { useLocation } from 'react-router-dom';
+import { useTypeContext } from '../context/typeContext';
+
 
 
 function DatasetsDetails() {
-  const { id } = useParams();
+
+  const { id} = useParams();
+    const location = useLocation();
+
+  // Extraer el parámetro 'type' de la consulta
+  const queryParams = new URLSearchParams(location.search);
+
   const [dataset, setDataset] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
@@ -29,7 +38,7 @@ function DatasetsDetails() {
   const { showLabels } = useCheckbox();
   const { selectedSplit } = useSplitContext();
   const { authTokens, logoutUser } = useContext(AuthContext);
-  const { buttonClicked } = useCreateSplitContext();
+  const { buttonClicked, setReloadDataset, reloadDataset} = useCreateSplitContext();
   const { askForConfirmation , deleteConfirmation} = useDeleteDatasetContext();
   const { confirmDeleteDataset } = useDeleteDatasetContext();
   const {isModifyDialogOpen, handleCloseModifyDialog} = useModifyContext();
@@ -38,7 +47,12 @@ function DatasetsDetails() {
  const {description, setDescription} = useModifyContext();
  const {isCreateSplitDialogOpen, handleCloseCreateSplitDialog, handleCreateSplitDialog} = useCreateSplitContext();
  const {confirmSaveDataset, saveConfirmationSaveDataset} = useSaveDatasetContext();
+
 const  {datasetName, setDatasetName} = useState("");
+const {setType} = useTypeContext();
+
+   
+  //dataset obtained from the last request 
   const fields = []; 
   const values = [];
 
@@ -47,7 +61,7 @@ const  {datasetName, setDatasetName} = useState("");
   let last_request_split = "";
 
   const deleteDataset = async (datasetId) => {
-    let url = `/datasets/${datasetId}`;
+    let url = `http://localhost:8000/datasets/${datasetId}`;
     const response = await fetch(url, {
       method: 'DELETE',
       headers: {
@@ -75,7 +89,7 @@ const  {datasetName, setDatasetName} = useState("");
     values.push(true)
 
     try{
-      const response = await fetch(`/datasets/${datasetId}`, {
+      const response = await fetch(`http://localhost:8000/datasets/${datasetId}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -101,7 +115,9 @@ const  {datasetName, setDatasetName} = useState("");
             console.log('Error creating dataset:', error);
         }
   }; 
-  const getDataset = async (datasetId, shouldShowLabels, requestSplitView, page, last_request_split) => {
+
+
+  const getDataset = async (datasetId, shouldShowLabels, requestSplitView, page, last_request_split, setPrivacy, setDescription, setType) => {
       let currentPage = page;
 
         //TODO CUANDO CAMBIE DE SPLIT VOLVER A LA PAGINA 1 -> TENER EN CUENTA EL CAMNIO DE SPLIT//TODO CUANDO CAMBIE DE SPLIT VOLVER A LA PAGINA 1 -> TENER EN CUENTA EL CAMNIO DE SPLIT
@@ -109,7 +125,7 @@ const  {datasetName, setDatasetName} = useState("");
 	setIsLoading(true);
        
       try {
-        let url = `/datasets/${datasetId}?showLabels=${shouldShowLabels}&page=${currentPage}`;
+        let url = `http://localhost:8000/datasets/${datasetId}?showLabels=${shouldShowLabels}&page=${currentPage}`;
 
 	 if (requestSplitView !== "" ){
 
@@ -130,7 +146,9 @@ const  {datasetName, setDatasetName} = useState("");
           //for modify context dialog
           setDescription(data.description);
           setPrivacy(data.privacy);
-	  setDatasetName(data.namesetDatasetName(data.name));
+	 //set type in case of change	
+	  setType(data.type); 
+	  console.log('Dataset Type:', data.type);
         } else if (response.status === 401) {
           logoutUser();
         }
@@ -139,6 +157,7 @@ const  {datasetName, setDatasetName} = useState("");
         setIsLoading(false);
 	
       }
+
     };
 
   useEffect(() => {
@@ -157,12 +176,18 @@ const  {datasetName, setDatasetName} = useState("");
           saveConfirmationSaveDataset();
       }
     }
+    if (reloadDataset) {
+      setCurrentPage(1);
+      getDataset(id, showLabels, selectedSplit, currentPage, last_request_split, setPrivacy, setDescription, setType);
+      setReloadDataset	 (false);  
+    }
 
-  }, [ confirmDeleteDataset, confirmSaveDataset, fields, values]);
+  }, [ confirmDeleteDataset, confirmSaveDataset, fields, values, reloadDataset, id, showLabels, selectedSplit, currentPage, last_request_split, setPrivacy, setDescription, setType]);
 
   useEffect(() => {
-    getDataset(id, showLabels, selectedSplit, currentPage, last_request_split);
-  }, [currentPage, showLabels, selectedSplit, last_request_split, id]);
+	  console.log("Loading dataset"); 
+	getDataset(id, showLabels, selectedSplit, currentPage, last_request_split, setPrivacy, setDescription, setType);
+  }, [currentPage, showLabels, selectedSplit, last_request_split, id, setPrivacy, setDescription, setType]);
 
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
@@ -178,7 +203,7 @@ const  {datasetName, setDatasetName} = useState("");
       {isLoading ? (
 
         <ContentContainer>
-	<PageTitle className={styles.pageName}>{datasetName}</PageTitle>
+	<PageTitle className={styles.pageName}></PageTitle>
 	<SpinnerContainer>
           <ClipLoader color="#7F5A83" loading={isLoading} size={35} />
 	  </SpinnerContainer>

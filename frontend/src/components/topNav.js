@@ -12,6 +12,7 @@ import { SideNavButton, TopNavLink, NavContainer} from '../elements/SideNavConta
 import { useCreateSplitContext } from '../context/createSplitsContext';
 import { SlMenu, SlLogout } from "react-icons/sl";
 import { useSaveDatasetContext } from '../context/saveContext';
+import { useTypeContext } from '../context/typeContext';
 
 
 function TopNav() {
@@ -28,7 +29,10 @@ function TopNav() {
   const {handleCreateSplitDialog} = useCreateSplitContext(); 
   const {askForConfirmationSaveDataset} = useSaveDatasetContext();
   let { user, loginUser, logoutUser } = useContext(AuthContext); 
-
+   
+  const {type } = useTypeContext();
+  console.log("type top nav", type);
+  const optionsType = type === "splits" ? ['train', 'val', 'test'] : []; 
   //delete dataset 
   const {askForConfirmation} = useDeleteDatasetContext();
 
@@ -64,6 +68,8 @@ function TopNav() {
   const handleSaveDataset = () => {
     askForConfirmationSaveDataset();
   }
+
+
   return (
     <TopNavContainer>
       <TopNavItems>
@@ -101,10 +107,11 @@ function TopNav() {
               onChange={handleSplitChange}
               value={selectedSplit}
             >
-              <option value="">Select Split</option>
-              <option value="train">Train</option>
-              <option value="val">Validation</option>
-              <option value="test">Test</option>
+  	   { optionsType.length ===0 ? <options value="">No splits</options> 
+		: optionsType.map((option) => (
+			<option key={option} value={option}>{option}</option>
+		))}
+
 	  </TopNavSelect>	
           </TopNavItem>
           <TopNavItem>
@@ -132,7 +139,7 @@ function TopNav() {
               </TopNavItem>
               <TopNavItem>
                 <TopNavButton onClick={handleSaveDataset}>
-                  Save
+                  Save changes
                 </TopNavButton>
               </TopNavItem>
             

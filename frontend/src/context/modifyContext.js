@@ -20,7 +20,7 @@ export function ModifyProvider({children}) {
         SetIsModifyDialogOpen(false);
     }
     return (
-        <ModifyContext.Provider value={{modify, isModifyDialogOpen, privacy, description, askForModify, handleCloseModifyDialog}}>
+        <ModifyContext.Provider value={{modify, isModifyDialogOpen, privacy, description, askForModify, handleCloseModifyDialog, setDescription, setPrivacy, setModify}}>
         {children}
         </ModifyContext.Provider>
     );
