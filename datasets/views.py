@@ -315,10 +315,11 @@ def dataset(request, dataset_id):
                             #delete from the dictionary
                             del coco_data_objects[dataset.dataset_id]
                             #change status in database 
-                            dataset.type = "no-splits"
+                            dataset.type = "splits"
                             dataset.num_images_train = train_imgs
                             dataset.num_images_val = val_imgs
                             dataset.num_images_test = test_imgs
+                            dataset.save()
                             return JsonResponse({'message': 'Dataset updated'}, status=status.HTTP_200_OK)
                         
                     elif dataset.format == "yolo":
@@ -339,7 +340,7 @@ def dataset(request, dataset_id):
                             #delete from the dictionary
                             del yolo_data_objects[dataset.dataset_id]
                             #change status in database 
-                            dataset.type = "no-splits"
+                            dataset.type = "splits"
                             dataset.num_images_train = train_imgs
                             dataset.num_images_val = val_imgs
                             dataset.num_images_test = test_imgs

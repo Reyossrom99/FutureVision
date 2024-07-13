@@ -465,58 +465,41 @@ class YoloData:
         if self.modify == False: 
             return False, "The dataset has not been modified", 0, 0, 0
 
-        print("saving modifications")
+        temp_zip_path = os.path.join(settings.MEDIA_ROOT, "zip_data", self.name, self.zip_name + "_temp.zip")
         
-        with zipfile.ZipFile(self.zip_path, 'a') as zip_ref:
-            # Crear nuevas carpetas dentro del archivo ZIP si no existen
-            # for carpeta_destino in ["train", "val", "test"]:
-            #     if carpeta_destino not in zip_ref.namelist():
-            #         # Crear la carpeta destino principal
-            #         zip_ref.writestr(os.path.join(self.zip_name, carpeta_destino, ""), "")
-            #         # Crear las subcarpetas "images" y "labels" dentro de la carpeta destino
-            #         zip_ref.writestr(os.path.join(self.zip_name, carpeta_destino, "images", ""), "")
-            #         zip_ref.writestr(os.path.join(self.zip_name, carpeta_destino, "labels", ""), "")
-            
-            #pasar las imagenes a las carpetas correspondientes
-            train_imgs = 0
-            for images in self.modify_splits["train"]:
-                print(images)
-                zip_ref.write(images, os.path.join(self.zip_name, "train",  os.path.basename(images)))
-                train_imgs += 1
-            val_imgs = 0
+        train_imgs = len(self.modify_splits["train"])
+        val_imgs = len(self.modify_splits["val"])
+        test_imgs = len(self.modify_splits["test"])
 
-            for images in self.modify_splits["val"]:
-                zip_ref.write(images, os.path.join(self.zip_name, "val",  os.path.basename(images)))
-                val_imgs += 1
-            test_imgs = 0
-
-            for images in self.modify_splits["test"]:
-                zip_ref.write(images, os.path.join(self.zip_name, "test",  os.path.basename(images)))
-                test_imgs += 1
-            
-            #pasar las anotaciones a los archivos correspondientes
-            for labels in self.modify_splits_labels["train"]:
-                zip_ref.write(labels, os.path.join(self.zip_name, "train",  os.path.basename(labels)))
-
-            for labels in self.modify_splits_labels["val"]:
-                zip_ref.write(labels, os.path.join(self.zip_name, "val",  os.path.basename(labels)))
-
-            for labels in self.modify_splits_labels["test"]:
-                zip_ref.write(labels, os.path.join(self.zip_name, "test",  os.path.basename(labels)))
+        with zipfile.ZipFile(self.zip_path, 'r') as zip_ref: 
+            with zipfile.ZipFile(temp_zip_path, 'w') as tmp_zip:
+                for item in zip_ref.infolist():
+                    if item.filename in self.modify_splits["train"]:
+                        new_path = os.path.join(self.zip_name.split(".zip")[0], "train", "images", os.path.basename(item.filename))
+                    elif item.filename in self.modify_splits["val"]:
+                        new_path = os.path.join(self.zip_name.split(".zip")[0], "val", "images", os.path.basename(item.filename))
+                    elif item.filename in self.modify_splits["test"]:
+                        new_path = os.path.join(self.zip_name.split(".zip")[0], "test", "images", os.path.basename(item.filename))
+                    elif item.filename in self.modify_splits_labels["train"]:
+                        new_path = os.path.join(self.zip_name.split(".zip")[0], "train", "labels", os.path.basename(item.filename))
+                    elif item.filename in self.modify_splits_labels["val"]:
+                        new_path = os.path.join(self.zip_name.split(".zip")[0], "val", "labels", os.path.basename(item.filename))
+                    elif item.filename in self.modify_splits_labels["test"]:
+                        new_path = os.path.join(self.zip_name.split(".zip")[0], "test", "labels", os.path.basename(item.filename))
+                    else: 
+                        print("ERROR: file not found")
+                        print(item.filename)
+                        continue
 
 
-            #Eliminar la carpeta de imagenes original
-            zip_ref.remove(os.path.join(self.zip_name, "images/"))
-            zip_ref.remove(os.path.join(self.zip_name, "labels/"))
+                    tmp_zip.writestr(os.path.join(new_path), zip_ref.read(item.filename))
         
-        #change values 
-        self.type == "splits"
+   
+            os.replace(temp_zip_path, os.path.join(settings.MEDIA_ROOT, self.zip_path.name))
 
-
-        zip_ref.close()
-
-
-        
+            self.modify = False
+            self.type = "splits"
+           
         return True, "The modifications have been saved", train_imgs, val_imgs, test_imgs
     
     def delete_tmp(self):
@@ -550,6 +533,7 @@ class YoloData:
     def delete_zip(self): 
         if os.path.exists(os.path.join(settings.MEDIA_ROOT, self.zip_path.name)):
             os.remove(os.path.join(settings.MEDIA_ROOT, self.zip_path.name))
+            shutil.rmtree(os.path.join(settings.MEDIA_ROOT, "zip_data", self.name))
             return True, "The zip file has been deleted"
         else : 
             return False, "The zip file does not exist"
