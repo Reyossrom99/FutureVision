@@ -22,7 +22,7 @@ class CocoData:
         self.tmp_dir = tempfile.mkdtemp(dir = self.dir_root)
         self.tmp_name = os.path.basename(self.tmp_dir)
         #list of extracted pages
-        self.file.list = None
+        self.file_list = None
         self.extracted_pages = []
         self.extracted_train = []
         self.extracted_val = []
@@ -52,10 +52,10 @@ class CocoData:
             self.file_list = zipfile.ZipFile(self.zip_path, 'r').namelist()
             #extracts annotions 
             if self.type == "no-splits":
-                with zip.file.ZipFile(self.zip_path, 'r') as zip_ref:
+                with zipfile.ZipFile(self.zip_path, 'r') as zip_ref:
                     zip_ref.extract(self.zip_name + "/annotations.json", self.tmp_dir)
             else: 
-                with zip.file.ZipFile(self.zip_path, 'r') as zip_ref:
+                with zipfile.ZipFile(self.zip_path, 'r') as zip_ref:
                     zip_ref.extract(self.zip_name + "/annotations/train.json", self.tmp_dir)
                     zip_ref.extract(self.zip_name + "/annotations/val.json", self.tmp_dir)
                     zip_ref.extract(self.zip_name + "/annotations/test.json", self.tmp_dir)
@@ -405,11 +405,14 @@ class CocoData:
         Deletes the tmp directory
     """
     def delete_tmp_data(self): 
-        if os.path.exists(self.tmp_dir): 
+         print(self.tmp_dir)
+         if not os.path.exists(self.tmp_dir):
+            return False, "The temporary directory does not exist"
+         else : 
             shutil.rmtree(self.tmp_dir)
-        
-        return True
-    
+            return True, "The temporary directory has been deleted"
+
+            
     """
         Converts the annotations to yolo format
     """
@@ -517,11 +520,21 @@ class CocoData:
         return True, "The splits have been deleted"
     
     def delete_zip(self): 
-        if os.path.exists(os.path.join(settings.MEDIA_ROOT, self.zip_path)): 
-            os.remove(os.path.join(settings.MEDIA_ROOT, self.zip_path))
-            return True
+        print(os.path.join(settings.MEDIA_ROOT, self.zip_path.name))
+        if os.path.exists(os.path.join(settings.MEDIA_ROOT, self.zip_path.name)): 
+            os.remove(os.path.join(settings.MEDIA_ROOT, self.zip_path.name))
+            return True, "The zip file has been deleted"
         else: 
             return False, "The zip file does not exist"
+
+    def delete_cover(self): 
+        print(os.path.join(settings.MEDIA_ROOT, "covers", self.name))
+        if not os.path.exists(os.path.join(settings.MEDIA_ROOT, "covers", self.name)):
+            return False, "The temporary directory does not exist"
+        else : 
+            shutil.rmtree(os.path.join(settings.MEDIA_ROOT, "covers", self.name))
+            return True, "The temporary directory has been deleted"
+
     
     def delete_all(self):
         check, err = self.delete_tmp_data()
@@ -530,8 +543,12 @@ class CocoData:
         check, err = self.delete_zip()
         if check == False: 
             return False, err
-        return True
-    
+        check, err = self.delete_cover()
+        if check == False: 
+            return False, err
+
+        return True, "All the data has been deleted"   
+
     def delete_image(self, image_name):
         if self.modify == "True": 
             return False,  "Save the modifications before deleting an image", ""

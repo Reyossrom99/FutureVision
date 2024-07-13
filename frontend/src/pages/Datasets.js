@@ -76,7 +76,7 @@ function Datasets() {
                 className={styles.datasetImage}
               />
               <div>
-                <CardTitle>{dataset.type}</CardTitle>
+                <CardTitle>{dataset.name}</CardTitle>
                 <CardLabels>
                   <CardLabel style={{backgroundColor: palette.secondary }}>{dataset.format}</CardLabel>
                   {dataset.is_public ? (

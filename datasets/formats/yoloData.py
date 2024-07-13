@@ -520,8 +520,11 @@ class YoloData:
         return True, "The modifications have been saved", train_imgs, val_imgs, test_imgs
     
     def delete_tmp(self):
-        shutil.rmtree(self.tmp_dir)
-        return True, "The temporary directory has been deleted"
+        if not os.path.exists(self.tmp_dir):
+            return False, "The temporary directory does not exist"
+        else : 
+            shutil.rmtree(self.tmp_dir)
+            return True, "The temporary directory has been deleted"
     
     def delete_splits(self): 
         if self.modify != True:
@@ -545,17 +548,40 @@ class YoloData:
         return True, "The splits have been deleted"
     
     def delete_zip(self): 
-        print(os.path.join(settings.MEDIA_ROOT, self.zip_path.name))
-        os.remove(os.path.join(settings.MEDIA_ROOT, self.zip_path.name))
-        return True, "The zip file has been deleted"
+        if os.path.exists(os.path.join(settings.MEDIA_ROOT, self.zip_path.name)):
+            os.remove(os.path.join(settings.MEDIA_ROOT, self.zip_path.name))
+            return True, "The zip file has been deleted"
+        else : 
+            return False, "The zip file does not exist"
+     
+
+    def delete_cover(self): 
+        if not os.path.exists(os.path.join(settings.MEDIA_ROOT, "covers", self.name)):
+            return False, "The temporary directory does not exist"
+        else : 
+            shutil.rmtree(os.path.join(settings.MEDIA_ROOT, "covers", self.name))
+            return True, "The temporary directory has been deleted"
+
+                
     
     def delete_all (self): 
+
         check, err = self.delete_tmp()
+
         if check != True: 
             return False, err
+
         check, err = self.delete_zip()
+
         if check != True: 
             return False, err
+
+        check, err =self.delete_cover()
+
+        if check!= True: 
+            return False, err
+
+
         return True, "The zip file and the temporary directory have been deleted"
 
     def delete_image(self, image_name): 

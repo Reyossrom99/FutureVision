@@ -238,29 +238,36 @@ def dataset(request, dataset_id):
             return JsonResponse({'error': 'Cannot delete a public dataset if does not belong to you'}, status=status.HTTP_401_UNAUTHORIZED)
 
         if dataset.format == "yolo": 
+
             if dataset.dataset_id in yolo_data_objects: 
                 yolo_data = yolo_data_objects[dataset.dataset_id]
 
             yolo_data = yolo_data_objects[dataset.dataset_id]
      
             check, err = yolo_data.delete_all()
+
             if not check :
                     return JsonResponse({'error': err}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             #borrar el dataset de la base de datos
            
             del yolo_data_objects[dataset.dataset_id]
+
             try: 
                 dataset.delete()
             except Exception as e:
                 print(e)
                 return JsonResponse({'error': 'Cannot delete dataset'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             return JsonResponse({'message': 'Dataset deleted'}, status=status.HTTP_200_OK)
+
         elif dataset.format == "coco":
+
             if dataset.dataset_id in coco_data_objects: 
                 coco_data = coco_data_objects[dataset.dataset_id]
+
             coco_data = coco_data_objects[dataset.dataset_id]
           
             check, err = coco_data.delete_all()
+
             if not check :
                     return JsonResponse({'error': err}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             #borrar el dataset de la base de datos
