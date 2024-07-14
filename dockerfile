@@ -41,6 +41,8 @@ COPY src/ ./src/
 COPY datasets/ ./datasets/
 COPY proyects/ ./proyects/
 COPY yolov7 ./yolov7/
+COPY authentication/ ./authentication/
+
 
 # Hace el script de entrada ejecutable
 COPY entrypoint.sh .
@@ -49,6 +51,7 @@ RUN chmod +x entrypoint.sh
 COPY entrypoint_celery.sh . 
 RUN chmod +x entrypoint_celery.sh 
 
+COPY manage.py  . 
 # Puerto en el que se ejecutará la aplicación Django
 EXPOSE 8000
 
