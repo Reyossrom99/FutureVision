@@ -16,7 +16,7 @@ export const AuthProvider = ({ children }) => {
     let loginUser = async (e) => {
         e.preventDefault();
         try {
-            const response = await fetch('/auth/token/', {
+            const response = await fetch('http://localhost:8000/auth/token/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -32,17 +32,25 @@ export const AuthProvider = ({ children }) => {
                 setUser(jwtDecode(data.access));
                 navigate('/datasets');
             } else {
-                setError(data.detail); 
+                // Si hay un error en la respuesta, manejar el JSON devuelto por el backend
+                // Verificar si el JSON contiene la clave 'error' y mostrar su valor en caso afirmativo
+                if (data && data.error) {
+                    setError(data.error); 
+                } else {
+                    // Si no hay una clave 'error' en el JSON, mostrar un mensaje genérico
+                    setError('Error login in. Please try again.'); 
+                }
             }
         } catch (error) {
-            setError(error);
+            // Manejar errores de red u otros errores inesperados
+            setError('Network error occurred.'); 
         }
     };
 
     let logoutUser = async (e) => {
         e.preventDefault();
         try {
-            await fetch('/auth/token/blacklist/', {
+            await fetch('http://localhost:8000/auth/token/blacklist/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -51,7 +59,7 @@ export const AuthProvider = ({ children }) => {
                 body: JSON.stringify({ "refresh": authTokens.refresh })
             });
         } catch (error) {
-            console.error('Error while logging out:', error);
+            setError(error)
         }
         if (localStorage.getItem('authTokens')) {
             localStorage.removeItem('authTokens');
@@ -64,7 +72,7 @@ export const AuthProvider = ({ children }) => {
 
     const updateToken = async () => {
         try {
-            const response = await fetch('/auth/token/refresh/', {
+            const response = await fetch('http://localhost:8000/auth/token/refresh/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

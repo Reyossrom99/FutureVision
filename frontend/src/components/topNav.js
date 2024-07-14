@@ -1,17 +1,19 @@
 import React, { useState, useContext } from 'react';
-import { useLocation, useParams } from 'react-router-dom';
+import { NavLink, useLocation, useParams } from 'react-router-dom';
 import { useCheckbox } from '../context/checkboxShowLabelContext';
 import { useSplitContext } from '../context/selectSplitViewContext';
-import { useCreateSplitContext } from '../context/createSplitsContext';
 import { useCreateNewButtonContext, useCreateNewProjectContext, useCreateNewTrainContext } from '../context/createNewContext';
-
+import { useDeleteDatasetContext } from '../context/deleteContext';
+import { useModifyContext } from '../context/modifyContext';
 import AuthContext from '../context/AuthContext';
+import { navData } from '../lib/navData';
+import { TopNavContainer, TopNavItem, TopNavItems, TopNavButton, LastItem, TopNavSelect, TopNavCheckbox, TopNavLabel } from '../elements/topNavContainer';
+import { SideNavButton, TopNavLink, NavContainer} from '../elements/SideNavContainer';
+import { useCreateSplitContext } from '../context/createSplitsContext';
+import { SlMenu, SlLogout } from "react-icons/sl";
+import { useSaveDatasetContext } from '../context/saveContext';
+import { useTypeContext } from '../context/typeContext';
 
-import TopNavContainer from '../elements/topNavContainer';
-import Button from '../elements/button';
-import { Link } from 'react-router-dom';
-
-import palette from '../palette';
 
 function TopNav() {
   const location = useLocation();
@@ -21,8 +23,22 @@ function TopNav() {
   const { handleNewButtonClick } = useCreateNewButtonContext();
   const { handleNewProjectButtonClick } = useCreateNewProjectContext();
   const { handleNewTrainButtonClick } = useCreateNewTrainContext();
+  const { handleDeleteButtonClick } = useDeleteDatasetContext();
+  const [menuVisible, setMenuVisible] = useState(false);
+  const {askForModify } = useModifyContext();
+  const {handleCreateSplitDialog} = useCreateSplitContext(); 
+  const {askForConfirmationSaveDataset} = useSaveDatasetContext();
+  let { user, loginUser, logoutUser } = useContext(AuthContext); 
+   
+  const {type } = useTypeContext();
+  console.log("type top nav", type);
+  const optionsType = type === "splits" ? ['train', 'val', 'test'] : []; 
+  //delete dataset 
+  const {askForConfirmation} = useDeleteDatasetContext();
 
-  let { user, loginUser, logoutUser } = useContext(AuthContext)
+  const handleDeleteDataset = () => {
+    askForConfirmation(true);
+  }; 
 
   const handleButtonClick = () => {
     handleNewButtonClick();
@@ -38,58 +54,120 @@ function TopNav() {
     setSplit(e.target.value);
   };
   const handleCheckboxChange = () => {
-    setShowLabels(!showLabels); 
+    setShowLabels(!showLabels);
   };
+  const handleDeleteProject = () => { 
+    handleDeleteButtonClick();
+  };
+  const handleModifyDataset = () => { 
+    askForModify();
+  }
+  const handleCreateSplits = () => {
+    handleCreateSplitDialog(); 
+  }
+  const handleSaveDataset = () => {
+    askForConfirmationSaveDataset();
+  }
 
 
   return (
     <TopNavContainer>
-      <div>
-        {location.pathname === '/datasets' && (
-          <Button onClick={handleButtonClick}>
-            Create new
-          </Button>
-        )}
-        {location.pathname.startsWith('/datasets/') && (
-          <div>
-            <select
+      <TopNavItems>
+        <TopNavItem>
+          <SideNavButton onClick={() => setMenuVisible(!menuVisible)}>
+            <SlMenu style={{fontSize: '16px'}}/>
+          </SideNavButton>
+          {
+            menuVisible && (
+              <NavContainer open={menuVisible}>
+                {/* Mapea los elementos de navData para renderizar los enlaces */}
+                {navData.map(item => (
+                  <TopNavLink key={item.id} to={item.link} onClick={() => setMenuVisible(!menuVisible)}>
+                    {item.icon}
+                    <span id={item.text} style={{marginLeft:'10px', fontSize:'16px'}}>{item.text}</span>
+                  </TopNavLink>
+                ))}
+              </NavContainer>
+            )
+          }
+        </TopNavItem>
+
+        <TopNavItem>
+          {location.pathname === '/datasets' && (
+            <TopNavButton onClick={handleButtonClick}>
+              new dataset
+            </TopNavButton>
+          )}
+        </TopNavItem>
+
+        {location.pathname.startsWith('/dataset/') && (
+          <><TopNavItem>
+            <TopNavSelect
               id="splitSelect"
               onChange={handleSplitChange}
               value={selectedSplit}
             >
-              <option value="train">Train</option>
-              <option value="val">Validation</option>
-              <option value="test">Test</option>
-            </select>
+  	   { optionsType.length ===0 ? <options value="">No splits</options> 
+		: optionsType.map((option) => (
+			<option key={option} value={option}>{option}</option>
+		))}
 
-            <input
+	  </TopNavSelect>	
+          </TopNavItem>
+          <TopNavItem>
+          <TopNavCheckbox
               type="checkbox"
               checked={showLabels}
-              onChange={handleCheckboxChange}
-            />
-            <label> Show Labels</label>
+              onChange={handleCheckboxChange} /><TopNavLabel> Show Labels</TopNavLabel>
+             
+            </TopNavItem>
 
-            <Button onClick={() => handleButtonClick(true)}>
-              Create splits
-            </Button>
-          </div>
+            <TopNavItem>
+              <TopNavButton onClick={handleDeleteDataset} >
+                Delete Dataset
+                </TopNavButton>
+            </TopNavItem>
+            <TopNavItem>
+              <TopNavButton onClick={handleModifyDataset} >
+                Modify
+              </TopNavButton>
+            </TopNavItem>
+              <TopNavItem>
+                <TopNavButton onClick={handleCreateSplits}>
+                  Create splits
+                </TopNavButton>
+              </TopNavItem>
+              <TopNavItem>
+                <TopNavButton onClick={handleSaveDataset}>
+                  Save changes
+                </TopNavButton>
+              </TopNavItem>
+            
+            </>
         )}
         {location.pathname === '/projects' && (
-          <Button onClick={handleNewProject} >
-            Create new
-          </Button>
+          <TopNavItem>
+          <TopNavButton onClick={handleNewProject} >
+            create new
+          </TopNavButton>
+          </TopNavItem>
         )}
         {location.pathname.startsWith('/project/') && (
-          <Button onClick={handleNewTrain} >
-            New training
-          </Button>
+          <TopNavItem>
+          <TopNavButton onClick={handleNewTrain} >
+            new training
+          </TopNavButton>
+          </TopNavItem>
         )}
-      </div>
-      <div style={{ marginLeft: 'auto' }}>
-        <Button onClick={logoutUser} style={{ backgroundColor: palette.neutralWhite }}>
-          logout
-        </Button>
-      </div>
+     
+     
+      <LastItem>
+        <SideNavButton onClick={logoutUser}>
+          <SlLogout style={{fontSize: '24px' }}/>
+        </SideNavButton>
+        </LastItem>
+     
+      </TopNavItems>
     </TopNavContainer>
   );
 }

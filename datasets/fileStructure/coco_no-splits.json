@@ -1,7 +1,6 @@
 {
     "project_root": {
         "annotations.json": true,
-        "images": true,
-        "dataset_metadata.txt": false
+        "images": true
     }
 }

@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.contrib.postgres.fields import ArrayField
 
 DATASET_TYPE_CHOICES = (
     ('splits', 'Splits'),
@@ -29,6 +30,9 @@ class Datasets(models.Model):
     format = models.CharField(max_length=10, choices=DATASET_FORMAT_CHOICES, default='coco')
     is_public = models.BooleanField(default=False) 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    num_images_train = models.IntegerField(default=1)
+    num_images_val = models.IntegerField(default=1)
+    num_images_test = models.IntegerField(default=1)
     
     
  

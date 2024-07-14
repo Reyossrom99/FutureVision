@@ -1,21 +1,24 @@
-import React, { useState, useContext } from 'react';
+import React, {createContext, useContext, useState} from "react"; 
 
-const CreateSplitContext = React.createContext();
+const CreateSplitContext = createContext(); 
 
-export const useCreateSplitContext = () => {
-  return useContext(CreateSplitContext);
-};
+export function useCreateSplitContext (){
+  return useContext(CreateSplitContext); 
+}; 
 
-export const ButtonClickProvider = ({ children }) => {
-  const [buttonClicked, setButtonClicked] = useState(false);
+export function CreateSplitProvider({children}){
+  const [isCreateSplitDialogOpen, SetCreateSplitDialogOpen] = useState(false); 
+  const [reloadDataset, setReloadDataset] = useState(false);
 
-  const handleButtonClick = () => {
-    setButtonClicked(true);
-  };
-
-  return (
-    <CreateSplitContext.Provider value={{ buttonClicked, handleButtonClick }}>
-      {children}
-    </CreateSplitContext.Provider>
-  );
-};
+  const handleCreateSplitDialog = () => {
+    SetCreateSplitDialogOpen(true); 
+  }
+  const handleCloseCreateSplitDialog = () => {
+    SetCreateSplitDialogOpen(false); 
+  }
+     return (
+        <CreateSplitContext.Provider value={{handleCloseCreateSplitDialog, handleCreateSplitDialog, isCreateSplitDialogOpen, reloadDataset, setReloadDataset}}>
+        {children}
+        </CreateSplitContext.Provider>
+    );
+}

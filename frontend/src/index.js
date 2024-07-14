@@ -4,8 +4,12 @@ import App from './App';
 import { BrowserRouter } from 'react-router-dom';
 import { CheckboxProvider } from './context/checkboxShowLabelContext';
 import { SplitProvider } from './context/selectSplitViewContext';
-import { ButtonClickProvider } from './context/createSplitsContext';
+import { CreateSplitProvider } from './context/createSplitsContext';
 import { CreateNewButtonProvider, CreateNewProjectProvider, CreateNewTrainProvider } from './context/createNewContext';
+import { DeleteDatasetProvider } from './context/deleteContext';
+import { ModifyProvider } from './context/modifyContext';
+import { SaveDatasetProvider } from './context/saveContext';
+import { TypeProvider } from './context/typeContext';
 
 import palette from './palette';
 
@@ -14,21 +18,28 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     <BrowserRouter>
-
-      <CreateNewButtonProvider>
-        <CreateNewProjectProvider>
-          <CreateNewTrainProvider>
-            <CheckboxProvider>
-              <SplitProvider>
-                <ButtonClickProvider>
-                  <App palette={palette} />
-                </ButtonClickProvider>
-              </SplitProvider>
-            </CheckboxProvider>
-          </CreateNewTrainProvider>
-        </CreateNewProjectProvider>
-      </CreateNewButtonProvider>
-
+     
+      <TypeProvider>	
+           <SaveDatasetProvider>
+      <ModifyProvider>
+        <DeleteDatasetProvider>
+          <CreateNewButtonProvider>
+            <CreateNewProjectProvider>
+              <CreateNewTrainProvider>
+                <CheckboxProvider>
+                  <SplitProvider>
+                    <CreateSplitProvider>
+                      <App palette={palette} />
+                    </CreateSplitProvider>
+                  </SplitProvider>
+                </CheckboxProvider>
+              </CreateNewTrainProvider>
+            </CreateNewProjectProvider>
+          </CreateNewButtonProvider>
+        </DeleteDatasetProvider>
+      </ModifyProvider>
+      </SaveDatasetProvider>
+            </TypeProvider>
 
     </BrowserRouter>
   </React.StrictMode>

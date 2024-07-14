@@ -9,7 +9,6 @@ const LoginPage = () => {
     const handleSubmit = (e) => {
         e.preventDefault();
         loginUser(e);
-        setError(null);
     };
 
     return (
@@ -17,7 +16,7 @@ const LoginPage = () => {
                 
                 <Form onSubmit={handleSubmit}>
                     <Title>Welcome back!</Title>
-                    <Input type="text" name="username" placeholder="username" />
+                    <Input type="text" name="username" placeholder="username" /> 
                     <Input type="password" name="password" placeholder="password" />
                     <SubmitInput type="submit" value="login" /> 
                     <LinkForm to="/signup">Create a new account</LinkForm> 

@@ -1,4 +1,4 @@
-from celery import shared_task
+# from celery import shared_task
 from .models import Training
 import subprocess 
 import os 
@@ -6,7 +6,7 @@ import logging
 import yaml
 
 log = logging.getLogger("docker")
-@shared_task
+# @shared_task
 def train_model(training_id):
     try:
         

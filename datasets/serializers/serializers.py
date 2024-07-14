@@ -14,7 +14,8 @@ class DatasetsSerializers(serializers.ModelSerializer):
         cover_path = os.path.join(settings.MEDIA_ROOT,  "covers", str(obj.name))
         cover_files = [file for file in os.listdir(cover_path) if file.lower().endswith(('.jpg', '.png', '.jpeg'))]
         if cover_files:
-            return os.path.join("/media", "covers", str(obj.name), cover_files[0])
+            system_path =  os.path.join("/media", "covers", str(obj.name), cover_files[0])
+            return "http://localhost:8000" + system_path
         return None
 
     def to_representation(self, instance):

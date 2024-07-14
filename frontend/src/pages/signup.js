@@ -20,7 +20,7 @@ const SignupPage = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        axios.post('/auth/signup', formData)
+        axios.post('http://localhost:8000/auth/signup', formData)
             .then(response => {
                 console.log(response.data);
                 navigate("/login")

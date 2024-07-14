@@ -15,6 +15,7 @@ djangorestframework_simplejwt==5.1.0
 celery==5.2.4
 redis==5.0.3
 PyYAML==6.0.1
+pycocotools==2.0.7
 
 #yolov7 packages 
 matplotlib>=3.2.2

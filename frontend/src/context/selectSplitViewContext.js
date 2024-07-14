@@ -7,7 +7,7 @@ export const useSplitContext = () => {
 };
 
 export const SplitProvider = ({ children }) => {
-  const [selectedSplit, setSelectedSplit] = useState('train');
+  const [selectedSplit, setSelectedSplit] = useState('');
 
   const setSplit = (split) => {
     setSelectedSplit(split);
