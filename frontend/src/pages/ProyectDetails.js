@@ -48,7 +48,6 @@ function ProyectDetails() {
           <div>Loading...</div>
         ) : (
           <div className={styles.datasetDetailsContainer}>
-            {/* Renderizar detalles del proyecto aquí */}
             <NewTrainForm isOpen={isDialogOpen} onRequestClose={handleCloseDialog} proyectId={proyect.proyect_id} />
           </div>
         )}

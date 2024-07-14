@@ -44,7 +44,7 @@ def proyects(request):
             project = Proyects(
                 name=data.get('name'),
                 description=data.get('description'),
-                type=data.get('type'),
+                type="bbox",
                 is_public=data.get('is_public', False),  
                 dataset_id=data.get('dataset_id'),
                 user=request.user  
