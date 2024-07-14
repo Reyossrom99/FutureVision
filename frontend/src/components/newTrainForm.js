@@ -1,9 +1,11 @@
 import React, {useState, useEffect, useContext} from "react";
-import Modal from 'react-modal'; 
 import axios from 'axios'; 
 import styles from './newDatasetForm.module.css';
 import AuthContext from "../context/AuthContext";
 import { useNavigate } from 'react-router-dom';
+import {Form, Input, SubmitInput, Title, Label, Select, ButtonContainer, CustomModal} from '../elements/formSyles';
+import {Button} from '../elements/button';
+
 
 const NewTrainForm = ({isOpen, onRequestClose, proyectId}) => {
     const navigate = useNavigate();
@@ -28,10 +30,10 @@ const NewTrainForm = ({isOpen, onRequestClose, proyectId}) => {
             const response = await fetch(`/proyects/${proyectId}/queue`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json', // Indica que estás enviando datos en formato JSON
+                    'Content-Type': 'application/json', // Indica que estás enviando datos en Formato JSON
                     'Authorization': 'Bearer ' + String(authTokens.access)
                 },
-                body: JSON.stringify(requestData) // Convierte los datos a formato JSON
+                body: JSON.stringify(requestData) // Convierte los datos a Formato JSON
             });
     
             if (response.ok) {
@@ -52,38 +54,37 @@ const NewTrainForm = ({isOpen, onRequestClose, proyectId}) => {
     
     
     return (
-        <Modal
+        <CustomModal
         isOpen = {isOpen}
         onRequestClose={onRequestClose}
-        contentLabel="Form Modal"
-        className={styles.formContent}
+        contentLabel="Form CustomModal"
         >
            
-            <form classname={styles.formElements}>
-            <h2 id={styles.headerLabel}>Create train</h2> <br></br>
+            <Form>
+            <Title >Create train</Title>
             
-            <label for="batchSize"> Batch size (min 1) </label>
-            <input type="number" id="batchSize" name="batchSize" min="1" onChange={(e) => setBatchSize(e.target.value)}/><br /><br />
+            <Label for="batchSize"> Batch size (min 1) </Label>
+            <Input type="number" id="batchSize" name="batchSize" min="1" onChange={(e) => setBatchSize(e.target.value)}/><br /><br />
             
-            <label for="imgSize"> Image size (min 32x32) </label>
-            <input type="number" id="imgSize" name="imgSize" min="32" onChange={(e) => setImgSize(e.target.value)}/><br /><br />
+            <Label for="imgSize"> Image size (min 32x32) </Label>
+            <Input type="number" id="imgSize" name="imgSize" min="32" onChange={(e) => setImgSize(e.target.value)}/><br /><br />
 
-            <label for="epochs"> Epochs(min 1) </label>
-            <input type="number" id="epochs" name="epochs" min="1" onChange={(e) => setEpochs(e.target.value)}/><br /><br />
+            <Label for="epochs"> Epochs(min 1) </Label>
+            <Input type="number" id="epochs" name="epochs" min="1" onChange={(e) => setEpochs(e.target.value)}/><br /><br />
 
-            <label htmlFor="testOption">Run test only on final epoch:</label>
-            <select id="testOption" value={noTest} onChange={handleNoTestChange}>
+            <Label htmlFor="testOption">Run test only on final epoch:</Label>
+            <Select id="testOption" value={noTest} onChange={handleNoTestChange}>
                 <option value="False">True</option>
                 <option value="True">False</option>
-            </select>
+            </Select>
 
 
-            <div class={styles.buttonContainer}>
-            <button type="button" onClick={onRequestClose}>Close</button>
-            <button type="button" onClick={() => handleAccept()}>Accept</button>
-            </div>
-            </form>
-        </Modal>
+            <ButtonContainer>
+            <Button type="button" onClick={onRequestClose}>Close</Button>
+            <Button type="button" onClick={() => handleAccept()}>Accept</Button>
+            </ButtonContainer>
+            </Form>
+        </CustomModal>
     ); 
 };
 export default NewTrainForm; 

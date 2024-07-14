@@ -4,6 +4,9 @@ import axios from 'axios';
 import styles from './newDatasetForm.module.css';
 import AuthContext from "../context/AuthContext";
 import { useNavigate } from 'react-router-dom';
+import {Form, Input, SubmitInput, Title, Label, Select, ButtonContainer, CustomModal} from '../elements/formSyles';
+import {Button} from '../elements/button';
+
 
 const FormDialog = ({isOpen, onRequestClose}) => {
     const navigate = useNavigate();
@@ -12,7 +15,7 @@ const FormDialog = ({isOpen, onRequestClose}) => {
     const [description, setDescription] = useState(''); 
     const [type, setType] = useState("bbox"); 
     const [datasets, setDatasets] = useState([]);
-    const [selectDataset, setSelectDataset] = useState(null);
+    const [SelectDataset, setSelectDataset] = useState(null);
     const [privacy, setSelectPrivacy] = useState("public"); 
 
     
@@ -46,7 +49,7 @@ const FormDialog = ({isOpen, onRequestClose}) => {
             description: description,
             type: type,
             is_public: privacy === 'public',
-            dataset_id: selectDataset
+            dataset_id: SelectDataset
         };
     
         try {
@@ -86,31 +89,23 @@ const FormDialog = ({isOpen, onRequestClose}) => {
     }
     
     return (
-        <Modal
+        <CustomModal
         isOpen = {isOpen}
         onRequestClose={onRequestClose}
         contentLabel="Form Modal"
-        className={styles.formContent}
         >
            
-            <form classname={styles.formElements}>
-            <h2 id={styles.headerLabel}>Create new proyect</h2> <br></br>
-            <label htmlFor="name" id={styles.nameLabel}>Name</label><br></br><br></br>
-            <input type="text" id={styles.nameInput} name="name" value={name} onChange={(e) => setName(e.target.value)} /><br /><br />
+            <Form>
+            <Title>Create new proyect</Title>
+
+            <Label htmlFor="name">Name</Label>
+            <Input type="text" name="name" value={name} onChange={(e) => setName(e.target.value)}/>
     
-            <label htmlFor="description" id ={styles.descriptionLabel}>Description</label><br></br><br></br>
-            <input type="text" id={styles.descriptionInput} name="description" value={description} onChange={(e) => setDescription(e.target.value)} /><br /><br />
+            <Label htmlFor="description">Description</Label>
+            <Input type="text"  name="description" value={description} onChange={(e) => setDescription(e.target.value)} />
     
-            <label htmlFor='type' id={styles.typeLabel}>Select the dataset label type</label>
-            <select htmlFor='type-select' id={styles.typeInput} onChange={handleTypeChange}>
-                <option value="bbox">bbox</option>
-                <option value="mask">mask</option>
-                <option value="mask+bbox"> mask + bbox</option>
-            </select> <br /><br/> 
-    
-    
-            <label htmlFor='dataset' id={styles.typeLabel}>Select an exiting dataset</label>
-            <select htmlFor='dataset-select' id={styles.typeInput} onChange={handleDatasetChange}>
+            <Label htmlFor='dataset' >Select an exiting dataset</Label>
+            <Select htmlFor='dataset-select'  onChange={handleDatasetChange}>
                 <option value={null}>
 	    	</option>
                 {datasets.map((dataset) => (
@@ -118,21 +113,21 @@ const FormDialog = ({isOpen, onRequestClose}) => {
                     {dataset.name}
                 </option>
                 ))}
-            </select><br /><br/> 
+            </Select>
 
-            <label htmlFor='privacy' id={styles.typeLabel}>Select a privacy option </label>
+            <Label htmlFor='privacy' >Select a privacy option </Label>
       
-            <select htmlFor='privacy-select' id={styles.typeInput} onChange={handlePrivacyChange}>
+            <Select htmlFor='privacy-select'  onChange={handlePrivacyChange}>
                 <option value="public">public</option>
                 <option value="private">private</option>
-            </select> <br /><br/> 
+            </Select>  
 
-            <div class={styles.buttonContainer}>
-            <button type="button" onClick={onRequestClose}>Close</button>
-            <button type="button" onClick={() => handleAccept()}>Accept</button>
-            </div>
-            </form>
-        </Modal>
+	    <ButtonContainer>
+            <Button type="button" onClick={onRequestClose}>Close</Button>
+            <Button type="button" onClick={() => handleAccept()}>Accept</Button>
+            </ButtonContainer>
+            </Form>
+        </CustomModal>
     ); 
 };
 export default FormDialog; 
