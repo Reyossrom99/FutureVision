@@ -37,7 +37,10 @@ COPY requirements.txt .
 RUN python3.8 -m pip install -r requirements.txt
 
 # Copia el código de la aplicación al contenedor
-COPY . .
+COPY src/ ./src/
+COPY datasets/ ./datasets/
+COPY proyects/ ./proyects/
+COPY yolov7 ./yolov7/
 
 # Hace el script de entrada ejecutable
 COPY entrypoint.sh .
