@@ -97,7 +97,7 @@ DATABASES = {
         'NAME': 'visionDocker',
         'USER': 'admin',
         'PASSWORD': 'admin',
-        'HOST': 'localhost',  # Use the host of your Docker container (localhost, db)
+        'HOST': 'db',  # Use the host of your Docker container (localhost, db)
         'PORT': '5432',       # Port exposed in the container
     }
 }
@@ -150,8 +150,6 @@ TMP_URL = '/media/tmp/'
 #folder for training
 TRAIN_ROOT = os.path.join(BASE_DIR, 'media', 'train')
 TRAIN_URL = '/media/train'
-
-
 
 
 DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
