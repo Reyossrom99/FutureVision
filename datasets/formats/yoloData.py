@@ -486,6 +486,8 @@ class YoloData:
                         new_path = os.path.join(self.zip_name.split(".zip")[0], "val", "labels", os.path.basename(item.filename))
                     elif item.filename in self.modify_splits_labels["test"]:
                         new_path = os.path.join(self.zip_name.split(".zip")[0], "test", "labels", os.path.basename(item.filename))
+                    elif os.path.basename(item.filename) == "data.yaml":
+                        new_path = os.path.join(self.zip_name.split(".zip")[0], "data.yaml")
                     else: 
                         print("ERROR: file not found")
                         print(item.filename)
@@ -493,8 +495,7 @@ class YoloData:
 
 
                     tmp_zip.writestr(os.path.join(new_path), zip_ref.read(item.filename))
-        
-   
+                
             os.replace(temp_zip_path, os.path.join(settings.MEDIA_ROOT, self.zip_path.name))
 
             self.modify = False

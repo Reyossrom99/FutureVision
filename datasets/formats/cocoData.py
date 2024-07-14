@@ -1,4 +1,3 @@
-
 import json
 import math
 import os
@@ -38,7 +37,7 @@ class CocoData:
         self.category_colors = None
         #modifications 
         self.modify = False
-        self.modify_spltis = {"train": [], "val": [], "test": []}
+        self.modify_splits = {"train": [], "val": [], "test": []}
         self.summary = None
         #is there are test labels
         self.has_test = True
@@ -81,6 +80,25 @@ class CocoData:
                         for file_name in self.modify_splits["train"] 
                         if file_name.lower().endswith(('.jpg', '.jpeg', '.png'))]
 
+                    start_index = (page_number - 1) * page_size
+                    end_index = min(start_index + page_size, len(self.file_list))
+
+                    interchnage_folder = os.path.join(settings.MEDIA_ROOT, self.tmp_dir, self.zip_name, "change")
+                    if not os.path.exists(interchnage_folder):
+                        os.makedirs(interchnage_folder, exist_ok=False)
+
+                    images_train = os.path.join(settings.MEDIA_ROOT, self.tmp_dir, self.zip_name, "train")
+                    if not os.path.exists(images_train):
+                        os.makedirs(images_train, exist_ok=False)
+
+                    for file_name in file_list_train[start_index:end_index]:
+                        try:
+                            zip_ref.extract(file_name, interchnage_folder)
+                            base_name = os.path.basename(file_name)
+                            shutil.move(os.path.join(interchnage_folder, self.zip_name, base_name), os.path.join(images_train, base_name))
+                        except Exception as e:
+                            print("Error: ", e)
+
                 else: 
                     file_list_train = [file_name for file_name in self.file_list if 'train' in file_name and file_name.lower().endswith(('.jpg', '.jpeg', '.png'))]
 
@@ -99,6 +117,26 @@ class CocoData:
                     file_list_val = [file_name.replace("/images/", "/val/") 
                         for file_name in self.modify_splits["val"] 
                         if file_name.lower().endswith(('.jpg', '.jpeg', '.png'))]
+
+                    start_index = (page_number - 1) * page_size
+                    end_index = min(start_index + page_size, len(self.file_list))
+
+                    interchnage_folder = os.path.join(settings.MEDIA_ROOT, self.tmp_dir, self.zip_name, "change")
+                    if not os.path.exists(interchnage_folder):
+                        os.makedirs(interchnage_folder, exist_ok=False)
+
+                    images_val = os.path.join(settings.MEDIA_ROOT, self.tmp_dir, self.zip_name, "val")
+                    if not os.path.exists(images_val):
+                        os.makedirs(images_val, exist_ok=False)
+
+                    for file_name in file_list_val[start_index:end_index]:
+                        try:
+                            zip_ref.extract(file_name, interchnage_folder)
+                            base_name = os.path.basename(file_name)
+                            shutil.move(os.path.join(interchnage_folder, self.zip_name, base_name), os.path.join(images_val, base_name))
+                        except Exception as e:
+                            print("Error: ", e)
+
                 else: 
                     file_list_val = [file_name for file_name in self.file_list if 'val' in file_name and file_name.lower().endswith(('.jpg', '.jpeg', '.png'))]
                 start_index = (page_number - 1) * page_size
@@ -115,6 +153,26 @@ class CocoData:
                     file_list_test = [file_name.replace("/images/", "/test/") 
                         for file_name in self.modify_splits["test"] 
                         if file_name.lower().endswith(('.jpg', '.jpeg', '.png'))]
+
+                    start_index = (page_number - 1) * page_size
+                    end_index = min(start_index + page_size, len(self.file_list))
+
+                    interchnage_folder = os.path.join(settings.MEDIA_ROOT, self.tmp_dir, self.zip_name, "change")
+                    if not os.path.exists(interchnage_folder):
+                        os.makedirs(interchnage_folder, exist_ok=False)
+
+                    images_test = os.path.join(settings.MEDIA_ROOT, self.tmp_dir, self.zip_name, "test")
+                    if not os.path.exists(images_test):
+                        os.makedirs(images_test, exist_ok=False)
+
+                    for file_name in file_list_test[start_index:end_index]:
+                        try:
+                            zip_ref.extract(file_name, interchnage_folder)
+                            base_name = os.path.basename(file_name)
+                            shutil.move(os.path.join(interchnage_folder, self.zip_name, base_name), os.path.join(images_test, base_name))
+                        except Exception as e:
+                            print("Error: ", e)
+
                 else: 
                     file_list_test = [file_name for file_name in self.file_list if 'test' in file_name and file_name.lower().endswith(('.jpg', '.jpeg', '.png'))]
                 start_index = (page_number - 1) * page_size
@@ -319,7 +377,7 @@ class CocoData:
             return False, "The number of images in the splits is not equal to the total number of images"
         
         self.modify_splits["train"] = random.sample([x for x in self.file_list if x.lower().endswith(('.jpg', '.jpeg', '.png'))], train)
-        self.modify_spltis["val"] = random.sample([x for x in self.file_list if x not in self.modify_splits["train"] and x.lower().endswith(('.jpg', '.jpeg', '.png'))], val)
+        self.modify_splits["val"] = random.sample([x for x in self.file_list if x not in self.modify_splits["train"] and x.lower().endswith(('.jpg', '.jpeg', '.png'))], val)
         self.modify_splits["test"] = [x for x in self.file_list if x not in self.modify_splits["train"] and x not in self.modify_splits["val"] and x.lower().endswith(('.jpg', '.jpeg', '.png'))]
 
         self.modify = True
@@ -332,45 +390,31 @@ class CocoData:
         if self.modify == False: 
             return False, "The dataset has not been modified", 0, 0, 0
         
-        with zipfile.ZipFile(self.zip_path, 'a') as zip_ref:
-            # Crear nuevas carpetas dentro del archivo ZIP si no existen
-            for carpeta_destino in ["train", "val", "test", "annotations"]:
-                if carpeta_destino not in self.file_list.namelist():
-                    zip_ref.writestr(os.path.join(self.zip_name, carpeta_destino, ""), "")
-            
-            #pasar las imagenes a las carpetas correspondientes
-            train_imgs = 0
-            for images in self.modify_splits["train"]:
-                zip_ref.write(images, os.path.join(self.zip_name, "train"))
-                train_imgs += 1
-            val_imgs = 0
-            for images in self.modify_splits["val"]:
-                zip_ref.write(images, os.path.join(self.zip_name, "val"))
-                val_imgs += 1
-            test_imgs = 0    
-            for images in self.modify_splits["test"]:
-                zip_ref.write(images, os.path.join(self.zip_name, "test"))
-                test_imgs += 1
+        train_imgs = len(self.modify_splits["train"])
+        val_imgs = len(self.modify_splits["val"])
+        test_imgs = len(self.modify_splits["test"])
 
-            #pasar las anotaciones a los archivos correspondientes
-            anotaciones_train, anotaciones_val, anotaciones_test = self.separate_annotations_in_splits(os.path.join(self.tmp_dir, self.zip_name, "annotations.json"))
-            zip_ref.writestr(os.path.join(self.zip_name, "annotations", "train.json"), json.dumps(anotaciones_train))
-            zip_ref.writestr(os.path.join(self.zip_name, "annotations", "val.json"), json.dumps(anotaciones_val))
-            zip_ref.writestr(os.path.join(self.zip_name, "annotations", "test.json"), json.dumps(anotaciones_test))
+        tmp_zip_path = os.path.join(settings.MEDIA_ROOT, "zip_data", self.name, self.zip_name, "_temp.zip")
 
-            # Eliminar el archivo de anotaciones original
-            zip_ref.remove(os.path.join(self.zip_name, "annotations.json"))
-            #Eliminar la carpeta de imagenes original
-            zip_ref.remove(os.path.join(self.zip_name, "images/"))
-        
-        #change values 
-        self.type == "splits"
+        with zipfile.ZipFile(self.zip_path, 'r') as zip_ref: 
+            with zipfile.ZipFile(tmp_zip_path, 'w') as tmp_zip: 
+                for item in zip_ref.infolist():
+                    if item.filename in self.modify_splits["train"]: 
+                        new_path = os.path.join(self.zip_name.split(".zip")[0], "train", os.path.basename(item.filename))   
+                    elif item.filename in self.modify_splits["val"]:
+                        new_path = os.path.join(self.zip_name.split(".zip")[0], "val", os.path.basename(item.filename))
+                    elif item.filename in self.modify_splits["test"]:
+                        new_path = os.path.join(self.zip_name.split(".zip")[0], "test", os.path.basename(item.filename))
+                    
+                    tmp_zip.writestr(new_path, zip_ref.read(item.filename))
+         
+             #add the annotations files
+            tmp_zip.write(os.path.join(settings.MEDIA_ROOT, self.tmp_dir, self.zip_name, "annotations", "train.json"), os.path.join(self.zip_name.split(".zip")[0], "annotations", "train.json"))
+            tmp_zip.write(os.path.join(settings.MEDIA_ROOT, self.tmp_dir, self.zip_name, "annotations", "val.json"), os.path.join(self.zip_name.split(".zip")[0], "annotations", "val.json"))
+            tmp_zip.write(os.path.join(settings.MEDIA_ROOT, self.tmp_dir, self.zip_name, "annotations", "test.json"), os.path.join(self.zip_name.split(".zip")[0], "annotations", "test.json"))
 
-
-        zip_ref.close()
-
-
-        
+        os.replace(tmp_zip_path, os.path.join(settings.MEDIA_ROOT, self.zip_path.name))
+   
         return True, "The modifications have been saved", train_imgs, val_imgs, test_imgs
     
     def separate_annotations_in_splits(self, annotations_file:str): 
@@ -513,7 +557,7 @@ class CocoData:
         shutil.rmtree(os.path.join(self.tmp_dir, self.zip_name, "test"))
         
         #delete the modifications
-        self.modify_spltis = {"train": [], "val": [], "test": []}
+        self.modify_splits = {"train": [], "val": [], "test": []}
         self.modify = False
 
         
@@ -523,6 +567,7 @@ class CocoData:
         print(os.path.join(settings.MEDIA_ROOT, self.zip_path.name))
         if os.path.exists(os.path.join(settings.MEDIA_ROOT, self.zip_path.name)): 
             os.remove(os.path.join(settings.MEDIA_ROOT, self.zip_path.name))
+            shutil.rmtree(os.path.join(settings.MEDIA_ROOT, "zip_data", self.name))
             return True, "The zip file has been deleted"
         else: 
             return False, "The zip file does not exist"
