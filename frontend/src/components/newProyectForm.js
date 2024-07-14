@@ -23,7 +23,7 @@ const FormDialog = ({isOpen, onRequestClose}) => {
   }, []);
   const getDatasets = async () => {
     try {
-      const response = await fetch('/datasets', {
+      const response = await fetch('http://localhost:8000/datasets', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -32,7 +32,7 @@ const FormDialog = ({isOpen, onRequestClose}) => {
       });
       if (response.ok) {
         const data = await response.json();
-        setDatasets(data);
+        setDatasets(data.datasets);
       } else if (response.status === 401) {
         logoutUser();
       }
@@ -50,7 +50,7 @@ const FormDialog = ({isOpen, onRequestClose}) => {
         };
     
         try {
-            const response = await fetch('/proyects/', {
+            const response = await fetch('http://localhost:8000/proyects/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json', // Indica que estás enviando datos en formato JSON
@@ -111,7 +111,8 @@ const FormDialog = ({isOpen, onRequestClose}) => {
     
             <label htmlFor='dataset' id={styles.typeLabel}>Select an exiting dataset</label>
             <select htmlFor='dataset-select' id={styles.typeInput} onChange={handleDatasetChange}>
-                <option value={null}>-</option>
+                <option value={null}>
+	    	</option>
                 {datasets.map((dataset) => (
                 <option key={dataset.dataset_id} value={dataset.dataset_id}>
                     {dataset.name}

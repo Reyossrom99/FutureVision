@@ -19,7 +19,7 @@ function Proyects(){
     }, []); 
     const getProyects = async () => {
         try {
-            const response = await fetch('/proyects', {
+            const response = await fetch('http://localhost:8000/proyects', {
               method: 'GET',
               headers: {
                 'Content-Type': 'application/json',
