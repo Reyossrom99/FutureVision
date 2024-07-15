@@ -16,7 +16,10 @@ done
 
 # Ejecutar las migraciones de Django
 echo "Ejecutando migraciones de Django..."
+python3.8 manage.py makemigrations authentication datasets proyects
 python3.8 manage.py migrate
+
+mkdir -p /app/media/covers /app/media/tmp /app/media/zip_data
 
 # Iniciar el servidor web Django
 echo "Iniciando el servidor web Django..."

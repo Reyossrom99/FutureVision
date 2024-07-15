@@ -1,10 +1,10 @@
+
 services:
 
   redis:
     image: redis:latest
     ports:
       - "6379:6379"
-     
 
   db:
     image: postgres:latest
@@ -15,11 +15,10 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
-      - "5432:5432" 
+      - "5432:5432"
 
-  web:
+  server:
     image: reyossrom/tfg:latest
-    #build: .
     command: ./entrypoint.sh   
     ports:
       - "8000:8000"
@@ -27,16 +26,23 @@ services:
       - db
     volumes:
       - media_volume:/app/media
+  
+  client: 
+    image: docker.io/library/react-app:latest
+    ports: 
+      - "3000:3000"
+    depends_on:
+      - db 
+      - server
 
   celery:
     image: reyossrom/tfg:latest
-    #build: .
     command: ./entrypoint_celery.sh
     environment:
-    - DJANGO_SETTINGS_MODULE=src.settings
-    - NVIDIA_VISIBLE_DEVICES=all
+      - DJANGO_SETTINGS_MODULE=src.settings
+      - NVIDIA_VISIBLE_DEVICES=all
     depends_on:
-      - web
+      - server
       - redis
     volumes:
       - media_volume:/app/media
@@ -49,4 +55,5 @@ services:
 
 volumes:
   postgres_data:
-  media_volume: 
+  media_volume:
+
