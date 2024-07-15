@@ -17,7 +17,7 @@ const NewTrainForm = ({isOpen, onRequestClose, proyectId}) => {
     const [batch, setBatch] = useState(16); 
     const [workers, setWorkers] = useState(8); 
     const [cfg, setCfg] = useState("yolov7"); 
-    const[noWeights, setNoWeights] = useState(false); 
+    const[noWeights, setNoWeights] = useState(true); 
 
     
     const { authTokens, logoutUser } = useContext(AuthContext);
@@ -32,11 +32,11 @@ const NewTrainForm = ({isOpen, onRequestClose, proyectId}) => {
            noTest: noTest, 
 	   workers: workers, 
 	   cfg: cfg, 
-	   weigths: weigths
-        };
+	   weights: noWeights ? 1 : 0       
+	};
        
         try {
-            const response = await fetch(`/proyects/${proyectId}/queue`, {
+            const response = await fetch(`http://localhost:8000/proyects/${proyectId}/queue`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json', // Indica que estás enviando datos en Formato JSON
@@ -60,13 +60,13 @@ const NewTrainForm = ({isOpen, onRequestClose, proyectId}) => {
     const handleNoTestChange = (e) => {
         setNoTest(e.target.value === "True");
     };
-    const handleCfgChaneg = (e) => {
+    const handleCfgChange = (e) => {
     	setCfg(e.target.value); 
     }; 
 
-   const handleNoWeigthsChange = () => {
-	   setNoWeights(!noWeights); 
-   }; 
+   const handleNoWeigthsChange = (e) => {
+	   setNoWeights(e.target.checked);
+  }; 
     
     
     return (
@@ -80,30 +80,30 @@ const NewTrainForm = ({isOpen, onRequestClose, proyectId}) => {
             <Title >Create train</Title>
             
 
-            <Label for="imgSize"> Image size  train (min 32x32) </Label>
-            <Input type="number" id="imgSize" name="imgSize" min="32" onChange={(e) => setImgSizeTrain(e.target.value)}/>
+            <Label for="imgSizeTrain"> Image size  train  </Label>
+            <Input type="number" id="imgSizeTrain" name="imgSizeTrain" min="32" value={imgSizeTrain} onChange={(e) => setImgSizeTrain(e.target.value)}/>
 
-	    <Label for="imgSize"> Image size test(min 32x32) </Label>
-            <Input type="number" id="imgSize" name="imgSize" min="32" onChange={(e) => setImgSizeTest(e.target.value)}/>
+	    <Label for="imgSizeTest"> Image size test</Label>
+            <Input type="number" id="imgSizeTest" name="imgSizeTest" min="32" value={imgSizeTest} onChange={(e) => setImgSizeTest(e.target.value)}/>
 
 	     <Label for="batch"> Batch size </Label>
-            <Input type="number" id="batch" name="batch" min="1" onChange={(e) => setBatch(e.target.value)}/>
+            <Input type="number" id="batch" name="batch" min="1" value={batch}onChange={(e) => setBatch(e.target.value)}/>
 
 	    <Label for="workers"> Workers </Label>
-            <Input type="number" id="workers" name="workers" min="1" onChange={(e) => setWorkers(e.target.value)}/>
+            <Input type="number" id="workers" name="workers" min="1" value={workers} onChange={(e) => setWorkers(e.target.value)}/>
 
 	
-            <Label for="epochs"> Epochs(min 1) </Label>
-            <Input type="number" id="epochs" name="epochs" min="1" onChange={(e) => setEpochs(e.target.value)}/>
+            <Label for="epochs"> Epochs</Label>
+            <Input type="number" id="epochs" name="epochs" min="1"  value={epochs} onChange={(e) => setEpochs(e.target.value)}/>
 
-            <Label htmlFor="testOption">Run test only on final epoch:</Label>
+            <Label >Run test only on final epoch</Label>
             <Select id="testOption" value={noTest} onChange={handleNoTestChange}>
                 <option value="False">True</option>
                 <option value="True">False</option>
             </Select>
 
 
-	   <Label htmlFor="cfg">Model architecture </Label>
+	   <Label >Model architecture </Label>
             <Select id="cfg" value={cfg} onChange={handleCfgChange}>
                 <option value="yolov7">yolov7</option>
                 <option value="yolov7-e6e">yolov7-e6e</option>
@@ -113,11 +113,13 @@ const NewTrainForm = ({isOpen, onRequestClose, proyectId}) => {
 	    	<option value="yolov7-w6">yolov7-w6</option>
 	    	<option value="yolov7x">yolov7x</option>
             </Select> 
-
+	   
+	    <Label> No weights </Label>
 	    <Checkbox
 	    	type="checkbox"
-	    	checked={noweigths}
-	    	onChange={handleNoWeigthsChange}> No weights </Checkbox>
+	    	checked={!noWeights}
+	    	onChange={handleNoWeigthsChange}/> 
+	
 
             <ButtonContainer>
             <Button type="button" onClick={onRequestClose}>Close</Button>

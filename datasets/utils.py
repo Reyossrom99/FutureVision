@@ -240,13 +240,13 @@ def create_data_file(datasetId):
         dataset = Datasets.objects.get(dataset_id=datasetId)
     except KeyError as e:
         return None, e
-
+    print("getting objects") 
     # check the format of the dataset is correct for training
     if dataset.format != "yolo" or dataset.type != "splits":
         return None, log.INCORRECT_FORMAT
-
+    
     nc, names, err = extract_data_values(dataset.url, dataset.name)
-
+    print("extraing values") 
     if err != None:
         return None, err
 
@@ -255,7 +255,7 @@ def create_data_file(datasetId):
         names_order.append(name)
 
     zip_name = os.path.basename(dataset.url.name).split(".zip")[0]
-
+    print("zip name: ", zip_name)
     data = {
         "train": settings.TRAIN_ROOT
         + "/"

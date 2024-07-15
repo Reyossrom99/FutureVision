@@ -104,7 +104,7 @@ def proyect_queue(request, proyect_id):
             "noTest": int(data.get("noTest")), 
             "workers": int(data.get("workers")), 
             "cfg": data.get("cfg"), 
-            "weights": int(data.get("Weights"))
+            "weights": bool(data.get("weights"))
             
             }
             log.info("input data: %s", input_data)
@@ -121,14 +121,14 @@ def proyect_queue(request, proyect_id):
         #get yaml data for training 
         data_file, err = create_data_file(proyect.dataset.dataset_id)
         if err is not None: 
-            return JsonResponse({'error': err}, status=status.HTTP_400_BAD_REQUEST, safe=False)
-        
+            return JsonResponse({'error': 'Error creating data file'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        print("created data file") 
         #get data path 
         train_folder, err = create_train_folder(proyect.dataset.dataset_id)
         if err is not None: 
             print(err)
-            return JsonResponse({'error': err}, status=status.HTTP_400_BAD_REQUEST, safe=False)
-
+            return JsonResponse({'error': 'Error creating creating train folder'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        print("created train folder") 
         #add train folder to input data 
         
         training = Training(
