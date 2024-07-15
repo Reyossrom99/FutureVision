@@ -97,10 +97,15 @@ def proyect_queue(request, proyect_id):
         try:
             data = json.loads(request.body)
             input_data = {
-            "batchSize": int(data.get("batchSize")),
-            "imgSize": int(data.get("imgSize")),
+            "batchSize": int(data.get("batch")),
+            "imgSizeTrain": int(data.get("imgSizeTrain")),
+            "imgSizeTest": int(data.get("imgSizeTest")),
             "epochs": int(data.get("epochs")),
-            "noTest": int(data.get("noTest"))
+            "noTest": int(data.get("noTest")), 
+            "workers": int(data.get("workers")), 
+            "cfg": data.get("cfg"), 
+            "weights": int(data.get("Weights"))
+            
             }
             log.info("input data: %s", input_data)
         except json.JSONDecodeError as e:

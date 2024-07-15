@@ -27,19 +27,22 @@ def train_model(training_id):
         command = [
             "python3.8", "/app/yolov7/train.py",
             "--batch-size", str(input_params.get("batchSize")),
-            # "--img-size", [str(input_params.get("imgSize")), str(input_params.get("imgSize"))],
-            "--epoch", str(input_params.get("epochs")),
+            "--img-size", [str(input_params.get("imgSizeTrain")), str(input_params.get("imgTrain"))],
+            "--epochs", str(input_params.get("epochs")),
             "--data", str(train_data), 
-            "--cfg", "/app/yolov7/cfg/training/yolov7.yaml", 
-            "--weights", "/app/yolov7/weights/yolov7.pt"
-            # Agrega más argumentos según sea necesario
+            "--cfg", "/app/yolov7/cfg/training/" + str(input_params.get("cfg")) + ".yaml", 
+            "--workers", str(input_params.get("workers"))
         ]
        
+        if input_params.get("weights"): 
+            command.append("--weights "" ")
+        else: 
+            command.append("weights /app/yolov7/weights/" + str(input_params.get("cfg")) + ".pt")
 
         if input_params.get("no_test"):
             command.append("--no_test")
 
-        log.info(command)
+        print("command: ",  command)
 
         # Ejecutar el comando de entrenamiento
         subprocess.run(command)
