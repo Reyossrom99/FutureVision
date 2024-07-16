@@ -164,7 +164,7 @@ def count_files_in_zip(zip_path, type):
 
 
 def extract_data_values(zip_path, dataset_name):
-    temp_dir = tempfile.mkdtemp()
+    temp_dir = tempfile.mkdtemp(dir=os.path.join(settings.MEDIA_ROOT, "tmp"))
     print(temp_dir)
     print(zip_path)
     zip_name = zip_path.name.split("/")[-1].split(".zip")[0]
@@ -176,6 +176,7 @@ def extract_data_values(zip_path, dataset_name):
         zip_ref.close()
 
         root_path = temp_dir + "/" + zip_name + "/" + "data.yaml"
+        root_path= os.path.join(settings.MEDIA_ROOT, temp_dir, zip_name, "data.yaml")
         print(settings.MEDIA_ROOT)
         print("root path: ", root_path)
         with open(root_path, "r") as dataFile:
@@ -249,7 +250,7 @@ def create_data_file(datasetId):
     print("extraing values") 
     if err != None:
         return None, err
-
+    
     names_order = []
     for name in names:
         names_order.append(name)

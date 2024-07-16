@@ -2,6 +2,7 @@ from django.db import models
 from datasets.models import Datasets
 from django.contrib.auth.models import User
 from django.db.models import JSONField
+from django.utils import timezone
 
 PROYECT_TYPE_CHOICES = (
     ('bbox', 'BBOX'), 
@@ -28,4 +29,5 @@ class Training(models.Model):
     is_training = models.BooleanField(default=False)
     is_trained = models.BooleanField(default=False)
     data_folder = models.CharField(max_length=255)
+    created_at = models.DateTimeField(default=timezone.now)
     

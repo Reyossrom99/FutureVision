@@ -1,4 +1,5 @@
 import json
+import math
 from django.shortcuts import render
 from rest_framework.decorators import api_view, permission_classes
 from django.http import JsonResponse 
@@ -6,17 +7,19 @@ from proyects.models import Proyects, Training
 import src.types.messages as msg
 from datasets.models import Datasets
 from rest_framework.permissions import IsAuthenticated
-from proyects.serializers import ProjectsSerializer
+from proyects.serializers import ProjectsSerializer, TrainingSerializer
 from django.db.models import Q
 from rest_framework import status
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 import yaml
 from datasets.utils import create_data_file, create_train_folder
-from proyects.tasks import train_model
+from proyects.tasks import train_model, start_tensorboard
 import logging
+from django.shortcuts import get_object_or_404
+from django.core.paginator import Paginator, EmptyPage
 
 log = logging.getLogger("docker")
-
+proyectsPerPage = 10
 
 @permission_classes([IsAuthenticated]) 
 @api_view(["GET", "POST"])
@@ -27,11 +30,37 @@ def proyects(request):
         Only for authenticated users
     """
     if request.method == "GET": 
-        
+        page_number = int(request.GET.get('page', 1))
+
         proyects = Proyects.objects.filter(Q(user=request.user) | Q(is_public=True))
         serializer = ProjectsSerializer(proyects, many=True)
-            
-        return JsonResponse(serializer.data , safe=False)
+
+        log.info(proyects)
+        
+        if proyects.count() < proyectsPerPage: 
+            page_size = proyects.count()
+        else: 
+            page_size = proyectsPerPage
+        
+        if proyects.count() == 0: 
+            total_pages = 1
+        else: 
+            total_pages = math.ceil(proyects.count() / page_size)
+        
+        paginator = Paginator(serializer.data, page_size)
+
+        try: 
+            proyects_page = paginator.page(page_number)
+        except EmptyPage:
+            return JsonResponse({'error': 'No more pages'}, status=status.HTTP_404_NOT_FOUND)
+        
+        paginated_data = {
+                'proyects': list(proyects_page),
+                'total_pages': total_pages
+                }
+        log.info(paginated_data)
+
+        return JsonResponse(paginated_data, safe=False)
 
        
         
@@ -127,7 +156,7 @@ def proyect_queue(request, proyect_id):
         train_folder, err = create_train_folder(proyect.dataset.dataset_id)
         if err is not None: 
             print(err)
-            return JsonResponse({'error': 'Error creating creating train folder'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return JsonResponse({'error': "error creando carpeta de entrenamiento"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         print("created train folder") 
         #add train folder to input data 
         
@@ -146,11 +175,37 @@ def proyect_queue(request, proyect_id):
       
 
         log.debug("send training model")
-
+        
+        #start tensorboard
+        start_tensorboard.delay()
         #send request to queue
-        train_model.delay(training.training_id)
+        #train_model.delay(training.training_id)
 
-        JsonResponse({"error": False, "message": "Added proyect to training queue"})
+        return JsonResponse({"error": False, "message": "Added proyect to training queue"}, status=status.HTTP_200_OK)
 
     else : 
         return JsonResponse({'error': 'Method not allowed.'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+@permission_classes([IsAuthenticated]) 
+@api_view(["GET"])
+def trainings(request, proyect_id): 
+    """
+        Add a proyect to the training queue
+    """
+    if request.method == "GET": 
+        
+        # Obtener el proyecto basado en su ID
+        project = get_object_or_404(Proyects, pk=proyect_id)
+
+        # Obtener todos los entrenamientos asociados al proyecto
+        trainings = Training.objects.filter(project_id=project)
+
+        # Serializar los datos de entrenamientos
+        serializer = TrainingSerializer(trainings, many=True)
+
+        # Devolver la respuesta usando Response de DRF
+        return JsonResponse(serializer.data, safe=False)
+    else : 
+        return JsonResponse({'error': 'Method not allowed.'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+

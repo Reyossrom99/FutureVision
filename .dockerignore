@@ -30,9 +30,5 @@ src/__pycache__/
 
 #yolov7
 yolov7/__pycache__/
-yolov7/data/
-yolov7/figure
-yolov7/inference
 yolov7/paper
-yolov7/utils
 yolov7/README.md
