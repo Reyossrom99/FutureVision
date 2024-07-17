@@ -9,7 +9,7 @@ import Paginator from '../elements/paginator';
 import { PaginatorButton } from '../elements/button';
 import { PageTitle } from '../elements/title';
 import { ContentContainer, PageContainer } from '../elements/containers';
-import {CardContainer, CardImage, CardTitle, CardLabel, CardDescription, CardLabels, CardGroup}from '../elements/card';
+import {CardContainerProyects, CardImage, CardTitle, CardLabel, CardDescription, CardLabels, CardGroup}from '../elements/card';
 import palette from '../palette';
 
 function Proyects(){
@@ -32,9 +32,9 @@ function Proyects(){
               }
             });
             if (response.ok) {
-              const data = await response.json();
-              setProyects(data.proyects);
-	      console.log(data.poyects); 
+              const data = await response.json(); 
+	      setProyects(data.proyects);
+	      console.log(data.proyects); 
               setTotalPages(data.total_pages); 
             } else if (response.status === 401) {
               logoutUser();
@@ -48,43 +48,45 @@ function Proyects(){
 
   }
     return (
-	<PageContainer>
-	    <PageTitle> PROYECTS </PageTitle>
-	    <ContentContainer>
-	    <CardGroup>
-	    {proyects.lenght > 0 ? 
-		    ( proyects.map(proyect => 
-				    ( <Link to={`/project/${proyect.proyect_id}`} key={proyect.id}>
-					    <CardContainer key={proyect.id}>
-						<CardTitle>{proyect.id} </CardTitle>
-					    	<CardLabels>
-						{proyect.is_public ? (
-                    					<CardLabel style={{backgroundColor: palette.accent }}>Public</CardLabel>
-                  				) : (
-                   					 <CardLabel style={{backgroundColor: palette.accent }}>Private</CardLabel>
-                  				)}
-					    	<CardLabel style={{backgroundColor: palette.secondary }}> {proyect.created_at} </CardLabel>
-						</CardLabels>
-					    </CardContainer>
-					</Link> ))
-		    ): (
-			    <p> No proyects available </p>
-			)}
-		</CardGroup>
-	    </ContentContainer>
-	   <Paginator>
-            <PaginatorButton onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
-              previous
-            </PaginatorButton>
-            <span>
-              page {currentPage} of {proyects ? total_pages : 0}
-            </span>
-            <PaginatorButton onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === (proyects ? total_pages : 0)}>
-              next
-            </PaginatorButton>
-          </Paginator>
- 	<FormDialog isOpen={isDialogOpen} onRequestClose={handleCloseDialog}/>
-  </PageContainer>
+<PageContainer>
+    <PageTitle> PROYECTS </PageTitle>
+    <ContentContainer>
+        <CardGroup>
+            {proyects.length > 0 ? 
+                (proyects.map(proyect => 
+                    (<Link to={`/project/${proyect.proyect_id}`} key={proyect.id}>
+                        <CardContainerProyects key={proyect.id}>
+                            <CardTitle>{proyect.name} </CardTitle>
+                            <CardLabels>
+                                {proyect.is_public ? (
+                                    <CardLabel style={{backgroundColor: palette.accent }}>Public</CardLabel>
+                                ) : (
+                                    <CardLabel style={{backgroundColor: palette.accent }}>Private</CardLabel>
+                                )}
+                                <CardLabel style={{backgroundColor: palette.secondary }}> {proyect.start_date} </CardLabel>
+                            </CardLabels>
+                        </CardContainerProyects>
+                    </Link>)
+                )
+            ) : (
+                <p> No proyects available </p>
+            )}
+        </CardGroup>
+    </ContentContainer>
+    <Paginator>
+        <PaginatorButton onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
+            previous
+        </PaginatorButton>
+        <span>
+            page {currentPage} of {proyects ? total_pages : 0}
+        </span>
+        <PaginatorButton onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === (proyects ? total_pages : 0)}>
+            next
+        </PaginatorButton>
+    </Paginator>
+    <FormDialog isOpen={isDialogOpen} onRequestClose={handleCloseDialog}/>
+</PageContainer>
+
     );
 }
 export default Proyects; 

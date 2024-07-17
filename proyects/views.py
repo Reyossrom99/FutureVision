@@ -1,4 +1,5 @@
 import json
+import os
 import math
 from django.shortcuts import render
 from rest_framework.decorators import api_view, permission_classes
@@ -13,13 +14,15 @@ from rest_framework import status
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 import yaml
 from datasets.utils import create_data_file, create_train_folder
-from proyects.tasks import train_model, start_tensorboard
+#from proyects.tasks import train_model, start_tensorboard
 import logging
 from django.shortcuts import get_object_or_404
 from django.core.paginator import Paginator, EmptyPage
+import requests
 
 log = logging.getLogger("docker")
 proyectsPerPage = 10
+trainingsPerPage = 10
 
 @permission_classes([IsAuthenticated]) 
 @api_view(["GET", "POST"])
@@ -35,7 +38,6 @@ def proyects(request):
         proyects = Proyects.objects.filter(Q(user=request.user) | Q(is_public=True))
         serializer = ProjectsSerializer(proyects, many=True)
 
-        log.info(proyects)
         
         if proyects.count() < proyectsPerPage: 
             page_size = proyects.count()
@@ -147,40 +149,58 @@ def proyect_queue(request, proyect_id):
             return JsonResponse({'error': 'Proyect does not exits in database'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
 
-        #get yaml data for training 
-        data_file, err = create_data_file(proyect.dataset.dataset_id)
-        if err is not None: 
-            return JsonResponse({'error': 'Error creating data file'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        print("created data file") 
+
         #get data path 
-        train_folder, err = create_train_folder(proyect.dataset.dataset_id)
-        if err is not None: 
-            print(err)
-            return JsonResponse({'error': "error creando carpeta de entrenamiento"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        print("created train folder") 
-        #add train folder to input data 
-        
+             
         training = Training(
             proyect_id = proyect, 
             input = input_data, 
             is_training = False, 
             is_trained = False, 
-            data = data_file, 
-            data_folder = train_folder
-        )
-
+            )
+        
        
         training.full_clean()  # Validar el modelo
         training.save() 
-      
+        data_file, err = create_data_file(proyect.dataset.dataset_id, str(training.training_id))
+        if err is not None: 
+            return JsonResponse({'error': 'Error creating data file'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        print("created data file") 
+        training.data = data_file
+        print("id", training.training_id)
+        train_folder, err = create_train_folder(proyect.dataset.dataset_id, str(training.training_id))
+        training.data_folder= train_folder
+        if err is not None: 
+            print(err)
+            return JsonResponse({'error': "error creando carpeta de entrenamiento"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        print("created train folder") 
+        training.save()
+        train_data = os.path.join(train_folder, "data_train.yaml")
 
-        log.debug("send training model")
-        
-        #start tensorboard
-        start_tensorboard.delay()
-        #send request to queue
-        #train_model.delay(training.training_id)
+        with open(train_data, "w") as file: 
+            file.write(training.data)
+        file.close()
 
+        engine_url = "http://engine-server:4000/engine/"
+        payload = {
+            'proyect_id': training.proyect_id.proyect_id,
+            'input': input_data,
+            'is_training': training.is_training,
+            'is_trained': training.is_trained,
+            'data': training.data,
+            'data_folder': training.data_folder
+        }
+        try:
+            response = requests.post(engine_url, json=payload)
+            if response.status_code != 200:
+                print("okay")
+                return JsonResponse({'error': 'Error initiating command on engine server'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except requests.exceptions.RequestException as e:
+            print("error")
+            log.error(f"Error sending request to engine server: {e}")
+            return JsonResponse({'error': 'Error connecting to engine server'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        training.current_satus = "running"
+        training.save()
         return JsonResponse({"error": False, "message": "Added proyect to training queue"}, status=status.HTTP_200_OK)
 
     else : 
@@ -193,18 +213,35 @@ def trainings(request, proyect_id):
         Add a proyect to the training queue
     """
     if request.method == "GET": 
-        
-        # Obtener el proyecto basado en su ID
+        page_number = int(request.Get.get('page', 1))
+
         project = get_object_or_404(Proyects, pk=proyect_id)
 
-        # Obtener todos los entrenamientos asociados al proyecto
         trainings = Training.objects.filter(project_id=project)
 
-        # Serializar los datos de entrenamientos
-        serializer = TrainingSerializer(trainings, many=True)
+        if trainings.count() < trainingsPerPage:
+            page_size = trainings.count()
+        else: 
+            page_size = trainingsPerPage
+        
+        if trainings.count() == 0: 
+            total_pages = 1
+        else: 
+            total_pages = math.ceil(trainings.count() /page_size)
 
-        # Devolver la respuesta usando Response de DRF
-        return JsonResponse(serializer.data, safe=False)
+        serializer = TrainingSerializer(trainings, many=True)
+        
+        paginator = Paginator(serializer.data, page_size)
+        try: 
+            trainings_page = paginator.page(page_number)
+        except EmptyPage: 
+               return JsonResponse({'error': 'No more pages'}, status=status.HTTP_404_NOT_FOUND)
+        paginated_data = {
+                'trainings': list(trainings_page),
+                'total_pages': total_pages
+                }
+        return JsonResponse(paginated_data, safe=False)
+
     else : 
         return JsonResponse({'error': 'Method not allowed.'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
 

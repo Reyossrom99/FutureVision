@@ -5,7 +5,7 @@ from . import views
 urlpatterns = [
     #query to see the proyects that are created
     path('', view=views.proyects, name='proyects'), 
-    path('<int:proyect_id>', view=views.proyect, name='proyect'), 
+    path('<int:proyect_id>', view=views.trainings, name='training fbs'), 
     path('<int:proyect_id>/queue', view=views.proyect_queue, name='project queue')
     
 ]

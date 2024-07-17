@@ -166,7 +166,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 #CORS_ALLOW_ALL_ORIGINS = True
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000" # Your frontend's domain 
+    "http://localhost:3000" , 
+    "http://localhost:4000"# Your frontend's domain 
 ]
 CORS_ALLOW_METHODS = [
     "DELETE",
@@ -221,7 +222,7 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_REFRESH_LIFETIME": timedelta(minutes=5),
 }
 
-CELERY_BROKER_URL = 'redis://redis:6379/0'
+#CELERY_BROKER_URL = 'redis://redis:6379/0'
 
 
 LOGGING = {

@@ -236,7 +236,7 @@ def add_label_to_image(tmp_path, type):
 """
 
 
-def create_data_file(datasetId):
+def create_data_file(datasetId, id):
     try:
         dataset = Datasets.objects.get(dataset_id=datasetId)
     except KeyError as e:
@@ -262,17 +262,23 @@ def create_data_file(datasetId):
         + "/"
         + dataset.name
         + "/"
+        + id 
+        + "/"
         + zip_name
         + "/train/images",
         "val": settings.TRAIN_ROOT
         + "/"
         + dataset.name
         + "/"
+        + id 
+        + "/"
         + zip_name
         + "/val/images",
         "test": settings.TRAIN_ROOT
         + "/"
         + dataset.name
+        + "/"
+        + id 
         + "/"
         + zip_name
         + "/test/images",
@@ -295,7 +301,7 @@ def create_data_file(datasetId):
 """
 
 
-def create_train_folder(datasetId):
+def create_train_folder(datasetId, id):
     try:
         dataset = Datasets.objects.get(dataset_id=datasetId)
     except KeyError as e:
@@ -304,7 +310,7 @@ def create_train_folder(datasetId):
     # check the format of the dataset is correct for training
     if dataset.format != "yolo" or dataset.type != "splits":
         return None, log.INCORRECT_FORMAT
-    root_path = os.path.join(settings.TRAIN_ROOT, dataset.name)
+    root_path = os.path.join(settings.TRAIN_ROOT, dataset.name, id)
 
     # if not created path create an extract
     if not os.path.exists(root_path):

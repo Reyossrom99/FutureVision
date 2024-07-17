@@ -5,21 +5,29 @@ import styles from './datasets.module.css'
 import NewTrainForm from '../components/newTrainForm';
 import AuthContext from '../context/AuthContext';
 import {useCreateNewTrainContext } from '../context/createNewContext';
-
+import { PaginatorButton } from '../elements/button';
+import { PageTitle } from '../elements/title';
+import { ContentContainer, PageContainer } from '../elements/containers';
+import {CardContainer, CardImage, CardTitle, CardLabel, CardDescription, CardLabels, CardGroup}from '../elements/card';
+import palette from '../palette';
+import Paginator from '../elements/paginator';
 
 function ProyectDetails() {
   const { id } = useParams();
-  const [proyect, setProyect] = useState(null);
+  const [trainings, setTrainings] = useState([]);
   const [isLoading, setIsLoading] = useState(true); // Loading state
   const { isDialogOpen, handleCloseDialog } = useCreateNewTrainContext();
   const { authTokens, logoutUser } = useContext(AuthContext);
+  const [currentPage, setCurrentPage] = useState(1); 
+  const [total_pages, setTotalPages] = useState(1); 
 
   useEffect(() => {
-    getProject(id); 
-  }, [id]); 
-  const getProject = async (projectId) => {
+    getProject(id, currentPage); 
+  }, [id, currentPage]); 
+  const getProject = async (projectId, page) => {
+	  console.log(projectId)
     try{
-        const response = await fetch ( `http://localhost:8000/proyects/${projectId}`, {
+        const response = await fetch ( `http://localhost:8000/proyects/${projectId}?page=${page}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -28,8 +36,9 @@ function ProyectDetails() {
         }); 
         if (response.ok){
           const data = await response.json()
-          setProyect(data); 
+          setTrainings(data.trainings); 
           setIsLoading(false); 
+	  setTotalPages(data.total_pages); 
         } else if (response.status === 401){
           logoutUser(); 
         }
@@ -39,20 +48,43 @@ function ProyectDetails() {
     }
   }; 
 
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
 
+  }
 
   return (
-    <div className={styles.pageContainer}>
-      <div className={styles.contentContainer}>
-        {isLoading ? (
-          <div>Loading...</div>
-        ) : (
-          <div className={styles.datasetDetailsContainer}>
-            <NewTrainForm isOpen={isDialogOpen} onRequestClose={handleCloseDialog} proyectId={proyect.proyect_id} />
-          </div>
-        )}
-      </div>
-    </div>
-  );
+   <PageContainer>
+    <PageTitle> PROYECTS </PageTitle>
+    <ContentContainer>
+        <CardGroup>
+	  {trainings.length > 0 ? (
+            trainings.map((training) => (
+              <CardContainer key={training.training_id}>
+                <CardTitle>{training.created_at}</CardTitle>
+                <CardLabels>
+                  <CardLabel style={{ backgroundColor: palette.secondary }}>{training.current_status}</CardLabel>
+                </CardLabels>
+              </CardContainer>
+            ))
+          ) : (
+            <p>This project has not been trained</p>
+          )}
+                    </CardGroup>
+    </ContentContainer>
+    <Paginator>
+        <PaginatorButton onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
+            previous
+        </PaginatorButton>
+        <span>
+            page {currentPage} of {trainings? total_pages : 0}
+        </span>
+        <PaginatorButton onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === (trainings ? total_pages : 0)}>
+            next
+        </PaginatorButton>
+    </Paginator>
+     <NewTrainForm isOpen={isDialogOpen} onRequestClose={handleCloseDialog} proyectId={id} />
+</PageContainer>
+  ); 
 }
 export default ProyectDetails;
