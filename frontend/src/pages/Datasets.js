@@ -68,7 +68,6 @@ function Datasets() {
 	                              }} 
             key={dataset.id}
           >
-{console.log('Dataset Type:', dataset.type)}
             <CardContainer key={dataset.id}>
               <CardImage
                 src={dataset.cover_url}

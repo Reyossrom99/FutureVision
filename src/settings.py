@@ -27,7 +27,8 @@ SECRET_KEY = 'django-insecure-8ni2$0*vn&!0*8@20exayk^_0^-&5lmo$c-#h26fv*wu@zfi1)
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'django-server']
+
 
 
 # Application definition
@@ -166,7 +167,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 #CORS_ALLOW_ALL_ORIGINS = True
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000" # Your frontend's domain 
+    "http://localhost:3000" , 
+    "http://engine-server:4000"# Your frontend's domain 
 ]
 CORS_ALLOW_METHODS = [
     "DELETE",
@@ -221,7 +223,7 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_REFRESH_LIFETIME": timedelta(minutes=5),
 }
 
-CELERY_BROKER_URL = 'redis://redis:6379/0'
+#CELERY_BROKER_URL = 'redis://redis:6379/0'
 
 
 LOGGING = {

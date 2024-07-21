@@ -164,7 +164,7 @@ def count_files_in_zip(zip_path, type):
 
 
 def extract_data_values(zip_path, dataset_name):
-    temp_dir = tempfile.mkdtemp()
+    temp_dir = tempfile.mkdtemp(dir=os.path.join(settings.MEDIA_ROOT, "tmp"))
     print(temp_dir)
     print(zip_path)
     zip_name = zip_path.name.split("/")[-1].split(".zip")[0]
@@ -176,6 +176,7 @@ def extract_data_values(zip_path, dataset_name):
         zip_ref.close()
 
         root_path = temp_dir + "/" + zip_name + "/" + "data.yaml"
+        root_path= os.path.join(settings.MEDIA_ROOT, temp_dir, zip_name, "data.yaml")
         print(settings.MEDIA_ROOT)
         print("root path: ", root_path)
         with open(root_path, "r") as dataFile:
@@ -235,31 +236,33 @@ def add_label_to_image(tmp_path, type):
 """
 
 
-def create_data_file(datasetId):
+def create_data_file(datasetId, id):
     try:
         dataset = Datasets.objects.get(dataset_id=datasetId)
     except KeyError as e:
         return None, e
-
+    print("getting objects") 
     # check the format of the dataset is correct for training
     if dataset.format != "yolo" or dataset.type != "splits":
         return None, log.INCORRECT_FORMAT
-
+    
     nc, names, err = extract_data_values(dataset.url, dataset.name)
-
+    print("extraing values") 
     if err != None:
         return None, err
-
+    
     names_order = []
     for name in names:
         names_order.append(name)
 
     zip_name = os.path.basename(dataset.url.name).split(".zip")[0]
-
+    print("zip name: ", zip_name)
     data = {
         "train": settings.TRAIN_ROOT
         + "/"
         + dataset.name
+        + "/"
+        + id 
         + "/"
         + zip_name
         + "/train/images",
@@ -267,11 +270,15 @@ def create_data_file(datasetId):
         + "/"
         + dataset.name
         + "/"
+        + id 
+        + "/"
         + zip_name
         + "/val/images",
         "test": settings.TRAIN_ROOT
         + "/"
         + dataset.name
+        + "/"
+        + id 
         + "/"
         + zip_name
         + "/test/images",
@@ -294,7 +301,7 @@ def create_data_file(datasetId):
 """
 
 
-def create_train_folder(datasetId):
+def create_train_folder(datasetId, id):
     try:
         dataset = Datasets.objects.get(dataset_id=datasetId)
     except KeyError as e:
@@ -303,7 +310,7 @@ def create_train_folder(datasetId):
     # check the format of the dataset is correct for training
     if dataset.format != "yolo" or dataset.type != "splits":
         return None, log.INCORRECT_FORMAT
-    root_path = os.path.join(settings.TRAIN_ROOT, dataset.name)
+    root_path = os.path.join(settings.TRAIN_ROOT, dataset.name, id)
 
     # if not created path create an extract
     if not os.path.exists(root_path):

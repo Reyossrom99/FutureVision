@@ -36,9 +36,13 @@ def datasets(request):
     global coco_data_objects
     if request.method == "GET":
         page_number = int(request.GET.get('page', 1))
-        
-        # Obtener los datasets
-        datasets = Datasets.objects.filter(Q(user=request.user) | Q(is_public=True))
+        if page_number ==0: 
+             datasets = Datasets.objects.filter(
+            (Q(user=request.user) | Q(is_public=True)) & Q(format='yolo') & Q(type='splits'))
+             page_number = 1
+        else: 
+            # Obtener los datasets
+            datasets = Datasets.objects.filter(Q(user=request.user) | Q(is_public=True))
        
         if datasets.count() < datasetsPerPage:
             page_size = datasets.count()

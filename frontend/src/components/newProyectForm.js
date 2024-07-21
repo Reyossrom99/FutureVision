@@ -1,7 +1,6 @@
 import React, {useState, useEffect, useContext} from "react";
 import Modal from 'react-modal'; 
 import axios from 'axios'; 
-import styles from './newDatasetForm.module.css';
 import AuthContext from "../context/AuthContext";
 import { useNavigate } from 'react-router-dom';
 import {Form, Input, SubmitInput, Title, Label, Select, ButtonContainer, CustomModal} from '../elements/formSyles';
@@ -26,7 +25,7 @@ const FormDialog = ({isOpen, onRequestClose}) => {
   }, []);
   const getDatasets = async () => {
     try {
-      const response = await fetch('http://localhost:8000/datasets', {
+      const response = await fetch(`http://localhost:8000/datasets?page=${0}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
