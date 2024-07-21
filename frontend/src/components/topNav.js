@@ -108,11 +108,11 @@ function TopNav() {
               value={selectedSplit}
             >
   	   { optionsType.length ===0 ? <options value="">No splits</options> 
-		: optionsType.map((option) => (
-			<option key={option} value={option}>{option}</option>
-		))}
+		    : optionsType.map((option) => (
+			    <option key={option} value={option}>{option}</option>
+		    ))}
 
-	  </TopNavSelect>	
+	      </TopNavSelect>	
           </TopNavItem>
           <TopNavItem>
           <TopNavCheckbox
@@ -145,23 +145,27 @@ function TopNav() {
             
             </>
         )}
+        <TopNavItem>
         {location.pathname === '/projects' && (
-          <TopNavItem>
+         
           <TopNavButton onClick={handleNewProject} >
             create new
           </TopNavButton>
-          </TopNavItem>
+          
         )}
+        </TopNavItem>
+
+        <TopNavItem>
         {location.pathname.startsWith('/project/') && (
-          <TopNavItem>
-          <TopNavButton onClick={handleNewTrain} >
-            new training
+          
+          <TopNavButton onClick={handleNewTrain}>
+            train
           </TopNavButton>
-          </TopNavItem>
+        
         )}
+        </TopNavItem>
      
-     
-      <LastItem>
+        <LastItem>
         <SideNavButton onClick={logoutUser}>
           <SlLogout style={{fontSize: '24px' }}/>
         </SideNavButton>

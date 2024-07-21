@@ -26,7 +26,8 @@ class RequestHandler(BaseHTTPRequestHandler):
                     is_training=data['is_training'],
                     is_trained=data['is_trained'],
                     data=data['data'],
-                    data_folder=data['data_folder']
+                    data_folder=data['data_folder'], 
+                    training_id = data['training_id']
                 )
                 threading.Thread(target=execute_command, args=(training,)).start()
                 
@@ -52,8 +53,8 @@ def run(server_class=HTTPServer, handler_class=RequestHandler, port=4000):
     server_address = ('0.0.0.0', port)
     httpd = server_class(server_address, handler_class)
     logging.info(f'Starting httpd server on port {port}')
-    httpd.serve_forever()
-
+    httpd.serve_forever() 
+    
 if __name__ == "__main__":
     run()
 

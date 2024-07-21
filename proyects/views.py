@@ -3,7 +3,7 @@ import os
 import math
 from django.shortcuts import render
 from rest_framework.decorators import api_view, permission_classes
-from django.http import JsonResponse 
+from django.http import FileResponse, JsonResponse 
 from proyects.models import Proyects, Training
 import src.types.messages as msg
 from datasets.models import Datasets
@@ -20,7 +20,12 @@ from django.shortcuts import get_object_or_404
 from django.core.paginator import Paginator, EmptyPage
 import requests
 
-log = logging.getLogger("docker")
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s - %(levelname)s - %(message)s',
+                    handlers=[
+                        logging.FileHandler("server.log"),
+                        logging.StreamHandler()
+                    ])
 proyectsPerPage = 10
 trainingsPerPage = 10
 
@@ -60,7 +65,7 @@ def proyects(request):
                 'proyects': list(proyects_page),
                 'total_pages': total_pages
                 }
-        log.info(paginated_data)
+        logging.info(paginated_data)
 
         return JsonResponse(paginated_data, safe=False)
 
@@ -138,7 +143,7 @@ def proyect_queue(request, proyect_id):
             "weights": bool(data.get("weights"))
             
             }
-            log.info("input data: %s", input_data)
+            logging.info("input data: %s", input_data)
         except json.JSONDecodeError as e:
             JsonResponse({'error': 'Missing request parameters'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -188,19 +193,23 @@ def proyect_queue(request, proyect_id):
             'is_training': training.is_training,
             'is_trained': training.is_trained,
             'data': training.data,
-            'data_folder': training.data_folder
+            'data_folder': training.data_folder,
+            'training_id': training.training_id
         }
         try:
             response = requests.post(engine_url, json=payload)
+            logging.info(f"enviando mensaje")
             if response.status_code != 200:
-                print("okay")
+                logging.info("okay")
                 return JsonResponse({'error': 'Error initiating command on engine server'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except requests.exceptions.RequestException as e:
-            print("error")
-            log.error(f"Error sending request to engine server: {e}")
+            logging.info("error")
+            logging.error(f"Error sending request to engine server: {e}")
             return JsonResponse({'error': 'Error connecting to engine server'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        training.current_satus = "running"
+
+        training.current_status = "running"
         training.save()
+        logging.info(training.current_status)
         return JsonResponse({"error": False, "message": "Added proyect to training queue"}, status=status.HTTP_200_OK)
 
     else : 
@@ -213,11 +222,11 @@ def trainings(request, proyect_id):
         Add a proyect to the training queue
     """
     if request.method == "GET": 
-        page_number = int(request.Get.get('page', 1))
+        page_number = int(request.GET.get('page', 1))
 
         project = get_object_or_404(Proyects, pk=proyect_id)
 
-        trainings = Training.objects.filter(project_id=project)
+        trainings = Training.objects.filter(proyect_id=project)
 
         if trainings.count() < trainingsPerPage:
             page_size = trainings.count()
@@ -242,6 +251,44 @@ def trainings(request, proyect_id):
                 }
         return JsonResponse(paginated_data, safe=False)
 
+    else : 
+        return JsonResponse({'error': 'Method not allowed.'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+@api_view(["POST"])
+def notify(request): 
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            training_id = data.get('training_id')
+          
+            training = Training.objects.get(training_id=training_id)
+
+            training.current_status = data.get('status')
+            training.save()
+          
+            return JsonResponse({'status': 'success', 'message': f'Project {training_id} status updated to {status}'})
+        except json.JSONDecodeError:
+            return JsonResponse({'status': 'fail', 'message': 'Invalid JSON'}, status=400)
+    return JsonResponse({'status': 'fail', 'message': 'Invalid request method'}, status=405)
+
+
+@permission_classes([IsAuthenticated]) 
+@api_view(["GET"])
+def log(request, training_id): 
+
+    if request.method == "GET": 
+       
+        training = get_object_or_404(Training, pk=training_id)
+
+        log_file = os.path.join(training.data_folder, "data_train.log")
+
+        
+
+        if os.path.exists(log_file): 
+            return FileResponse(open(log_file, 'rb'), content_type='text/plain')
+        
+        else: 
+            return JsonResponse({'error': 'Method not allowed.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     else : 
         return JsonResponse({'error': 'Method not allowed.'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
 

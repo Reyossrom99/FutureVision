@@ -52,9 +52,7 @@
        text-align: justify;
 }
 
-.formElements, input[type="file"]:hover{
-    border: 2px solid #452b1a;
-}
+
 .buttonContainer button{
 
     font-size:18px; 

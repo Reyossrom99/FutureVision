@@ -35,12 +35,7 @@ RUN apt-get update && apt-get install -y ffmpeg libsm6 libxext6 netcat-openbsd p
 RUN python3.8 -m pip install --upgrade pip
 # Establece el directorio de trabajo en el contenedor
 WORKDIR /app
-# Clone YOLOv7 repository
-RUN git clone https://github.com/WongKinYiu/yolov7.git
 
-# Ensure weights are downloaded (replace URL with actual weights URL if necessary)
-RUN mkdir -p /app/yolov7/weights
-RUN wget -O /app/yolov7/weights/yolov7.pt https://github.com/WongKinYiu/yolov7/releases/download/v0.1/yolov7.pt
 COPY requirements.txt .
 
 # Instala las dependencias del proyecto Django
@@ -57,8 +52,6 @@ COPY . .
 COPY entrypoint.sh .
 RUN chmod +x entrypoint.sh
 
-COPY entrypoint_celery.sh .
-RUN chmod +x entrypoint_celery.sh
 
 # Copia manage.py si es necesario
 COPY manage.py .

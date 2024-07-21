@@ -14,7 +14,7 @@ STATUS_CHOICES = (
     ( 'pending', 'PENDING'), 
     ( 'running', 'RUNNING'), 
     ( 'stopped', 'STOPPED'), 
-    ( 'finish', 'FINISH')
+    ( 'completed', 'COMPLETED')
 )
 
 

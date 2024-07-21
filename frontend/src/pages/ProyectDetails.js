@@ -5,10 +5,10 @@ import styles from './datasets.module.css'
 import NewTrainForm from '../components/newTrainForm';
 import AuthContext from '../context/AuthContext';
 import {useCreateNewTrainContext } from '../context/createNewContext';
-import { PaginatorButton } from '../elements/button';
+import { PaginatorButton, CardButton } from '../elements/button';
 import { PageTitle } from '../elements/title';
 import { ContentContainer, PageContainer } from '../elements/containers';
-import {CardContainer, CardImage, CardTitle, CardLabel, CardDescription, CardLabels, CardGroup}from '../elements/card';
+import {CardContainerTraining, CardImage, CardTitle, CardLabel, CardDescription, CardLabels, CardGroup}from '../elements/card';
 import palette from '../palette';
 import Paginator from '../elements/paginator';
 
@@ -48,43 +48,94 @@ function ProyectDetails() {
     }
   }; 
 
+  
+    const handleClick = () => {
+      window.open('http://localhost:6006', '_blank'); // Abre TensorBoard en una nueva pestaña
+    };
+  
+  const viewLog = async (trainingId) => { 
+    try {
+        const response = await fetch(`http://localhost:8000/proyects/log/${trainingId}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + String(authTokens.access) 
+            }
+        });
+
+        if (response.ok) {
+            const logText = await response.text();
+
+            // Crear una nueva ventana y mostrar el log
+            const logWindow = window.open('', '_blank');
+            if (logWindow) {
+                logWindow.document.write(`<pre>${logText}</pre>`);
+            } else {
+                alert('No se pudo abrir la ventana emergente. Asegúrate de permitir ventanas emergentes en tu navegador.');
+            }
+        } else if (response.status === 401) {
+            // Manejar caso de Unauthorized
+            logoutUser(); // Define tu función de logout
+        } else {
+            // Manejar otros casos de error
+            console.error('Error al descargar el archivo de log:', response.statusText);
+            alert('Error al descargar el archivo de log. Por favor, intenta de nuevo más tarde.');
+        }
+    } catch (error) {
+        console.error('Error al descargar el archivo de log:', error);
+        alert('Error al descargar el archivo de log. Por favor, intenta de nuevo más tarde.');
+    }
+};
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
 
   }
-
+  function formatDate(dateString) {
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    const date = new Date(dateString);
+    return date.toLocaleDateString(undefined, options);
+  }
   return (
-   <PageContainer>
-    <PageTitle> PROYECTS </PageTitle>
+    <PageContainer>
+    <PageTitle>PROYECTS</PageTitle>
     <ContentContainer>
-        <CardGroup>
-	  {trainings.length > 0 ? (
-            trainings.map((training) => (
-              <CardContainer key={training.training_id}>
-                <CardTitle>{training.created_at}</CardTitle>
-                <CardLabels>
-                  <CardLabel style={{ backgroundColor: palette.secondary }}>{training.current_status}</CardLabel>
-                </CardLabels>
-              </CardContainer>
-            ))
-          ) : (
-            <p>This project has not been trained</p>
-          )}
-                    </CardGroup>
+      <CardGroup>
+        {trainings.length > 0 ? (
+          trainings.map((training) => (
+            <CardContainerTraining key={training.training_id}>
+              <CardTitle>{formatDate(training.created_at)}</CardTitle>
+              {training.current_status === 'completed' ? (
+                <>
+                  <CardButton type="button" onClick={() => viewLog(training.training_id)}>Log view</CardButton>
+                </>
+              ) : (
+                <>
+                  <CardButton type="button" onClick={handleClick}>Tensorboard</CardButton>
+                </>
+              )}
+              <CardLabels>
+                <CardLabel style={{ backgroundColor: palette.secondary }}>{training.current_status}</CardLabel>
+              </CardLabels>
+            </CardContainerTraining>
+          ))
+        ) : (
+          <p>This project has not been trained</p>
+        )}
+      </CardGroup>
     </ContentContainer>
     <Paginator>
-        <PaginatorButton onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
-            previous
-        </PaginatorButton>
-        <span>
-            page {currentPage} of {trainings? total_pages : 0}
-        </span>
-        <PaginatorButton onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === (trainings ? total_pages : 0)}>
-            next
-        </PaginatorButton>
+      <PaginatorButton onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
+        previous
+      </PaginatorButton>
+      <span>
+        page {currentPage} of {trainings ? total_pages : 0}
+      </span>
+      <PaginatorButton onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === (trainings ? total_pages : 0)}>
+        next
+      </PaginatorButton>
     </Paginator>
-     <NewTrainForm isOpen={isDialogOpen} onRequestClose={handleCloseDialog} proyectId={id} />
-</PageContainer>
+    <NewTrainForm isOpen={isDialogOpen} onRequestClose={handleCloseDialog} proyectId={id} />
+  </PageContainer>
   ); 
 }
 export default ProyectDetails;

@@ -470,10 +470,11 @@ class YoloData:
         train_imgs = len(self.modify_splits["train"])
         val_imgs = len(self.modify_splits["val"])
         test_imgs = len(self.modify_splits["test"])
-
+    
         with zipfile.ZipFile(self.zip_path, 'r') as zip_ref: 
             with zipfile.ZipFile(temp_zip_path, 'w') as tmp_zip:
                 for item in zip_ref.infolist():
+                   
                     if item.filename in self.modify_splits["train"]:
                         new_path = os.path.join(self.zip_name.split(".zip")[0], "train", "images", os.path.basename(item.filename))
                     elif item.filename in self.modify_splits["val"]:
@@ -486,6 +487,9 @@ class YoloData:
                         new_path = os.path.join(self.zip_name.split(".zip")[0], "val", "labels", os.path.basename(item.filename))
                     elif item.filename in self.modify_splits_labels["test"]:
                         new_path = os.path.join(self.zip_name.split(".zip")[0], "test", "labels", os.path.basename(item.filename))
+                    elif item.filename.endswith("data.yaml"): 
+                        print("aqui")
+                        new_path = os.path.join(item.filename)
                     else: 
                         print("ERROR: file not found")
                         print(item.filename)

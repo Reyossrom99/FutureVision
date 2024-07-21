@@ -1,5 +1,3 @@
-
-
 services:
 
   db:
@@ -22,7 +20,6 @@ services:
           - NVIDIA_VISIBLE_DEVICES=all
       ports:
         - "4000:4000"
-        - "6006:6006"
       volumes:
         - media_volume:/app/media
       networks:
@@ -38,7 +35,8 @@ services:
       shm_size: 8gb
   server:
     image: reyossrom/tfg:latest
-    command: ./entrypoint.sh   
+    command: ./entrypoint.sh 
+    container_name: django-server
     ports:
       - "8000:8000"
     depends_on:
@@ -46,6 +44,17 @@ services:
       - engine
     volumes:
       - media_volume:/app/media
+    networks:
+      - app-network
+  
+
+  tensorboard:
+    image: tensorflow/tensorflow:latest
+    command: tensorboard --logdir /app/media/train --bind_all
+    ports:
+      - "6006:6006"
+    volumes:
+      - media_volume:/app/media/train
     networks:
       - app-network
    

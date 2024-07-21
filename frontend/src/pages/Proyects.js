@@ -49,7 +49,7 @@ function Proyects(){
   }
     return (
 <PageContainer>
-    <PageTitle> PROYECTS </PageTitle>
+    <PageTitle> PROJECTS </PageTitle>
     <ContentContainer>
         <CardGroup>
             {proyects.length > 0 ? 

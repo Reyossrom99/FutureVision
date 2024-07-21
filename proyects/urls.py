@@ -6,6 +6,7 @@ urlpatterns = [
     #query to see the proyects that are created
     path('', view=views.proyects, name='proyects'), 
     path('<int:proyect_id>', view=views.trainings, name='training fbs'), 
-    path('<int:proyect_id>/queue', view=views.proyect_queue, name='project queue')
-    
+    path('<int:proyect_id>/queue', view=views.proyect_queue, name='project queue'),
+    path('notify', view=views.notify),
+    path('log/<int:training_id>', view=views.log)
 ]

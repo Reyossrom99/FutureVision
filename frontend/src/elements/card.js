@@ -28,6 +28,19 @@ export const CardContainerProyects = styled.div`
   flex-direction: column; /* Alinear elementos en columna */
   margin: 20px 20px 20px 20px; /* Margen fijo en los cuatro bordes */
 `;
+
+export const CardContainerTraining = styled.div`
+  background-color: ${palette.neutralWhite};
+  border: 1px solid ${palette.neutralBlack};
+  border-radius: 8px;
+  padding: 20px;
+  width: 200px; /* Tamaño fijo de la tarjeta */
+  height: 200px; 
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column; /* Alinear elementos en columna */
+  margin: 20px 20px 20px 20px; /* Margen fijo en los cuatro bordes */
+`
 export const CardImage = styled.img`
 width: 100%;
 height: auto; /* La altura se ajustará automáticamente según el ancho */
