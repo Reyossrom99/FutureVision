@@ -20,10 +20,10 @@ frontend/package-lock.json
 frontend/package.json
 frontend/README.md
 
-#proyects 
-proyects/__pycache__/
-proyects/migrations/
-proyects/.gitignore
+#projects 
+projects/__pycache__/
+projects/migrations/
+projects/.gitignore
 
 #src
 src/__pycache__/

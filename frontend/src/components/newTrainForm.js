@@ -7,7 +7,7 @@ import {Form, Input, SubmitInput, Title, Label, Select, ButtonContainer, CustomM
 import {Button} from '../elements/button';
 
 
-const NewTrainForm = ({isOpen, onRequestClose, proyectId}) => {
+const NewTrainForm = ({isOpen, onRequestClose, projectId}) => {
     const navigate = useNavigate();
 
     const [imgSizeTrain, setImgSizeTrain] = useState(640); 
@@ -36,7 +36,7 @@ const NewTrainForm = ({isOpen, onRequestClose, proyectId}) => {
 	};
        
         try {
-            const response = await fetch(`http://localhost:8000/proyects/${proyectId}/queue`, {
+            const response = await fetch(`http://localhost:8000/projects/${projectId}/queue`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json', // Indica que estás enviando datos en Formato JSON
@@ -47,13 +47,13 @@ const NewTrainForm = ({isOpen, onRequestClose, proyectId}) => {
     
             if (response.ok) {
                 onRequestClose();
-                navigate(`/proyect/${proyectId}`);
+                navigate(`/project/${projectId}`);
             } else {
                 const data = await response.json();
                 console.log('Error:', data); // Manejar el error si es necesario
             }
         } catch(error) {
-            console.error('Error creating proyect:', error);
+            console.error('Error creating project:', error);
         }
     };
 

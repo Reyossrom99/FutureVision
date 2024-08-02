@@ -16,7 +16,7 @@ export const CardContainer = styled.div`
   flex-direction: column; /* Alinear elementos en columna */
   margin: 20px 20px 20px 20px; /* Margen fijo en los cuatro bordes */
 `;
-export const CardContainerProyects = styled.div`
+export const CardContainerprojects = styled.div`
   background-color: ${palette.neutralWhite};
   border: 1px solid ${palette.neutralBlack};
   border-radius: 8px;

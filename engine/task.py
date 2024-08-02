@@ -37,7 +37,7 @@ def execute_command(training):
         process.communicate()
 
       f.close()
-      notify_url = "http://django-server:8000/proyects/notify"  # URL de la vista de Django
+      notify_url = "http://django-server:8000/projects/notify"  # URL de la vista de Django
       notify_data = {
         'training_id': training.training_id,
         'status': 'completed'
@@ -45,11 +45,11 @@ def execute_command(training):
       try:
         response = requests.post(notify_url, json=notify_data)
         if response.status_code == 200:
-            logging.info(f"Notification sent successfully for project {training.proyect_id}")
+            logging.info(f"Notification sent successfully for project {training.project_id}")
         else:
-           logging.info(f"Failed to send notification for project {training.proyect_id}: {response.status_code}")
+           logging.info(f"Failed to send notification for project {training.project_id}: {response.status_code}")
       except requests.exceptions.RequestException as e:
-        logging.info(f"Error sending notification for project {training.proyect_id}: {e}")
+        logging.info(f"Error sending notification for project {training.project_id}: {e}")
 
 def run_tensorboard(port=6006, log_dir="/app/media/train"): 
     try:

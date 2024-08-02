@@ -38,13 +38,13 @@ WORKDIR /app
 
 COPY requirements.txt .
 
-# Instala las dependencias del proyecto Django
+# Instala las dependencias del projecto Django
 RUN python3.8 -m pip install -r requirements.txt
 
 # Copia el código de la aplicación al contenedor
 #COPY src/ ./src/
 #COPY datasets/ ./datasets/
-#COPY proyects/ ./proyects/
+#COPY projects/ ./projects/
 #COPY yolov7 ./yolov7/
 #COPY authentication/ ./authentication/
 COPY . . 

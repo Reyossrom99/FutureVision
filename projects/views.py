@@ -4,17 +4,17 @@ import math
 from django.shortcuts import render
 from rest_framework.decorators import api_view, permission_classes
 from django.http import FileResponse, JsonResponse 
-from proyects.models import Proyects, Training
+from projects.models import projects, Training
 import src.types.messages as msg
 from datasets.models import Datasets
 from rest_framework.permissions import IsAuthenticated
-from proyects.serializers import ProjectsSerializer, TrainingSerializer
+from projects.serializers import ProjectsSerializer, TrainingSerializer
 from django.db.models import Q
 from rest_framework import status
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 import yaml
 from datasets.utils import create_data_file, create_train_folder
-#from proyects.tasks import train_model, start_tensorboard
+#from projects.tasks import train_model, start_tensorboard
 import logging
 from django.shortcuts import get_object_or_404
 from django.core.paginator import Paginator, EmptyPage
@@ -26,43 +26,43 @@ logging.basicConfig(level=logging.INFO,
                         logging.FileHandler("server.log"),
                         logging.StreamHandler()
                     ])
-proyectsPerPage = 10
+projectsPerPage = 10
 trainingsPerPage = 10
 
 @permission_classes([IsAuthenticated]) 
 @api_view(["GET", "POST"])
-def proyects(request): 
+def projects(request): 
     """
-        Gets all the proyects that a user can view or creates a new proyect 
+        Gets all the projects that a user can view or creates a new project 
         depeding on the type of request
         Only for authenticated users
     """
     if request.method == "GET": 
         page_number = int(request.GET.get('page', 1))
 
-        proyects = Proyects.objects.filter(Q(user=request.user) | Q(is_public=True))
-        serializer = ProjectsSerializer(proyects, many=True)
+        projects = projects.objects.filter(Q(user=request.user) | Q(is_public=True))
+        serializer = ProjectsSerializer(projects, many=True)
 
         
-        if proyects.count() < proyectsPerPage: 
-            page_size = proyects.count()
+        if projects.count() < projectsPerPage: 
+            page_size = projects.count()
         else: 
-            page_size = proyectsPerPage
+            page_size = projectsPerPage
         
-        if proyects.count() == 0: 
+        if projects.count() == 0: 
             total_pages = 1
         else: 
-            total_pages = math.ceil(proyects.count() / page_size)
+            total_pages = math.ceil(projects.count() / page_size)
         
         paginator = Paginator(serializer.data, page_size)
 
         try: 
-            proyects_page = paginator.page(page_number)
+            projects_page = paginator.page(page_number)
         except EmptyPage:
             return JsonResponse({'error': 'No more pages'}, status=status.HTTP_404_NOT_FOUND)
         
         paginated_data = {
-                'proyects': list(proyects_page),
+                'projects': list(projects_page),
                 'total_pages': total_pages
                 }
         logging.info(paginated_data)
@@ -77,7 +77,7 @@ def proyects(request):
 
         if request.user.is_authenticated:
             
-            project = Proyects(
+            project = projects(
                 name=data.get('name'),
                 description=data.get('description'),
                 type="bbox",
@@ -98,25 +98,25 @@ def proyects(request):
 
 @permission_classes([IsAuthenticated]) 
 @api_view(["GET", "DELETE"])
-def proyect(request, proyect_id): 
+def project(request, project_id): 
     """
-        Manages operations with a single proyect [GET, DELETE]
+        Manages operations with a single project [GET, DELETE]
 
     """
     if request.method == "GET": 
 
-        proyect = Proyects.objects.get(proyect_id=proyect_id)
-        serializer = ProjectsSerializer(proyect, many=False) 
+        project = projects.objects.get(project_id=project_id)
+        serializer = ProjectsSerializer(project, many=False) 
         return JsonResponse(serializer.data, safe=False)
     
     elif request.method == "DELETE": 
 
         try:
-            project = Proyects.objects.get(proyect_id=proyect_id)
+            project = projects.objects.get(project_id=project_id)
             project.delete()
             return JsonResponse({"message": "Project deleted successfully."}, status=status.HTTP_200_OK)
         
-        except Proyects.DoesNotExist:
+        except projects.DoesNotExist:
             return JsonResponse({"error": "Project not found."}, status=status.HTTP_404_NOT_FOUND)
         
     else: 
@@ -124,9 +124,9 @@ def proyect(request, proyect_id):
 
 @permission_classes([IsAuthenticated]) 
 @api_view(["POST"])
-def proyect_queue(request, proyect_id): 
+def project_queue(request, project_id): 
     """
-        Add a proyect to the training queue
+        Add a project to the training queue
     """
     if request.method == "POST": 
         
@@ -148,17 +148,17 @@ def proyect_queue(request, proyect_id):
             JsonResponse({'error': 'Missing request parameters'}, status=status.HTTP_400_BAD_REQUEST)
 
         try: 
-            #get related proyect 
-            proyect = Proyects.objects.get(proyect_id=proyect_id)
+            #get related project 
+            project = projects.objects.get(project_id=project_id)
         except ObjectDoesNotExist: 
-            return JsonResponse({'error': 'Proyect does not exits in database'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return JsonResponse({'error': 'project does not exits in database'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
 
 
         #get data path 
              
         training = Training(
-            proyect_id = proyect, 
+            project_id = project, 
             input = input_data, 
             is_training = False, 
             is_trained = False, 
@@ -167,13 +167,13 @@ def proyect_queue(request, proyect_id):
        
         training.full_clean()  # Validar el modelo
         training.save() 
-        data_file, err = create_data_file(proyect.dataset.dataset_id, str(training.training_id))
+        data_file, err = create_data_file(project.dataset.dataset_id, str(training.training_id))
         if err is not None: 
             return JsonResponse({'error': 'Error creating data file'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         print("created data file") 
         training.data = data_file
         print("id", training.training_id)
-        train_folder, err = create_train_folder(proyect.dataset.dataset_id, str(training.training_id))
+        train_folder, err = create_train_folder(project.dataset.dataset_id, str(training.training_id))
         training.data_folder= train_folder
         if err is not None: 
             print(err)
@@ -188,7 +188,7 @@ def proyect_queue(request, proyect_id):
 
         engine_url = "http://engine-server:4000/engine/"
         payload = {
-            'proyect_id': training.proyect_id.proyect_id,
+            'project_id': training.project_id.project_id,
             'input': input_data,
             'is_training': training.is_training,
             'is_trained': training.is_trained,
@@ -210,23 +210,23 @@ def proyect_queue(request, proyect_id):
         training.current_status = "running"
         training.save()
         logging.info(training.current_status)
-        return JsonResponse({"error": False, "message": "Added proyect to training queue"}, status=status.HTTP_200_OK)
+        return JsonResponse({"error": False, "message": "Added project to training queue"}, status=status.HTTP_200_OK)
 
     else : 
         return JsonResponse({'error': 'Method not allowed.'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 @permission_classes([IsAuthenticated]) 
 @api_view(["GET"])
-def trainings(request, proyect_id): 
+def trainings(request, project_id): 
     """
-        Add a proyect to the training queue
+        Add a project to the training queue
     """
     if request.method == "GET": 
         page_number = int(request.GET.get('page', 1))
 
-        project = get_object_or_404(Proyects, pk=proyect_id)
+        project = get_object_or_404(projects, pk=project_id)
 
-        trainings = Training.objects.filter(proyect_id=project)
+        trainings = Training.objects.filter(project_id=project)
 
         if trainings.count() < trainingsPerPage:
             page_size = trainings.count()
