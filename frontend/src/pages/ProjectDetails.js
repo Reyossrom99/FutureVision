@@ -12,7 +12,7 @@ import {CardContainerTraining, CardImage, CardTitle, CardLabel, CardDescription,
 import palette from '../palette';
 import Paginator from '../elements/paginator';
 
-function ProyectDetails() {
+function projectDetails() {
   const { id } = useParams();
   const [trainings, setTrainings] = useState([]);
   const [isLoading, setIsLoading] = useState(true); // Loading state
@@ -27,7 +27,7 @@ function ProyectDetails() {
   const getProject = async (projectId, page) => {
 	  console.log(projectId)
     try{
-        const response = await fetch ( `http://localhost:8000/proyects/${projectId}?page=${page}`, {
+        const response = await fetch ( `http://localhost:8000/projects/${projectId}?page=${page}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -55,7 +55,7 @@ function ProyectDetails() {
   
   const viewLog = async (trainingId) => { 
     try {
-        const response = await fetch(`http://localhost:8000/proyects/log/${trainingId}`, {
+        const response = await fetch(`http://localhost:8000/projects/log/${trainingId}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -97,7 +97,7 @@ function ProyectDetails() {
   }
   return (
     <PageContainer>
-    <PageTitle>PROYECTS</PageTitle>
+    <PageTitle>projects</PageTitle>
     <ContentContainer>
       <CardGroup>
         {trainings.length > 0 ? (
@@ -134,8 +134,8 @@ function ProyectDetails() {
         next
       </PaginatorButton>
     </Paginator>
-    <NewTrainForm isOpen={isDialogOpen} onRequestClose={handleCloseDialog} proyectId={id} />
+    <NewTrainForm isOpen={isDialogOpen} onRequestClose={handleCloseDialog} projectId={id} />
   </PageContainer>
   ); 
 }
-export default ProyectDetails;
+export default projectDetails;

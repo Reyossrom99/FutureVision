@@ -26,7 +26,7 @@ urlpatterns = [
     path('datasets/', include('datasets.urls')),
     path('', views.basic_web_page),
     path('login/', views.basic_web_page),
-    path('proyects/', include('proyects.urls')),
+    path('projects/', include('projects.urls')),
     path('auth/', include('authentication.urls'))
 
   

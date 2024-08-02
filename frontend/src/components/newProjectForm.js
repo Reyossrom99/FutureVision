@@ -52,7 +52,7 @@ const FormDialog = ({isOpen, onRequestClose}) => {
         };
     
         try {
-            const response = await fetch('http://localhost:8000/proyects/', {
+            const response = await fetch('http://localhost:8000/projects/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json', // Indica que estás enviando datos en formato JSON
@@ -63,13 +63,13 @@ const FormDialog = ({isOpen, onRequestClose}) => {
     
             if (response.ok) {
                 onRequestClose();
-                navigate('/proyects');
+                navigate('/projects');
             } else {
                 const data = await response.json();
                 console.log('Error:', data); // Manejar el error si es necesario
             }
         } catch(error) {
-            console.error('Error creating proyect:', error);
+            console.error('Error creating project:', error);
         }
     };
 
@@ -95,7 +95,7 @@ const FormDialog = ({isOpen, onRequestClose}) => {
         >
            
             <Form>
-            <Title>Create new proyect</Title>
+            <Title>Create new project</Title>
 
             <Label htmlFor="name">Name</Label>
             <Input type="text" name="name" value={name} onChange={(e) => setName(e.target.value)}/>

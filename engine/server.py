@@ -21,7 +21,7 @@ class RequestHandler(BaseHTTPRequestHandler):
             try:
                 data = json.loads(post_data)
                 training = Training(
-                    proyect_id=data['proyect_id'],
+                    project_id=data['project_id'],
                     input=data['input'],
                     is_training=data['is_training'],
                     is_trained=data['is_trained'],
@@ -36,7 +36,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                 self.send_header('Content-type', 'application/json')
                 self.end_headers()
                 self.wfile.write(json.dumps(response).encode('utf-8'))
-                logging.info(f"Command execution started for project {data['proyect_id']}")
+                logging.info(f"Command execution started for project {data['project_id']}")
             except json.JSONDecodeError:
                 self.send_response(400)
                 self.send_header('Content-type', 'application/json')

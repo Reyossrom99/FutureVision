@@ -1,30 +1,30 @@
 import React, {useEffect, useState, useContext} from 'react'; 
 import axios from 'axios'; 
-import styles from './proyects.module.css'
+import styles from './projects.module.css'
 import { Link, Route, BrowserRouter as Router, Switch } from 'react-router-dom';
 import { useCreateNewProjectContext } from '../context/createNewContext';
-import FormDialog from '../components/newProyectForm';
+import FormDialog from '../components/newprojectForm';
 import AuthContext from '../context/AuthContext';
 import Paginator from '../elements/paginator';
 import { PaginatorButton } from '../elements/button';
 import { PageTitle } from '../elements/title';
 import { ContentContainer, PageContainer } from '../elements/containers';
-import {CardContainerProyects, CardImage, CardTitle, CardLabel, CardDescription, CardLabels, CardGroup}from '../elements/card';
+import {CardContainerprojects, CardImage, CardTitle, CardLabel, CardDescription, CardLabels, CardGroup}from '../elements/card';
 import palette from '../palette';
 
-function Proyects(){
-    const [proyects, setProyects] = useState([]); 
+function projects(){
+    const [projects, setprojects] = useState([]); 
     const {isDialogOpen, handleCloseDialog} = useCreateNewProjectContext(); 
     const { authTokens, logoutUser} = useContext(AuthContext);
     const [currentPage, setCurrentPage] = useState(1); 
     const [total_pages, setTotalPages] = useState(1); 
 
     useEffect(() => {
-               getProyects(currentPage); 
+               getprojects(currentPage); 
     }, [currentPage]); 
-    const getProyects = async (page) => {
+    const getprojects = async (page) => {
         try {
-            const response = await fetch(`http://localhost:8000/proyects?page=${page}`, {
+            const response = await fetch(`http://localhost:8000/projects?page=${page}`, {
               method: 'GET',
               headers: {
                 'Content-Type': 'application/json',
@@ -33,8 +33,8 @@ function Proyects(){
             });
             if (response.ok) {
               const data = await response.json(); 
-	      setProyects(data.proyects);
-	      console.log(data.proyects); 
+	      setprojects(data.projects);
+	      console.log(data.projects); 
               setTotalPages(data.total_pages); 
             } else if (response.status === 401) {
               logoutUser();
@@ -52,24 +52,24 @@ function Proyects(){
     <PageTitle> PROJECTS </PageTitle>
     <ContentContainer>
         <CardGroup>
-            {proyects.length > 0 ? 
-                (proyects.map(proyect => 
-                    (<Link to={`/project/${proyect.proyect_id}`} key={proyect.id}>
-                        <CardContainerProyects key={proyect.id}>
-                            <CardTitle>{proyect.name} </CardTitle>
+            {projects.length > 0 ? 
+                (projects.map(project => 
+                    (<Link to={`/project/${project.project_id}`} key={project.id}>
+                        <CardContainerprojects key={project.id}>
+                            <CardTitle>{project.name} </CardTitle>
                             <CardLabels>
-                                {proyect.is_public ? (
+                                {project.is_public ? (
                                     <CardLabel style={{backgroundColor: palette.accent }}>Public</CardLabel>
                                 ) : (
                                     <CardLabel style={{backgroundColor: palette.accent }}>Private</CardLabel>
                                 )}
-                                <CardLabel style={{backgroundColor: palette.secondary }}> {proyect.start_date} </CardLabel>
+                                <CardLabel style={{backgroundColor: palette.secondary }}> {project.start_date} </CardLabel>
                             </CardLabels>
-                        </CardContainerProyects>
+                        </CardContainerprojects>
                     </Link>)
                 )
             ) : (
-                <p> No proyects available </p>
+                <p> No projects available </p>
             )}
         </CardGroup>
     </ContentContainer>
@@ -78,9 +78,9 @@ function Proyects(){
             previous
         </PaginatorButton>
         <span>
-            page {currentPage} of {proyects ? total_pages : 0}
+            page {currentPage} of {projects ? total_pages : 0}
         </span>
-        <PaginatorButton onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === (proyects ? total_pages : 0)}>
+        <PaginatorButton onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === (projects ? total_pages : 0)}>
             next
         </PaginatorButton>
     </Paginator>
@@ -89,4 +89,4 @@ function Proyects(){
 
     );
 }
-export default Proyects; 
+export default projects; 
