@@ -12,7 +12,7 @@ import { ContentContainer, PageContainer } from '../elements/containers';
 import {CardContainerprojects, CardImage, CardTitle, CardLabel, CardDescription, CardLabels, CardGroup}from '../elements/card';
 import palette from '../palette';
 
-function projects(){
+function Projects(){
     const [projects, setprojects] = useState([]); 
     const {isDialogOpen, handleCloseDialog} = useCreateNewProjectContext(); 
     const { authTokens, logoutUser} = useContext(AuthContext);
@@ -89,4 +89,4 @@ function projects(){
 
     );
 }
-export default projects; 
+export default Projects; 
