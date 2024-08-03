@@ -12,7 +12,7 @@ import {CardContainerTraining, CardImage, CardTitle, CardLabel, CardDescription,
 import palette from '../palette';
 import Paginator from '../elements/paginator';
 
-function projectDetails() {
+function ProjectDetails() {
   const { id } = useParams();
   const [trainings, setTrainings] = useState([]);
   const [isLoading, setIsLoading] = useState(true); // Loading state
@@ -138,4 +138,4 @@ function projectDetails() {
   </PageContainer>
   ); 
 }
-export default projectDetails;
+export default ProjectDetails;

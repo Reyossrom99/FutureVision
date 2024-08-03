@@ -14,8 +14,8 @@ import NewUser from "./pages/newUser";
 import ViewUsers from "./pages/viewUsers";
 import PrivateRoute from './utils/PrivateRoute'
 import { AuthProvider } from './context/AuthContext'
-import projectDetails from './pages/projectDetails'
-import projects from './pages/projects';
+import projectDetails from './pages/ProjectDetails'
+import projects from './pages/Projects';
 
 import styled from "styled-components";
 import palette from "./palette";
