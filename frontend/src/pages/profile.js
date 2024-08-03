@@ -1,7 +1,11 @@
 import React, { useState, useEffect, useContext } from 'react';
 import AuthContext from '../context/AuthContext';
-import styles from './Profile.module.css';
 import { Link } from 'react-router-dom';
+import { PageTitle } from '../elements/title';
+import {EditButton} from '../elements/button'; 
+import {StyledLink} from '../elements/link'; 
+import { ContentContainer, PageContainer, BottomLinkContainer } from '../elements/containers';
+import {TableContainer, StyledTable, TableBody, TableRow, TableCell,  Input} from '../elements/table'
 
 const Profile = () => {
     const { authTokens, logoutUser } = useContext(AuthContext);
@@ -18,7 +22,7 @@ const Profile = () => {
 
     const getProfile = async () => {
         try {
-            const response = await fetch('/auth/user', {
+            const response = await fetch('http://localhost:8000/auth/user', {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -93,103 +97,95 @@ const Profile = () => {
     };
 
     return (
-        <div className={styles.pageContainer}>
-            <div className={styles.contentContainer}>
-                <h2>Profile</h2>
-                {error && <p className={styles.error}>{error}</p>}
-                <table className={styles.profileTable}>
-                    <tbody>
-                        <tr>
-                            <td>Username:</td>
-                            <td>
-                                {profile.username}
-                            </td>
-                            <td>
-                                {!isEditingUsername && (
-                                    <button className={styles.editButton} onClick={() => handleEditFieldClick('username')}>Edit</button>
-                                )}
-                            </td>
-                        </tr>
-                        {isEditingUsername && (
-                            <tr className={styles.editRow}>
-                                <td>Change username:</td>
-                                <td>
-                                    <input
-                                        type="text"
-                                        value={newValue}
-                                        onChange={handleInputChange}
-                                        className={styles.input}
-                                        id={styles.unico}
-                                    />
-                                    <button onClick={() => handleSaveClick('username')}className={styles.editButton}>Save</button>
-                                    <button onClick={handleCancelEdit}className={styles.editButton}>Cancel</button>
-                                </td>
-                            </tr>
-                        )}
-                        <tr>
-                            <td>Email:</td>
-                            <td>
-                                {profile.email}
-                            </td>
-                            <td>
-                                {!isEditingEmail && (
-                                    <button className={styles.editButton} onClick={() => handleEditFieldClick('email')}>Edit</button>
-                                )}
-                            </td>
-                        </tr>
-                        {isEditingEmail && (
-                            <tr className={styles.editRow}>
-                                <td>Change email:</td>
-                                <td>
-                                    <input
-                                        type="email"
-                                        value={newValue}
-                                        onChange={handleInputChange}
-                                        className={styles.input}
-                                        id={styles.unico}
-                                    />
-                                    <button onClick={() => handleSaveClick('email')}className={styles.editButton}>Save</button>
-                                    <button onClick={handleCancelEdit}className={styles.editButton}>Cancel</button>
-                                </td>
-                            </tr>
-                        )}
-                        <tr>
-                            <td>Password:</td>
-                            <td>
-                                {!isEditingPassword ? '********' : (
-                                    <>
-                                        <input
-                                            type="password"
-                                            value={newValue}
-                                            onChange={handleInputChange}
-                                            className={styles.input}
-                                            id={styles.unico}
-                                        />
-                                        <button onClick={() => handleSaveClick('password')}className={styles.editButton}>Save</button>
-                                        <button onClick={handleCancelEdit}className={styles.editButton}>Cancel</button>
-                                    </>
-                                )}
-                            </td>
-                            <td colSpan="2" >
-                                {!isEditingPassword && (
-                                    <button className={styles.editButton} onClick={() => handleEditFieldClick('password')}>Edit</button>
-                                )}
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Rol:</td>
-                            <td>{profile.grupo}</td>
-                        </tr>
-                    </tbody>
-                </table>
-                <div className={styles.bottomLinkContainer}>
-                    {profile.grupo === 'admin' && (
-                        <><Link to="/user/add" className={styles.adminLink}>Create new user</Link>
-                        <Link to="/users" className={styles.adminLink}>View all users</Link></>
-                    )}
-                </div>
-            </div>
-        </div>
+<PageContainer>
+   <PageTitle> Profile </PageTitle>
+    <ContentContainer>
+      <TableContainer>
+        <StyledTable>
+          <TableBody>
+            <TableRow>
+              <TableCell>Username:</TableCell>
+              <TableCell>
+                {!isEditingUsername ? profile.username : (
+                  <>
+                    <Input
+                      type="text"
+                      value={newValue}
+                      onChange={handleInputChange}
+                    />
+                    <EditButton onClick={() => handleSaveClick('username')}>save</EditButton>
+                    <EditButton onClick={handleCancelEdit}>cancel</EditButton>
+                  </>
+                )}
+              </TableCell>
+              <TableCell>
+                {!isEditingUsername && (
+                  <EditButton onClick={() => handleEditFieldClick('username')}>edit</EditButton>
+                )}
+              </TableCell>
+            </TableRow>
+
+            <TableRow>
+              <TableCell>Email:</TableCell>
+              <TableCell>
+                {!isEditingEmail ? profile.email : (
+                  <>
+                    <Input
+                      type="email"
+                      value={newValue}
+                      onChange={handleInputChange}
+                    />
+                    <EditButton onClick={() => handleSaveClick('email')}>save</EditButton>
+                    <EditButton onClick={handleCancelEdit}>cancel</EditButton>
+                  </>
+                )}
+              </TableCell>
+              <TableCell>
+                {!isEditingEmail && (
+                  <EditButton onClick={() => handleEditFieldClick('email')}>edit</EditButton>
+                )}
+              </TableCell>
+            </TableRow>
+
+            <TableRow>
+              <TableCell>Password:</TableCell>
+              <TableCell>
+                {!isEditingPassword ? '********' : (
+                  <>
+                    <Input
+                      type="password"
+                      value={newValue}
+                      onChange={handleInputChange}
+                    />
+                    <EditButton onClick={() => handleSaveClick('password')}>save</EditButton>
+                    <EditButton onClick={handleCancelEdit}>cancel</EditButton>
+                  </>
+                )}
+              </TableCell>
+              <TableCell>
+                {!isEditingPassword && (
+                  <EditButton onClick={() => handleEditFieldClick('password')}>edit</EditButton>
+                )}
+              </TableCell>
+            </TableRow>
+
+            <TableRow>
+              <TableCell>Rol:</TableCell>
+              <TableCell>{profile.grupo}</TableCell>
+            </TableRow>
+          </TableBody>
+        </StyledTable>
+      </TableContainer>
+      <BottomLinkContainer>
+        {profile.grupo === 'admin' && (
+          <>
+            <StyledLink to="/user/add">Create new user</StyledLink>
+            <StyledLink to="/users">View all users</StyledLink>
+          </>
+        )}
+      </BottomLinkContainer>
+    </ContentContainer>
+  </PageContainer>
     );
 };
 
