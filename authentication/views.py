@@ -62,6 +62,7 @@ def get_users(request):
     serializer = user_serializer(usuarios, many=True)
     
     # return users
+    print(serializer.data)
     return JsonResponse({'users': serializer.data})
 
 '''

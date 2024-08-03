@@ -1,7 +1,9 @@
 import React, { useContext, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import AuthContext from '../context/AuthContext';
-import styles from './Login.module.css';
+import { NewUserContainer } from '../elements/containers';
+import { Link, useNavigate } from 'react-router-dom';
+import { ErrorMessage, Form, Input, Title, SubmitInput, Select, Option, LinkForm } from '../elements/formSyles';
+import {StyledLink} from '../elements/link'; 
 
 const NewUser = () => {
     const navigate = useNavigate();
@@ -21,7 +23,7 @@ const NewUser = () => {
     const handleSubmit = async (e) => {
         e.preventDefault(); // Prevent the default form submission behavior
         try {
-            const response = await fetch(`/auth/user`, {
+            const response = await fetch(`http://localhost:8000/auth/user`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -42,34 +44,29 @@ const NewUser = () => {
     };
 
     return (
-        <div className={styles.pageContainer}>
-            <div className={styles.contentContainer}>
-                <h2>Create new user</h2>
-                <form onSubmit={handleSubmit}>
-                    <div>
-                        <label>Enter username:</label>
-                        <input type="text" name="username" value={formData.username} onChange={handleChange} />
-                    </div>
-                    <div>
-                        <label>Enter email:</label>
-                        <input type="text" name="email" value={formData.email} onChange={handleChange} />
-                    </div>
-                    <div>
-                        <label>Select a role:</label>
-                        <select name="role" value={formData.role} onChange={handleChange}>
-                            <option value="admin">Administrator</option>
-                            <option value="user">User</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label>Enter password:</label>
-                        <input type="password" name="password" value={formData.password} onChange={handleChange} />
-                    </div>
-                    <input type="submit" value="Sign up" className={styles.loginButton} />
-                    {error && <p className={styles.error}>{error}</p>}
-                </form>
-            </div>
-        </div>
+        <NewUserContainer>
+
+            <Form onSubmit={handleSubmit}>
+
+                <Title>Create new user</Title>
+
+                <Input type="text" name="username" value={formData.username} onChange={handleChange} placeholder="username" />
+
+                <Input type="text" name="email" value={formData.email} onChange={handleChange} placeholder="email" />
+
+                <Select name="role" value={formData.role} onChange={handleChange}>
+                    <option value="" disabled>Choose a role</option>
+                    <option value="admin">Administrator</option>
+                    <option value="user">User</option>
+                </Select>
+
+                <Input type="password" name="password" value={formData.password} onChange={handleChange} placeholder="password" />
+
+                <SubmitInput type="submit" value='create user' />
+                {error && <ErrorMessage>{error}</ErrorMessage>}
+		<StyledLink to="/user"> Return </StyledLink>
+            </Form>
+        </NewUserContainer>
     );
 };
 

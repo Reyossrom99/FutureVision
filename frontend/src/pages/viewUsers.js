@@ -1,6 +1,12 @@
 import React, { useState, useEffect, useContext } from 'react';
 import AuthContext from '../context/AuthContext';
-import styles from './viewUsers.module.css';
+import { Link } from 'react-router-dom';
+import { PageTitle } from '../elements/title';
+import {EditButton} from '../elements/button'; 
+import {StyledLink} from '../elements/link'; 
+import { ContentContainer, PageContainer, BottomLinkContainer } from '../elements/containers';
+import {TableContainer, StyledTable, TableBody, TableRow, TableCell,  Input, TableHeader, TableHeaderCell} from '../elements/table'
+import GroupSelect from '../lib/groupSelect'; 
 
 const ViewUsers = () => {
   const [users, setUsers] = useState([]);
@@ -12,7 +18,7 @@ const ViewUsers = () => {
 
   const fetchUsers = async () => {
     try {
-      const response = await fetch('/auth/users', {
+      const response = await fetch('http://localhost:8000/auth/users', {
           method: 'GET', 
           headers: {
               'Content-Type': 'application/json',
@@ -21,7 +27,7 @@ const ViewUsers = () => {
       });
       if (response.ok) {
           const data = await response.json();
-          setUsers(data.usuarios); // Actualizar el estado con la lista de usuarios obtenida
+          setUsers(data.users); // Actualizar el estado con la lista de usuarios obtenida
       } else {
           const data = await response.json();
           // Manejar errores
@@ -39,7 +45,7 @@ const ViewUsers = () => {
 
   const eliminarUsuario = async (userId) => {
     try {
-      const response = await fetch(`/auth/user/${userId}`, {
+      const response = await fetch(`http://localhost:8000/auth/user/${userId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': 'Bearer ' + String(authTokens.access)
@@ -64,18 +70,18 @@ const ViewUsers = () => {
 
   const actualizarGrupoUsuario = async (userId, selectedGroup) => {
     try {
-      const response = await fetch(`/auth/user/id=${userId}?field=group`, {
+      const response = await fetch(`http://localhost:8000/auth/user/${userId}?field=group`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ' + String(authTokens.access)
         },
-        body: JSON.stringify({ value: selectedGroup }) // Removido el campo 'field' ya que el endpoint asume 'group'
+        body: JSON.stringify({ value: selectedGroup }) 
       });
       if (response.ok) {
         // Actualizar la lista de usuarios con el grupo actualizado
         const updatedUsers = users.map(user =>
-          user.id === userId ? { ...user, group: selectedGroup } : user
+          user.id === userId ? { ...user, grupo: selectedGroup } : user
         );
         setUsers(updatedUsers);
       } else {
@@ -87,43 +93,52 @@ const ViewUsers = () => {
   };
 
   return (
-    <div className={styles.pageContainer}>
-      <div className={styles.contentContainer}>
-        <h2>Users</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Username</th>
-              <th>Email</th>
-              <th>Group</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {users.map(user => (
-              <tr key={user.id}>
-                <td>{user.id}</td>
-                <td>{user.username}</td>
-                <td>{user.email}</td>
-                <td>
-                  <select
-                    value={user.group}
+<PageContainer>
+  <PageTitle> Users </PageTitle>
+  <ContentContainer>
+    <TableContainer>
+      <StyledTable>
+        <TableHeader>
+          <TableRow>
+            <TableHeaderCell>ID</TableHeaderCell>
+            <TableHeaderCell>Username</TableHeaderCell>
+            <TableHeaderCell>Email</TableHeaderCell>
+            <TableHeaderCell>Group</TableHeaderCell>
+            <TableHeaderCell>Actions</TableHeaderCell>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {users && users.length > 0 ? (
+            users.map(user => (
+              <TableRow key={user.id}>
+                <TableCell>{user.id}</TableCell>
+                <TableCell>{user.username}</TableCell>
+                <TableCell>{user.email}</TableCell>
+                <TableCell>
+                <Input
+                    as="select"
+                    value={user.grupo}
                     onChange={(event) => handleGroupChange(event, user.id)}
                   >
                     <option value="user">User</option>
                     <option value="admin">Admin</option>
-                  </select>
-                </td>
-                <td>
-                  <button onClick={() => confirmarEliminarUsuario(user.id)}>Eliminar</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
+                  </Input>
+                </TableCell>
+                <TableCell>
+                  <EditButton onClick={() => confirmarEliminarUsuario(user.id)}>eliminar</EditButton>
+                </TableCell>
+              </TableRow>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell colSpan="5">There are no more users in the system</TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </StyledTable>
+    </TableContainer>
+  </ContentContainer>
+</PageContainer>
   );
 };
 

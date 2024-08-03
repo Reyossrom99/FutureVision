@@ -20,11 +20,12 @@ export const StyledTable = styled.table`
 `;
 
 export const TableHeader = styled.thead`
+ padding: 20px;
   background-color: ${palette.neutralWhite}; /* Puedes ajustar el color si lo deseas */
 `;
 
 export const TableHeaderCell = styled.th`
-  
+   padding: 20px;
   
   text-align: left; /* Ajusta la alineación según tus necesidades */
 `;

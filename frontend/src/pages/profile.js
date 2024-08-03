@@ -58,7 +58,7 @@ const Profile = () => {
 
     const handleSaveClick = async (fieldName) => {
         try {
-            const response = await fetch(`auth/user/${profile.id}?field=${fieldName}`, {
+            const response = await fetch(`http://localhost:8000/auth/user/${profile.id}?field=${fieldName}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
