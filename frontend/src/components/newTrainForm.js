@@ -17,8 +17,7 @@ const NewTrainForm = ({isOpen, onRequestClose, projectId}) => {
     const [batch, setBatch] = useState(16); 
     const [workers, setWorkers] = useState(8); 
     const [cfg, setCfg] = useState("yolov7"); 
-    const[noWeights, setNoWeights] = useState(true); 
-
+  
     
     const { authTokens, logoutUser } = useContext(AuthContext);
   
@@ -32,7 +31,7 @@ const NewTrainForm = ({isOpen, onRequestClose, projectId}) => {
            noTest: noTest, 
 	   workers: workers, 
 	   cfg: cfg, 
-	   weights: noWeights ? 1 : 0       
+	     
 	};
        
         try {
@@ -58,16 +57,19 @@ const NewTrainForm = ({isOpen, onRequestClose, projectId}) => {
     };
 
     const handleNoTestChange = (e) => {
-        setNoTest(e.target.value === "True");
+	if (e.target.value === "false"){
+ console.log('Error:', "false"); 
+		setNoTest(false); 
+	}
+	else {
+		setNoTest(true); 
+	}
     };
     const handleCfgChange = (e) => {
     	setCfg(e.target.value); 
     }; 
 
-   const handleNoWeigthsChange = (e) => {
-	   setNoWeights(e.target.checked);
-  }; 
-    
+
     
     return (
         <CustomModal
@@ -97,9 +99,10 @@ const NewTrainForm = ({isOpen, onRequestClose, projectId}) => {
             <Input type="number" id="epochs" name="epochs" min="1"  value={epochs} onChange={(e) => setEpochs(e.target.value)}/>
 
             <Label >Run test only on final epoch</Label>
-            <Select id="testOption" value={noTest} onChange={handleNoTestChange}>
-                <option value="False">True</option>
-                <option value="True">False</option>
+            <Select id="testOption" value={noTest.toString()} onChange={handleNoTestChange}>
+	    	console.log(noTest.toString()); 
+                <option value="false">True</option>
+                <option value="true">False</option>
             </Select>
 
 
@@ -114,13 +117,7 @@ const NewTrainForm = ({isOpen, onRequestClose, projectId}) => {
 	    	<option value="yolov7x">yolov7x</option>
             </Select> 
 	   
-	    <Label> No weights </Label>
-	    <Checkbox
-	    	type="checkbox"
-	    	checked={!noWeights}
-	    	onChange={handleNoWeigthsChange}/> 
-	
-
+	   
             <ButtonContainer>
             <Button type="button" onClick={onRequestClose}>Close</Button>
             <Button type="button" onClick={() => handleAccept()}>Accept</Button>

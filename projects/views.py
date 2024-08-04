@@ -4,7 +4,7 @@ import math
 from django.shortcuts import render
 from rest_framework.decorators import api_view, permission_classes
 from django.http import FileResponse, JsonResponse 
-from projects.models import projects, Training
+from projects.models import Projects, Training
 import src.types.messages as msg
 from datasets.models import Datasets
 from rest_framework.permissions import IsAuthenticated
@@ -40,7 +40,7 @@ def projects(request):
     if request.method == "GET": 
         page_number = int(request.GET.get('page', 1))
 
-        projects = projects.objects.filter(Q(user=request.user) | Q(is_public=True))
+        projects = Projects.objects.filter(Q(user=request.user) | Q(is_public=True))
         serializer = ProjectsSerializer(projects, many=True)
 
         
@@ -77,7 +77,7 @@ def projects(request):
 
         if request.user.is_authenticated:
             
-            project = projects(
+            project_instance = Projects(
                 name=data.get('name'),
                 description=data.get('description'),
                 type="bbox",
@@ -85,8 +85,8 @@ def projects(request):
                 dataset_id=data.get('dataset_id'),
                 user=request.user  
             )
-            project.save()
-            serializer = ProjectsSerializer(project)
+            project_instance.save()
+            serializer = ProjectsSerializer(project_instance)
 
             return JsonResponse(serializer.data, status=status.HTTP_201_CREATED)
         else:
@@ -105,14 +105,14 @@ def project(request, project_id):
     """
     if request.method == "GET": 
 
-        project = projects.objects.get(project_id=project_id)
+        project = Projects.objects.get(project_id=project_id)
         serializer = ProjectsSerializer(project, many=False) 
         return JsonResponse(serializer.data, safe=False)
     
     elif request.method == "DELETE": 
 
         try:
-            project = projects.objects.get(project_id=project_id)
+            project = Projects.objects.get(project_id=project_id)
             project.delete()
             return JsonResponse({"message": "Project deleted successfully."}, status=status.HTTP_200_OK)
         
@@ -140,8 +140,6 @@ def project_queue(request, project_id):
             "noTest": int(data.get("noTest")), 
             "workers": int(data.get("workers")), 
             "cfg": data.get("cfg"), 
-            "weights": bool(data.get("weights"))
-            
             }
             logging.info("input data: %s", input_data)
         except json.JSONDecodeError as e:
@@ -149,7 +147,7 @@ def project_queue(request, project_id):
 
         try: 
             #get related project 
-            project = projects.objects.get(project_id=project_id)
+            project = Projects.objects.get(project_id=project_id)
         except ObjectDoesNotExist: 
             return JsonResponse({'error': 'project does not exits in database'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
@@ -224,7 +222,7 @@ def trainings(request, project_id):
     if request.method == "GET": 
         page_number = int(request.GET.get('page', 1))
 
-        project = get_object_or_404(projects, pk=project_id)
+        project = get_object_or_404(Projects, pk=project_id)
 
         trainings = Training.objects.filter(project_id=project)
 

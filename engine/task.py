@@ -21,10 +21,7 @@ def execute_command(training):
             "--project",  str(training.data_folder)
         ]
 
-      if not training.input.get("weights"):
-            command.extend(["--weights", ""])
-      else:
-            command.extend(["--weights", "/app/yolov7/weights/" + str(training.input.get("cfg")) + ".pt"])
+      command.extend(["--weights", "/app/yolov7/weights/" + str(training.input.get("cfg")) + ".pt"])
 
       if training.input.get("no_test"):
             command.append("--no_test")

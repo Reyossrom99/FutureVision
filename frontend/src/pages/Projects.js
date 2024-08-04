@@ -3,7 +3,7 @@ import axios from 'axios';
 import styles from './projects.module.css'
 import { Link, Route, BrowserRouter as Router, Switch } from 'react-router-dom';
 import { useCreateNewProjectContext } from '../context/createNewContext';
-import FormDialog from '../components/newprojectForm';
+import FormDialog from '../components/newProjectForm';
 import AuthContext from '../context/AuthContext';
 import Paginator from '../elements/paginator';
 import { PaginatorButton } from '../elements/button';
