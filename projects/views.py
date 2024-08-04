@@ -270,24 +270,19 @@ def notify(request):
     return JsonResponse({'status': 'fail', 'message': 'Invalid request method'}, status=405)
 
 
-@permission_classes([IsAuthenticated]) 
+@permission_classes([IsAuthenticated])
 @api_view(["GET"])
-def log(request, training_id): 
-
-    if request.method == "GET": 
-       
+def log(request, training_id):
+    if request.method == "GET":
         training = get_object_or_404(Training, pk=training_id)
-
         log_file = os.path.join(training.data_folder, "data_train.log")
-
         
-
-        if os.path.exists(log_file): 
-            return FileResponse(open(log_file, 'rb'), content_type='text/plain')
-        
-        else: 
-            return JsonResponse({'error': 'Method not allowed.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    else : 
-        return JsonResponse({'error': 'Method not allowed.'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
-
+        if os.path.exists(log_file):
+            # Usa FileResponse para enviar el archivo
+            response = FileResponse(open(log_file, 'rb'), as_attachment=True, filename='data_train.log')
+            return response
+        else:
+            return JsonResponse({'error': 'File not found.'}, status=404)
+    else:
+        return JsonResponse({'error': 'Method not allowed.'}, status=405)
 
