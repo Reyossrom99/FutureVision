@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { PageTitle } from '../elements/title';
 import {EditButton} from '../elements/button'; 
 import {StyledLink} from '../elements/link'; 
-import { ContentContainer, PageContainer, BottomLinkContainer } from '../elements/containers';
+import { ContentContainerCenter, PageContainer, BottomLinkContainer } from '../elements/containers';
 import {TableContainer, StyledTable, TableBody, TableRow, TableCell,  Input} from '../elements/table'
 
 const Profile = () => {
@@ -99,7 +99,7 @@ const Profile = () => {
     return (
 <PageContainer>
    <PageTitle> Profile </PageTitle>
-    <ContentContainer>
+    <ContentContainerCenter>
       <TableContainer>
         <StyledTable>
           <TableBody>
@@ -184,7 +184,7 @@ const Profile = () => {
           </>
         )}
       </BottomLinkContainer>
-    </ContentContainer>
+    </ContentContainerCenter>
   </PageContainer>
     );
 };

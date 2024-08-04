@@ -12,6 +12,7 @@ services:
       - "5432:5432"
     networks:
       - app-network
+
   engine: 
       image:  docker.io/library/engine:latest
       command: ./entrypoint.sh
@@ -33,6 +34,7 @@ services:
           limits: 
             memory: 16gb
       shm_size: 8gb
+
   server:
     image: reyossrom/tfg:latest
     command: ./entrypoint.sh 

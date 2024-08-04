@@ -14,8 +14,8 @@ import NewUser from "./pages/newUser";
 import ViewUsers from "./pages/viewUsers";
 import PrivateRoute from './utils/PrivateRoute'
 import { AuthProvider } from './context/AuthContext'
-import projectDetails from './pages/ProjectDetails'
-import projects from './pages/Projects';
+import ProjectDetails from './pages/ProjectDetails'
+import Projects from './pages/Projects';
 
 import styled from "styled-components";
 import palette from "./palette";
@@ -45,8 +45,8 @@ function App() {
 							<Route path="/user" element={<PrivateRoute><Profile /></PrivateRoute>} />
 							<Route path="/user/add" element={<PrivateRoute><NewUser /></PrivateRoute>} />
 							<Route path="/users" element={<PrivateRoute><ViewUsers /></PrivateRoute>} />
-							<Route path="/projects" element={<PrivateRoute><projects /></PrivateRoute>} />
-							<Route path="/project/:id" element={<PrivateRoute><projectDetails /></PrivateRoute>} />
+							<Route path="/projects" element={<PrivateRoute><Projects /></PrivateRoute>} />
+							<Route path="/project/:id" element={<PrivateRoute><ProjectDetails /></PrivateRoute>} />
 						</Routes>
 					</main>
 				</AuthProvider>

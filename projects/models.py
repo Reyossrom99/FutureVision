@@ -18,7 +18,7 @@ STATUS_CHOICES = (
 )
 
 
-class projects(models.Model): 
+class Projects(models.Model): 
     project_id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
@@ -30,7 +30,7 @@ class projects(models.Model):
  
 class Training(models.Model): 
     training_id = models.AutoField(primary_key=True)
-    project_id = models.ForeignKey(projects, on_delete=models.CASCADE)
+    project_id = models.ForeignKey(Projects, on_delete=models.CASCADE)
     input = JSONField(help_text="Save training input in json format")
     data = models.TextField(help_text="Save data.yaml for training purporses", blank=True)
     is_training = models.BooleanField(default=False)
