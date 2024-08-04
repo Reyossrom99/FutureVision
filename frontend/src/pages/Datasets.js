@@ -17,7 +17,7 @@ function Datasets() {
   const [datasets, setDatasets] = useState([]); //get the data from the backend
   const [postResponse, setPostRequest] = useState(null); //send and recive post from the backend
   // const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const { isDialogOpen, handleCloseDialog } = useCreateNewButtonContext();
+  const { isDialogOpen, handleCloseDialog, setOnCloseCallback} = useCreateNewButtonContext();
   const { authTokens, logoutUser } = useContext(AuthContext);
   const [currentPage, setCurrentPage] = useState(1);
   const [total_pages, setTotalPages] = useState(1);
@@ -27,6 +27,11 @@ function Datasets() {
     getDatasets(currentPage);
   }, [currentPage]);
 
+  useEffect(() => {
+    setOnCloseCallback(() => () => {
+      getDatasets(currentPage); // Recargar los datasets cuando se cierre el modal
+    });
+  }, [currentPage, setOnCloseCallback]);
 
   const getDatasets = async (page) => {
     try {
