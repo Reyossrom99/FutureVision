@@ -19,6 +19,8 @@ import logging
 from django.shortcuts import get_object_or_404
 from django.core.paginator import Paginator, EmptyPage
 import requests
+import shutil
+import tempfile
 
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s',
@@ -283,6 +285,23 @@ def log(request, training_id):
             return response
         else:
             return JsonResponse({'error': 'File not found.'}, status=404)
+    else:
+        return JsonResponse({'error': 'Method not allowed.'}, status=405)
+
+
+@permission_classes([IsAuthenticated])
+@api_view(["GET"])
+def weights(request, training_id):
+    if request.method == "GET":
+        training = get_object_or_404(Training, pk=training_id)
+        weights_folder = os.path.join(training.data_folder, "exp", "weights")
+
+        if os.path.exists(weights_folder):
+            archived = shutil.make_archive('weights', 'zip', weights_folder)
+            response = FileResponse(open(archived, 'rb'), as_attachment=True, filename='weights.zip')
+            return response
+        else:
+            return JsonResponse({'error': 'Weights folder not found.'}, status=404)
     else:
         return JsonResponse({'error': 'Method not allowed.'}, status=405)
 
