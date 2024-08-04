@@ -9,6 +9,7 @@ export function useCreateNewButtonContext() {
 export function CreateNewButtonProvider({ children }) {
   const [isNewButtonClicked, setNewButtonClicked] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+   const [onCloseCallback, setOnCloseCallback] = useState(null);
 
   const handleNewButtonClick = () => {
     setNewButtonClicked(true);
@@ -16,11 +17,14 @@ export function CreateNewButtonProvider({ children }) {
   };
 
   const handleCloseDialog = () => {
-    setIsDialogOpen(false); // Close the dialog
+    setIsDialogOpen(false); 
+    if (onCloseCallback){
+	    onCloseCallback(); 
+    }
   };
 
   return (
-    <CreateNewButtonContext.Provider value={{ isDialogOpen, handleNewButtonClick, handleCloseDialog }}>
+    <CreateNewButtonContext.Provider value={{ isDialogOpen, handleNewButtonClick, handleCloseDialog, setOnCloseCallback }}>
       {children}
     </CreateNewButtonContext.Provider>
   );
@@ -35,6 +39,7 @@ export function useCreateNewProjectContext() {
 export function CreateNewProjectProvider ({ children }) {
   const [isProjectButtonClicked, setNewProjectClicked] = useState(false); 
   const [isDialogOpen, setIsDialogOpen] = useState(false); 
+  const [onCloseCallback, setOnCloseCallback] = useState(null);
 
   const handleNewProjectButtonClick = () => {
     setNewProjectClicked(true); 
@@ -42,11 +47,15 @@ export function CreateNewProjectProvider ({ children }) {
   };
 
   const handleCloseDialog = () => {
-    setIsDialogOpen(false); // Close the dialog
+    setIsDialogOpen(false); 
+    setIsDialogOpen(false);
+    if (onCloseCallback) {
+      onCloseCallback(); // Execute the callback if it exists
+    }
   };
 
   return (
-    <CreateNewProjectContext.Provider value={{ isDialogOpen, handleNewProjectButtonClick, handleCloseDialog }}>
+    <CreateNewProjectContext.Provider value={{ isDialogOpen, handleNewProjectButtonClick, handleCloseDialog, setOnCloseCallback }}>
       {children}
     </CreateNewProjectContext.Provider>
   );
@@ -61,6 +70,7 @@ export function useCreateNewTrainContext() {
 export function CreateNewTrainProvider ({ children }) {
   const [isTrainButtonClicked, setNewTrainClicked] = useState(false); 
   const [isDialogOpen, setIsDialogOpen] = useState(false); 
+ const [onCloseCallback, setOnCloseCallback] = useState(null);
 
   const handleNewTrainButtonClick = () => {
     setNewTrainClicked(true); 
@@ -68,11 +78,15 @@ export function CreateNewTrainProvider ({ children }) {
   };
 
   const handleCloseDialog = () => {
-    setIsDialogOpen(false); // Close the dialog
+    setIsDialogOpen(false); 
+    setIsDialogOpen(false);
+    if (onCloseCallback) {
+      onCloseCallback(); // Execute the callback if it exists
+    }
   };
 
   return (
-    <CreateNewTrainContext.Provider value={{ isDialogOpen, handleNewTrainButtonClick, handleCloseDialog }}>
+    <CreateNewTrainContext.Provider value={{ isDialogOpen, handleNewTrainButtonClick, handleCloseDialog, setOnCloseCallback }}>
       {children}
     </CreateNewTrainContext.Provider>
   );

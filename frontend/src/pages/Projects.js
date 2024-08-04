@@ -14,7 +14,7 @@ import palette from '../palette';
 
 function Projects(){
     const [projects, setprojects] = useState([]); 
-    const {isDialogOpen, handleCloseDialog} = useCreateNewProjectContext(); 
+    const {isDialogOpen, handleCloseDialog, setOnCloseCallback} = useCreateNewProjectContext(); 
     const { authTokens, logoutUser} = useContext(AuthContext);
     const [currentPage, setCurrentPage] = useState(1); 
     const [total_pages, setTotalPages] = useState(1); 
@@ -22,6 +22,12 @@ function Projects(){
     useEffect(() => {
                getprojects(currentPage); 
     }, [currentPage]); 
+    useEffect(() => {
+    	setOnCloseCallback(() => () => {
+      	getprojects(currentPage); // Recargar los datasets cuando se cierre el modal
+    	});
+     }, [currentPage, setOnCloseCallback]);
+
     const getprojects = async (page) => {
         try {
             const response = await fetch(`http://localhost:8000/projects?page=${page}`, {

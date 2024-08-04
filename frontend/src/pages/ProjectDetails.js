@@ -16,7 +16,7 @@ function ProjectDetails() {
   const { id } = useParams();
   const [trainings, setTrainings] = useState([]);
   const [isLoading, setIsLoading] = useState(true); // Loading state
-  const { isDialogOpen, handleCloseDialog } = useCreateNewTrainContext();
+  const { isDialogOpen, handleCloseDialog, setOnCloseCallback } = useCreateNewTrainContext();
   const { authTokens, logoutUser } = useContext(AuthContext);
   const [currentPage, setCurrentPage] = useState(1); 
   const [total_pages, setTotalPages] = useState(1); 
@@ -24,6 +24,13 @@ function ProjectDetails() {
   useEffect(() => {
     getProject(id, currentPage); 
   }, [id, currentPage]); 
+
+ useEffect(() => {
+    setOnCloseCallback(() => () => {
+      getProject(id, currentPage); 
+    });
+  }, [currentPage, setOnCloseCallback, id]);
+ 
   const getProject = async (projectId, page) => {
 	  console.log(projectId)
     try{
