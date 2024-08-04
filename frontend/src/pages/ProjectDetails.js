@@ -64,15 +64,19 @@ function ProjectDetails() {
         });
 
         if (response.ok) {
-            const logText = await response.text();
+            // Crear un enlace de descarga
+            const logUrl = URL.createObjectURL(await response.blob());
 
-            // Crear una nueva ventana y mostrar el log
-            const logWindow = window.open('', '_blank');
-            if (logWindow) {
-                logWindow.document.write(`<pre>${logText}</pre>`);
-            } else {
-                alert('No se pudo abrir la ventana emergente. Asegúrate de permitir ventanas emergentes en tu navegador.');
-            }
+            // Crear un enlace y hacer clic en él para iniciar la descarga
+            const a = document.createElement('a');
+            a.href = logUrl;
+            a.download = 'data_train.log'; // Nombre del archivo a descargar
+            document.body.appendChild(a);
+            a.click();
+
+            // Limpiar recursos
+            URL.revokeObjectURL(logUrl);
+            document.body.removeChild(a);
         } else if (response.status === 401) {
             // Manejar caso de Unauthorized
             logoutUser(); // Define tu función de logout
@@ -86,6 +90,7 @@ function ProjectDetails() {
         alert('Error al descargar el archivo de log. Por favor, intenta de nuevo más tarde.');
     }
 };
+
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
 
