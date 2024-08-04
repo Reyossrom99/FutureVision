@@ -30,6 +30,7 @@ padding: 5px 10px; /* Ajusta el espaciado interno */
 font-size: 14px; /* Tamaño de fuente */
 margin-right: 10px; /* Margen derecho */
 cursor: pointer; /* Cambia el cursor al pasar el ratón */
+margin-bottom:20px; 
 `;
 
 export const EditButton = styled.button`

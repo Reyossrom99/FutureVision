@@ -91,15 +91,59 @@ function ProjectDetails() {
     }
 };
 
+const weights = async (trainingId) => {
+    try {
+        const response = await fetch(`http://localhost:8000/projects/weights/${trainingId}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + String(authTokens.access)
+            }
+        });
+
+        if (response.ok) {
+            // Crear un enlace de descarga
+            const zipUrl = URL.createObjectURL(await response.blob());
+
+            // Crear un enlace y hacer clic en él para iniciar la descarga
+            const a = document.createElement('a');
+            a.href = zipUrl;
+            a.download = 'weights.zip'; // Nombre del archivo a descargar
+            document.body.appendChild(a);
+            a.click();
+
+            // Limpiar recursos
+            URL.revokeObjectURL(zipUrl);
+            document.body.removeChild(a);
+        } else if (response.status === 401) {
+            // Manejar caso de Unauthorized
+            logoutUser(); // Define tu función de logout
+        } else {
+            // Manejar otros casos de error
+            console.error('Error al descargar el archivo de log:', response.statusText);
+            alert('Error al descargar el archivo de log. Por favor, intenta de nuevo más tarde.');
+        }
+    } catch (error) {
+        console.error('Error al descargar el archivo de log:', error);
+        alert('Error al descargar el archivo de log. Por favor, intenta de nuevo más tarde.');
+    }
+};
+
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
 
   }
-  function formatDate(dateString) {
-    const options = { year: 'numeric', month: 'long', day: 'numeric' };
-    const date = new Date(dateString);
-    return date.toLocaleDateString(undefined, options);
-  }
+function formatDate(dateString) {
+  const options = {
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+}
+  const date = new Date(dateString);
+  return date.toLocaleDateString(undefined, options);
+  };
   return (
     <PageContainer>
     <PageTitle>projects</PageTitle>
@@ -112,6 +156,8 @@ function ProjectDetails() {
               {training.current_status === 'completed' ? (
                 <>
                   <CardButton type="button" onClick={() => viewLog(training.training_id)}>Log view</CardButton>
+  		  <CardButton type="button" onClick={() => weights(training.training_id)}>Weights</CardButton>
+
                 </>
               ) : (
                 <>

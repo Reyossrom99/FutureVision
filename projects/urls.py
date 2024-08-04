@@ -8,5 +8,6 @@ urlpatterns = [
     path('<int:project_id>', view=views.trainings, name='training fbs'), 
     path('<int:project_id>/queue', view=views.project_queue, name='project queue'),
     path('notify', view=views.notify),
-    path('log/<int:training_id>', view=views.log)
+    path('log/<int:training_id>', view=views.log),
+    path('weights/<int:training_id>', view=views.weights)
 ]
