@@ -25,7 +25,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-8ni2$0*vn&!0*8@20exayk^_0^-&5lmo$c-#h26fv*wu@zfi1)'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'django-server']
 
@@ -98,7 +98,7 @@ DATABASES = {
         'NAME': 'visionDocker',
         'USER': 'admin',
         'PASSWORD': 'admin',
-        'HOST': 'db',  # Use the host of your Docker container (localhost, db)
+        'HOST': 'db',  # Use the host of your Docker container (localhost:8000, db)
         'PORT': '5432',       # Port exposed in the container
     }
 }
@@ -167,7 +167,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 #CORS_ALLOW_ALL_ORIGINS = True
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000" , 
+        "http://localhost:3000" , 
     "http://engine-server:4000"# Your frontend's domain 
 ]
 CORS_ALLOW_METHODS = [
@@ -183,9 +183,9 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 100,
     'DEFAULT_AUTHENTICATION_CLASSES': (
-    
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     )
+    #'DEFAULT_RENDERER_CLASSES': 'rest_framework.renderers.JSONRenderer'
   
 }
 

@@ -57,7 +57,7 @@ function ProjectDetails() {
 
   
     const handleClick = () => {
-      window.open('http://localhost:6006', '_blank'); // Abre TensorBoard en una nueva pestaña
+      window.open('http://localhost:8000:6006', '_blank'); // Abre TensorBoard en una nueva pestaña
     };
   
   const viewLog = async (trainingId) => { 

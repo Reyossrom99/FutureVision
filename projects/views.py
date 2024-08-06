@@ -31,8 +31,9 @@ logging.basicConfig(level=logging.INFO,
 projectsPerPage = 10
 trainingsPerPage = 10
 
-@permission_classes([IsAuthenticated]) 
+
 @api_view(["GET", "POST"])
+@permission_classes([IsAuthenticated]) 
 def projects(request): 
     """
         Gets all the projects that a user can view or creates a new project 
@@ -98,8 +99,9 @@ def projects(request):
 
 
 
-@permission_classes([IsAuthenticated]) 
+
 @api_view(["GET", "DELETE"])
+@permission_classes([IsAuthenticated]) 
 def project(request, project_id): 
     """
         Manages operations with a single project [GET, DELETE]
@@ -124,8 +126,9 @@ def project(request, project_id):
     else: 
         return JsonResponse({'error': 'Method not allowed.'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
-@permission_classes([IsAuthenticated]) 
+ 
 @api_view(["POST"])
+@permission_classes([IsAuthenticated])
 def project_queue(request, project_id): 
     """
         Add a project to the training queue
@@ -215,8 +218,9 @@ def project_queue(request, project_id):
     else : 
         return JsonResponse({'error': 'Method not allowed.'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
-@permission_classes([IsAuthenticated]) 
+
 @api_view(["GET"])
+@permission_classes([IsAuthenticated]) 
 def trainings(request, project_id): 
     """
         Add a project to the training queue
@@ -272,8 +276,9 @@ def notify(request):
     return JsonResponse({'status': 'fail', 'message': 'Invalid request method'}, status=405)
 
 
-@permission_classes([IsAuthenticated])
+
 @api_view(["GET"])
+@permission_classes([IsAuthenticated])
 def log(request, training_id):
     if request.method == "GET":
         training = get_object_or_404(Training, pk=training_id)
@@ -289,8 +294,9 @@ def log(request, training_id):
         return JsonResponse({'error': 'Method not allowed.'}, status=405)
 
 
-@permission_classes([IsAuthenticated])
+
 @api_view(["GET"])
+@permission_classes([IsAuthenticated])
 def weights(request, training_id):
     if request.method == "GET":
         training = get_object_or_404(Training, pk=training_id)
