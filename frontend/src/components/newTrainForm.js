@@ -35,7 +35,7 @@ const NewTrainForm = ({isOpen, onRequestClose, projectId}) => {
 	};
        
         try {
-            const response = await fetch(`http://localhost:8000/projects/${projectId}/queue`, {
+            const response = await fetch(`http://localhost:4004/projects/${projectId}/queue`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json', // Indica que estás enviando datos en Formato JSON

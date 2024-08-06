@@ -34,7 +34,7 @@ function ProjectDetails() {
   const getProject = async (projectId, page) => {
 	  console.log(projectId)
     try{
-        const response = await fetch ( `http://localhost:8000/projects/${projectId}?page=${page}`, {
+        const response = await fetch ( `http://localhost:4004/projects/${projectId}?page=${page}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -57,12 +57,12 @@ function ProjectDetails() {
 
   
     const handleClick = () => {
-      window.open('http://localhost:8000:6006', '_blank'); // Abre TensorBoard en una nueva pestaña
+      window.open('http://localhost:6006', '_blank'); // Abre TensorBoard en una nueva pestaña
     };
   
   const viewLog = async (trainingId) => { 
     try {
-        const response = await fetch(`http://localhost:8000/projects/log/${trainingId}`, {
+        const response = await fetch(`http://localhost:4004/projects/log/${trainingId}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -100,7 +100,7 @@ function ProjectDetails() {
 
 const weights = async (trainingId) => {
     try {
-        const response = await fetch(`http://localhost:8000/projects/weights/${trainingId}`, {
+        const response = await fetch(`http://localhost:4004/projects/weights/${trainingId}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',

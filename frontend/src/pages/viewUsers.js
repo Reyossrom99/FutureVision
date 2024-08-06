@@ -18,7 +18,7 @@ const ViewUsers = () => {
 
   const fetchUsers = async () => {
     try {
-      const response = await fetch('http://localhost:8000/auth/users', {
+      const response = await fetch('http://localhost:4004/auth/users', {
           method: 'GET', 
           headers: {
               'Content-Type': 'application/json',
@@ -45,7 +45,7 @@ const ViewUsers = () => {
 
   const eliminarUsuario = async (userId) => {
     try {
-      const response = await fetch(`http://localhost:8000/auth/user/${userId}`, {
+      const response = await fetch(`http://localhost:4004/auth/user/${userId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': 'Bearer ' + String(authTokens.access)
@@ -70,7 +70,7 @@ const ViewUsers = () => {
 
   const actualizarGrupoUsuario = async (userId, selectedGroup) => {
     try {
-      const response = await fetch(`http://localhost:8000/auth/user/${userId}?field=group`, {
+      const response = await fetch(`http://localhost:4004/auth/user/${userId}?field=group`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

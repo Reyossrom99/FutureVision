@@ -30,7 +30,7 @@ function Projects(){
 
     const getprojects = async (page) => {
         try {
-            const response = await fetch(`http://localhost:8000/projects?page=${page}`, {
+            const response = await fetch(`http://localhost:4004/projects?page=${page}`, {
               method: 'GET',
               headers: {
                 'Content-Type': 'application/json',

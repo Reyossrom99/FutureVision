@@ -35,7 +35,7 @@ function Datasets() {
 
   const getDatasets = async (page) => {
     try {
-      const response = await fetch(`http://localhost:8000/datasets?page=${page}`, {
+      const response = await fetch(`http://localhost:4004/datasets?page=${page}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
