@@ -23,7 +23,7 @@ const NewUser = () => {
     const handleSubmit = async (e) => {
         e.preventDefault(); // Prevent the default form submission behavior
         try {
-            const response = await fetch(`http://localhost:8000/auth/user`, {
+            const response = await fetch(`http://localhost:4004/auth/user`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

@@ -29,7 +29,7 @@ const CreateSplitsDialog = ({ isOpen, onRequestClose, datasetId}) => {
         }
         
         try {
-            const response = await fetch(`http://localhost:8000/datasets/${datasetId}/splits`, {
+            const response = await fetch(`http://localhost:4004/datasets/${datasetId}/splits`, {
                 method: 'PATCH', // Cambia 'POST' a 'PATCH'
                 headers: {
                     'Content-Type': 'application/json',

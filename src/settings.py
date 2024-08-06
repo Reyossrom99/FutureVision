@@ -22,10 +22,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-8ni2$0*vn&!0*8@20exayk^_0^-&5lmo$c-#h26fv*wu@zfi1)'
+SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'django-server']
 
@@ -92,17 +92,17 @@ WSGI_APPLICATION = 'src.wsgi.application'
 
 
 #version nueva de database usando postgres en docker
+
 DATABASES = {
-    'default' : {
+    'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'visionDocker',
-        'USER': 'admin',
-        'PASSWORD': 'admin',
-        'HOST': 'db',  # Use the host of your Docker container (localhost, db)
-        'PORT': '5432',       # Port exposed in the container
+        'NAME': os.getenv('DB_NAME'),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'HOST': os.getenv('DB_HOST'),
+        'PORT': os.getenv('DB_PORT'),
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -167,7 +167,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 #CORS_ALLOW_ALL_ORIGINS = True
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000" , 
+        "http://localhost:3000" , 
     "http://engine-server:4000"# Your frontend's domain 
 ]
 CORS_ALLOW_METHODS = [
@@ -183,9 +183,9 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 100,
     'DEFAULT_AUTHENTICATION_CLASSES': (
-    
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     )
+    #'DEFAULT_RENDERER_CLASSES': 'rest_framework.renderers.JSONRenderer'
   
 }
 

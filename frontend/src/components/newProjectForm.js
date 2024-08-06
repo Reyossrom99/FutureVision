@@ -25,7 +25,7 @@ const FormDialog = ({isOpen, onRequestClose}) => {
   }, []);
   const getDatasets = async () => {
     try {
-      const response = await fetch(`http://localhost:8000/datasets?page=${0}`, {
+      const response = await fetch(`http://localhost:4004/datasets?page=${0}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -52,7 +52,7 @@ const FormDialog = ({isOpen, onRequestClose}) => {
         };
     
         try {
-            const response = await fetch('http://localhost:8000/projects/', {
+            const response = await fetch('http://localhost:4004/projects/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json', // Indica que estás enviando datos en formato JSON

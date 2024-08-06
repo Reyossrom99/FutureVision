@@ -73,7 +73,7 @@ def datasets(request):
             'datasets': list(datasets_page),
             'total_pages': total_pages
         }
-        print(paginated_data)
+        logging.info(paginated_data)
         return JsonResponse(paginated_data, safe=False)
     
     elif request.method == "POST": 

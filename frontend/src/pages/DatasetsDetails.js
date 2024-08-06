@@ -61,7 +61,7 @@ const {setType} = useTypeContext();
   let last_request_split = "";
 
   const deleteDataset = async (datasetId) => {
-    let url = `http://localhost:8000/datasets/${datasetId}`;
+    let url = `http://localhost:4004/datasets/${datasetId}`;
     const response = await fetch(url, {
       method: 'DELETE',
       headers: {
@@ -89,7 +89,7 @@ const {setType} = useTypeContext();
     values.push(true)
 
     try{
-      const response = await fetch(`http://localhost:8000/datasets/${datasetId}`, {
+      const response = await fetch(`http://localhost:4004/datasets/${datasetId}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -125,7 +125,7 @@ const {setType} = useTypeContext();
 	setIsLoading(true);
        
       try {
-        let url = `http://localhost:8000/datasets/${datasetId}?showLabels=${shouldShowLabels}&page=${currentPage}`;
+        let url = `http://localhost:4004/datasets/${datasetId}?showLabels=${shouldShowLabels}&page=${currentPage}`;
 
 	 if (requestSplitView !== "" ){
 

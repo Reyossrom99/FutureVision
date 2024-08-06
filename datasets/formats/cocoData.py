@@ -20,6 +20,7 @@ class CocoData:
         self.dir_root = os.path.join(settings.MEDIA_ROOT, "tmp")
         self.zip_name = os.path.basename(zip_path.name).split(".zip")[0]
         self.tmp_dir = tempfile.mkdtemp(dir = self.dir_root)
+        os.chmod(self.tmp_dir, 0o755) 
         self.tmp_name = os.path.basename(self.tmp_dir)
         #list of extracted pages
         self.file_list = None
@@ -726,7 +727,7 @@ class CocoData:
     def add_url(self, images): 
         images_url = []
         for img in images: 
-            img = "http://localhost:8000" + img
+            img = "http://localhost:4004" +  img
             images_url.append(img)
         return images_url
 

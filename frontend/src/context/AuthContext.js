@@ -16,7 +16,7 @@ export const AuthProvider = ({ children }) => {
     let loginUser = async (e) => {
         e.preventDefault();
         try {
-            const response = await fetch('http://localhost:8000/auth/token/', {
+            const response = await fetch('http://localhost:4004/auth/token/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -50,7 +50,7 @@ export const AuthProvider = ({ children }) => {
     let logoutUser = async (e) => {
         e.preventDefault();
         try {
-            await fetch('http://localhost:8000/auth/token/blacklist/', {
+            await fetch('http://localhost:4004/auth/token/blacklist/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -72,7 +72,7 @@ export const AuthProvider = ({ children }) => {
 
     const updateToken = async () => {
         try {
-            const response = await fetch('http://localhost:8000/auth/token/refresh/', {
+            const response = await fetch('http://localhost:4004/auth/token/refresh/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

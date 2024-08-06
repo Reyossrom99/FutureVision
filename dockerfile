@@ -53,6 +53,7 @@ COPY entrypoint.sh .
 RUN chmod +x entrypoint.sh
 
 
+
 # Copia manage.py si es necesario
 COPY manage.py .
 

@@ -22,7 +22,7 @@ const Profile = () => {
 
     const getProfile = async () => {
         try {
-            const response = await fetch('http://localhost:8000/auth/user', {
+            const response = await fetch('http://localhost:4004/auth/user', {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -58,7 +58,7 @@ const Profile = () => {
 
     const handleSaveClick = async (fieldName) => {
         try {
-            const response = await fetch(`http://localhost:8000/auth/user/${profile.id}?field=${fieldName}`, {
+            const response = await fetch(`http://localhost:4004/auth/user/${profile.id}?field=${fieldName}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
