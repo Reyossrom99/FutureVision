@@ -52,7 +52,7 @@ COPY . .
 COPY entrypoint.sh .
 RUN chmod +x entrypoint.sh
 
-ENV UMASK=0022
+
 
 # Copia manage.py si es necesario
 COPY manage.py .
