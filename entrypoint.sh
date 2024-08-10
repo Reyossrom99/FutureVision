@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh 
 
 # Esperar a que el servicio de base de datos esté disponible
 until nc -z db 5432; do
@@ -19,7 +19,9 @@ echo "Ejecutando migraciones de Django..."
 python3.8 manage.py makemigrations authentication datasets projects
 python3.8 manage.py migrate
 
-mkdir -p /app/media/covers /app/media/tmp /app/media/zip_data
+mkdir -p /app/media/covers /app/media/tmp /app/media/zip_data ## will not change or error if the folder already exist
+
+rm -rf /app/media/tmp/* ## clean tmp folder in each load
 
 # Iniciar el servidor web Django
 echo "Iniciando el servidor web Django..."

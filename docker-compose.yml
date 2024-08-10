@@ -14,7 +14,7 @@ services:
       - app-network
 
   engine: 
-      image:  docker.io/library/engine:latest
+      image:  reyossrom/engine:latest
       command: ./entrypoint.sh
       container_name: engine-server
       environment: 
@@ -36,7 +36,7 @@ services:
       shm_size: 8gb
 
   server:
-    image: reyossrom/tfg:latest
+    image: reyossrom/django-server:latest
     command: ./entrypoint.sh 
     container_name: django-server
     ports:
@@ -62,8 +62,8 @@ services:
     networks:
       - app-network
    
-  client: 
-    image: docker.io/library/react-app:latest
+  web: 
+    image: reyossrom/web:latest
     ports: 
       - "3000:3000"
     depends_on:
@@ -81,7 +81,7 @@ services:
       - media_volume:/media
     depends_on:
       - server
-      - client
+      - web
     networks:
       - app-network
 
