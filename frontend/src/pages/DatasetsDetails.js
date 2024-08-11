@@ -21,11 +21,10 @@ import { useLocation } from 'react-router-dom';
 import { useTypeContext } from '../context/typeContext';
 
 
-
 function DatasetsDetails() {
 
   const { id} = useParams();
-    const location = useLocation();
+  const location = useLocation();
 
   // Extraer el parámetro 'type' de la consulta
   const queryParams = new URLSearchParams(location.search);
@@ -59,6 +58,26 @@ const {setType} = useTypeContext();
   const navigate = useNavigate();
 
   let last_request_split = "";
+  const deleteTempFolder = async (datasetId) => {
+    let url = `http://localhost:4004/datasets/${datasetId}/tmp`;
+    const response = await fetch(url, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + String(authTokens.access),
+      },
+    });
+    const data = await response.json();
+    if (response.ok) {
+      navigate('/datasets');
+     
+    }
+    else {
+      if (data && data.error) {
+        console.error('Error deleting dataset:', data.error);
+      }
+    }
+  };
 
   const deleteDataset = async (datasetId) => {
     let url = `http://localhost:4004/datasets/${datasetId}`;
@@ -115,7 +134,6 @@ const {setType} = useTypeContext();
             console.log('Error creating dataset:', error);
         }
   }; 
-
 
   const getDataset = async (datasetId, shouldShowLabels, requestSplitView, page, last_request_split, setPrivacy, setDescription, setType) => {
       let currentPage = page;
@@ -188,6 +206,13 @@ const {setType} = useTypeContext();
 	  console.log("Loading dataset"); 
 	getDataset(id, showLabels, selectedSplit, currentPage, last_request_split, setPrivacy, setDescription, setType);
   }, [currentPage, showLabels, selectedSplit, last_request_split, id, setPrivacy, setDescription, setType]);
+
+  useEffect(() => {
+    // Cuando el componente se desmonta (usuario navega fuera de la ruta)
+    return () => {
+        deleteTempFolder(id);
+    };
+  }, [location.pathname]);
 
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
