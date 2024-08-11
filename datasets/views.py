@@ -544,16 +544,20 @@ def modify_temporal_folder(request, dataset_id):
     global yolo_data_objects
     global coco_data_objects
     if request.method == "DELETE": 
+        logging.info("Borrando tmp")
         dataset = Datasets.objects.get(dataset_id=dataset_id)
         if dataset.format == "yolo": 
             if dataset.dataset_id not in yolo_data_objects: 
                 yolo_data_objects[dataset.dataset_id] = YoloData(dataset.name, dataset.type, dataset.url)
             yolo_data = yolo_data_objects[dataset.dataset_id]
             check, err = yolo_data.delete_tmp()
+
             if not check: 
                 return JsonResponse({'error': err}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             else: 
+                del yolo_data_objects[dataset.dataset_id]
                 return JsonResponse({'message': 'Temporal folder deleted'}, status=status.HTTP_200_OK)
+
         elif dataset.format == "coco":
             if dataset.dataset_id not in coco_data_objects:
                 coco_data_objects[dataset.dataset_id] = CocoData(dataset.name, dataset.type, dataset.url)
@@ -562,6 +566,7 @@ def modify_temporal_folder(request, dataset_id):
             if not check: 
                 return JsonResponse({'error': err}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             else: 
+                del coco_data_objects[dataset.dataset_id]
                 return JsonResponse({'message': 'Temporal folder deleted'}, status=status.HTTP_200_OK)
         else: 
             return JsonResponse({'error': 'Invalid dataset format'}, status=status.HTTP_400_BAD_REQUEST)
@@ -588,3 +593,5 @@ def get_summary(request, dataset_id):
             return JsonResponse({'error': 'Invalid dataset format'}, status=status.HTTP_400_BAD_REQUEST)
     else: 
         return JsonResponse({'error': 'Method not allowed'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+

@@ -8,6 +8,6 @@ urlpatterns = [
     path('<int:dataset_id>', view=views.dataset, name='dataset_info'),#gets the dataset id
     path('<int:dataset_id>/splits', view=views.split_dataset, name='split_dataset'),
     path('<int:dataset_id>/media/<img_id>', view=views.modify_image, name='modify_image'),
-    path('<int:dataset_id>/media/tmp', views.modify_temporal_folder, name='modify_temporal_folder'),
+    path('<int:dataset_id>/tmp', views.modify_temporal_folder, name='modify_temporal_folder'),
     path('<int:dataset_id>/media', views.get_summary, name='get_summary'),
 ]  

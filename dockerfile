@@ -12,15 +12,6 @@ RUN apt-get update && apt-get install -y tzdata gnupg curl && \
 # Instala software-properties-common para manejar repositorios
 RUN apt-get install -y software-properties-common wget
 
-# Agrega el repositorio de CUDA
-#RUN wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-keyring_1.0-1_all.deb
-#RUN dpkg -i cuda-keyring_1.0-1_all.deb
-#RUN apt-get update
-# Instala CUDA y las herramientas de desarrollo
-#RUN apt-get install -y cuda
-
-# Limpia los paquetes temporales
-#RUN rm -rf /var/lib/apt/lists/*
 
 RUN add-apt-repository ppa:deadsnakes/ppa && \
     apt-get update && apt-get install -y git
@@ -41,17 +32,10 @@ COPY requirements.txt .
 # Instala las dependencias del projecto Django
 RUN python3.8 -m pip install -r requirements.txt
 
-# Copia el código de la aplicación al contenedor
-#COPY src/ ./src/
-#COPY datasets/ ./datasets/
-#COPY projects/ ./projects/
-#COPY yolov7 ./yolov7/
-#COPY authentication/ ./authentication/
 COPY . . 
 # Copia los scripts de entrada y hace que sean ejecutables
 COPY entrypoint.sh .
 RUN chmod +x entrypoint.sh
-
 
 
 # Copia manage.py si es necesario
