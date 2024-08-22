@@ -5,25 +5,29 @@ FROM ubuntu:22.04
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Actualiza e instala tzdata y herramientas necesarias
-RUN apt-get update && apt-get install -y tzdata gnupg curl && \
+RUN apt-get update 
+
+RUN apt-get install -y tzdata gnupg curl && \
     echo "Etc/UTC" > /etc/timezone && \
     dpkg-reconfigure -f noninteractive tzdata
 
 # Instala software-properties-common para manejar repositorios
 RUN apt-get install -y software-properties-common wget
 
+RUN apt-get clean && apt-get update --fix-missing
 
 RUN add-apt-repository ppa:deadsnakes/ppa && \
     apt-get update && apt-get install -y git
+
 
 RUN apt install -y python3.8 python3.8-distutils python3.8-dev
 
 RUN apt-get install -y python3-pip
 
-RUN apt-get update && apt-get install -y ffmpeg libsm6 libxext6 netcat-openbsd postgresql-client  && rm -rf /var/lib/apt/lists/*
-
+RUN apt-get install -y ffmpeg libsm6 libxext6 netcat-openbsd postgresql-client  && rm -rf /var/lib/apt/lists/*
 
 RUN python3.8 -m pip install --upgrade pip
+
 # Establece el directorio de trabajo en el contenedor
 WORKDIR /app
 
