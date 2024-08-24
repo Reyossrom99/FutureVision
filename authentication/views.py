@@ -1,12 +1,14 @@
 import json
 from django.http import JsonResponse
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import User, Group, Permission
 from django.http import JsonResponse
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
+from django.shortcuts import get_object_or_404
 from rest_framework import status
 from .serializers import user_serializer
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib.contenttypes.models import ContentType
 
 """
     singup 
@@ -62,6 +64,7 @@ def signup(request):
             )
             
             group.permissions.add(can_change_user, can_delete_user, can_add_user)
+            groupUser.permissions.add(can_change_user)
             
             return JsonResponse({'message': 'user created successfully.'}, status=status.HTTP_200_OK)
         
@@ -74,6 +77,7 @@ def signup(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated]) 
 def get_users(request):
+
     # get all users execpt the current one
     usuarios = User.objects.exclude(id=request.user.id)  
     
@@ -138,6 +142,11 @@ def user(request):
 @api_view(['PUT', 'DELETE'])
 @permission_classes([IsAuthenticated]) 
 def user_modifications(request, usuario_id): 
+
+    user_to_modify = get_object_or_404(User, pk=usuario_id)
+    if request.user != user_to_modify and not request.user.has_perm('auth.change_user'):
+        return JsonResponse({'error': 'You do not have permission to modify this user.'}, status=status.HTTP_403_FORBIDDEN)
+
     if request.method == 'PUT':
         try:
             value = request.data.get('value')
@@ -160,8 +169,6 @@ def user_modifications(request, usuario_id):
             elif field == 'password':
                 user.set_password(value)
             elif field == 'group': 
-                print(value)
-                 # get the group 
                 group = Group.objects.get(name=value)
 
                 # asing the user to the group
@@ -177,7 +184,7 @@ def user_modifications(request, usuario_id):
             return JsonResponse({'error': 'user not found.'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        #delete the user form the database
+        
     elif request.method == 'DELETE': 
         try:
             usuario = User.objects.get(pk=usuario_id)
