@@ -22,13 +22,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
+
 SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'django-server']
-
 
 
 # Application definition
@@ -52,7 +52,6 @@ MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -78,20 +77,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'src.wsgi.application'
-
-
-# Database
-# https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-#version antigua creada para sql
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
-
-
-#version nueva de database usando postgres en docker
 
 DATABASES = {
     'default': {
@@ -167,9 +152,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 #CORS_ALLOW_ALL_ORIGINS = True
 
 CORS_ALLOWED_ORIGINS = [
-        "http://localhost:3000" , 
-    "http://engine-server:4000"# Your frontend's domain 
+    "http://localhost:3000" , 
+    "http://engine-server:4000"
 ]
+
 CORS_ALLOW_METHODS = [
     "DELETE",
     "GET",
@@ -180,13 +166,9 @@ CORS_ALLOW_METHODS = [
 ]
 
 REST_FRAMEWORK = {
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 100,
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     )
-    #'DEFAULT_RENDERER_CLASSES': 'rest_framework.renderers.JSONRenderer'
-  
 }
 
 
@@ -223,9 +205,6 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_REFRESH_LIFETIME": timedelta(minutes=5),
 }
 
-#CELERY_BROKER_URL = 'redis://redis:6379/0'
-
-
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -257,7 +236,6 @@ LOGGING = {
             'level': 'INFO',
             'propagate': True,
         },
-        # Puedes configurar loggers adicionales para tus propias aplicaciones
         'docker': {
             'handlers': ['file', 'console'],
             'level': 'INFO',

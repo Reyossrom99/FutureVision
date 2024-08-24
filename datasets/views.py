@@ -11,7 +11,6 @@ from django.conf import settings
 from rest_framework import status
 import os
 from django.db.models import Q
-import src.types.messages as msg
 from rest_framework.permissions import IsAuthenticated
 from django.core.paginator import Paginator, EmptyPage
 from .formats.yoloData import YoloData

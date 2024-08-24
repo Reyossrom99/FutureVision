@@ -10,8 +10,6 @@ urlpatterns = [
     path('datasets/', include('datasets.urls')),
     path('projects/', include('projects.urls')),
     path('auth/', include('authentication.urls'))
-
-  
 ]
 
 #urlpatterns += static(settings.STATIC_URL,

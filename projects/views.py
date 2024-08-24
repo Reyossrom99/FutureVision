@@ -5,7 +5,6 @@ from django.shortcuts import render
 from rest_framework.decorators import api_view, permission_classes
 from django.http import FileResponse, JsonResponse 
 from projects.models import Projects, Training
-import src.types.messages as msg
 from datasets.models import Datasets
 from rest_framework.permissions import IsAuthenticated
 from projects.serializers import ProjectsSerializer, TrainingSerializer

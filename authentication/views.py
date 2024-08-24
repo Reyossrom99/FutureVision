@@ -35,6 +35,7 @@ def signup(request):
                 
             # Create the new user
             user = User.objects.create_user(username=username, email=email, password=password)
+
             # Check if the group exists, and create it if it doesn't
             group, created = Group.objects.get_or_create(name=role)
 
@@ -43,6 +44,24 @@ def signup(request):
 
             #also create other groups
             groupUser, created = Group.objects.get_or_create(name="user")
+
+            #add permisions to group
+            user_content_type = ContentType.objects.get_for_model(User)
+            
+            can_change_user = Permission.objects.get(
+                codename='change_user',
+                content_type=user_content_type,
+            )
+            can_delete_user = Permission.objects.get(
+                codename='delete_user',
+                content_type=user_content_type,
+            )
+            can_add_user = Permission.objects.get(
+            codename='add_user',
+            content_type=user_content_type,
+            )
+            
+            group.permissions.add(can_change_user, can_delete_user, can_add_user)
             
             return JsonResponse({'message': 'user created successfully.'}, status=status.HTTP_200_OK)
         
@@ -61,8 +80,6 @@ def get_users(request):
     # serialize users
     serializer = user_serializer(usuarios, many=True)
     
-    # return users
-    print(serializer.data)
     return JsonResponse({'users': serializer.data})
 
 '''
@@ -84,7 +101,7 @@ def user(request):
         user = request.user  # Get the authenticated user
         
         # Check if the authenticated user is an admin
-        if not user.groups.filter(name='admin').exists():
+        if not user.groups.filter(name='admin').exists() or not user.has_perm('auth.add_user') :
             return JsonResponse({'error': 'you do not have permission to perform this action.'}, status=status.HTTP_403_FORBIDDEN)
         
         # Check if the required data is provided
