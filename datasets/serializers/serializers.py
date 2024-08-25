@@ -5,8 +5,11 @@ from src import settings
 
 class DatasetsSerializers(serializers.ModelSerializer):
     cover_url = serializers.SerializerMethodField()
-    image_formats = (".jpeg", ".jpg", ".png", ".bmp", ".tiff", ".tif", ".gif", 
-                 ".ppm", ".pgm", ".pbm", ".webp", ".ico", ".hdr", ".tga", ".icb", ".vda", ".vst")
+   image_formats = (
+    ".bmp", ".dib", ".jpeg", ".jpg", ".jpe", ".jp2", ".png", ".webp", 
+    ".avif", ".pbm", ".pgm", ".ppm", ".pxm", ".pnm", ".pfm", ".sr", 
+    ".ras", ".tiff", ".tif", ".exr", ".hdr", ".pic"
+    )
     class Meta:
         model = Datasets
         fields = '__all__'

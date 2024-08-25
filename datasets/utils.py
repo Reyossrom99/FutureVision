@@ -16,8 +16,12 @@ log = logging.getLogger("docker")
     format -> indica si es YOLO o Coco
     type -> indica si tiene splits o no
 """
-image_formats = (".jpeg", ".jpg", ".png", ".bmp", ".tiff", ".tif", ".gif", 
-                 ".ppm", ".pgm", ".pbm", ".webp", ".ico", ".hdr", ".tga", ".icb", ".vda", ".vst")
+image_formats = (
+    ".bmp", ".dib", ".jpeg", ".jpg", ".jpe", ".jp2", ".png", ".webp", 
+    ".avif", ".pbm", ".pgm", ".ppm", ".pxm", ".pnm", ".pfm", ".sr", 
+    ".ras", ".tiff", ".tif", ".exr", ".hdr", ".pic"
+)
+
 
 def extract_and_verify_zip(zip_path, format, type):
     structured_file = "datasets/fileStructure" + "/" + format + "_" + type + ".json"
