@@ -5,14 +5,15 @@ from src import settings
 
 class DatasetsSerializers(serializers.ModelSerializer):
     cover_url = serializers.SerializerMethodField()
-
+    image_formats = (".jpeg", ".jpg", ".png", ".bmp", ".tiff", ".tif", ".gif", 
+                 ".ppm", ".pgm", ".pbm", ".webp", ".ico", ".hdr", ".tga", ".icb", ".vda", ".vst")
     class Meta:
         model = Datasets
         fields = '__all__'
 
     def get_cover_url(self, obj):
         cover_path = os.path.join(settings.MEDIA_ROOT,  "covers", str(obj.name))
-        cover_files = [file for file in os.listdir(cover_path) if file.lower().endswith(('.jpg', '.png', '.jpeg'))]
+        cover_files = [file for file in os.listdir(cover_path) if file.lower().endswith(image_formats)]
         if cover_files:
             system_path =  os.path.join("/media", "covers", str(obj.name), cover_files[0])
             return "http://localhost:4004" +  system_path

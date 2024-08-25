@@ -16,7 +16,8 @@ log = logging.getLogger("docker")
     format -> indica si es YOLO o Coco
     type -> indica si tiene splits o no
 """
-
+image_formats = (".jpeg", ".jpg", ".png", ".bmp", ".tiff", ".tif", ".gif", 
+                 ".ppm", ".pgm", ".pbm", ".webp", ".ico", ".hdr", ".tga", ".icb", ".vda", ".vst")
 
 def extract_and_verify_zip(zip_path, format, type):
     structured_file = "datasets/fileStructure" + "/" + format + "_" + type + ".json"
@@ -26,46 +27,33 @@ def extract_and_verify_zip(zip_path, format, type):
 
     zip_name = zip_path.name.split(".zip")[0]
     temp_dir = tempfile.mkdtemp()
-
+    
     try:
-        t1 = int(time.time() * 1000)
-
         with zipfile.ZipFile(zip_path, "r") as zip_ref:
             for file_info in zip_ref.infolist():
-                # Extraer el archivo individual en lugar de todo el ZIP
                 zip_ref.extract(file_info, temp_dir)
-        # Verificar la estructura después de extraer cada archivo
-        temp_dir_path = os.path.join(temp_dir, zip_name)
-        if not check_directory_structure(
-            temp_dir_path, expected_structure["project_root"]
-        ):
-            return False
 
+        temp_dir_path = os.path.join(temp_dir, zip_name)
+
+        if not check_directory_structure(temp_dir_path, expected_structure["project_root"]):
+            return False
         return True
     finally:
-        # Limpieza del directorio temporal
-        t2 = int(time.time() * 1000)
         if os.path.exists(temp_dir):
             shutil.rmtree(temp_dir)
 
 
 def check_directory_structure(root, structure):
-    # Función de verificación de estructura recursiva
     for item, value in structure.items():
         item_path = os.path.join(root, item)
-
         if isinstance(value, dict):
-
             if not check_directory_structure(item_path, value):
-                print(f"La estructura del directorio {item} no es correcta")
                 return False
         elif isinstance(value, bool):
             if value and not os.path.exists(item_path):
-                print(f"El archivo {item} no existe en el directorio {root}")
                 return False
         else:
             return False
-
     return True
 
 
@@ -85,7 +73,7 @@ def extract_cover(zip_path, dataset_name, format, type):
 
         for root, directories, files in os.walk(root_path):
             for name in files:
-                if name.lower().endswith((".png", ".jpg", ".jpeg")):
+                if name.lower().endswith(image_formats):
                     image_path = os.path.join(root, name)
                     image_path_striped = image_path.split("/")
                     image_name = image_path_striped[len(image_path_striped) - 1]
@@ -129,28 +117,26 @@ def count_files_in_zip(zip_path, type):
             zip_ref.extractall(temp_dir)
 
         if type == "no-splits":
-            image_extensions = (".png", ".jpg", ".jpeg")
             for root, _, files in os.walk(temp_dir):
                 for file in files:
-                    if file.lower().endswith(image_extensions):
+                    if file.lower().endswith(image_formats):
                         total_image_files += 1
 
             return total_image_files, 0, 0
 
         else:
-            image_extensions = (".png", ".jpg", ".jpeg")
             for root, dirs, files in os.walk(temp_dir):
                 if "train" in root:
                     for file in files:
-                        if file.lower().endswith(image_extensions):
+                        if file.lower().endswith(image_formats):
                             total_image_files_train += 1
                 elif "val" in root:
                     for file in files:
-                        if file.lower().endswith(image_extensions):
+                        if file.lower().endswith(image_formats):
                             total_image_files_val += 1
                 elif "test" in root:
                     for file in files:
-                        if file.lower().endswith(image_extensions):
+                        if file.lower().endswith(image_formats):
                             total_image_files_test += 1
 
             return (
@@ -214,7 +200,7 @@ def read_images_from_tmp_folder(zip_path, type):
     for root, directories, files in os.walk(root_path):
         print("Obteniendo las imagenes de la carpeta......")
         for name in files:
-            if name.lower().endswith((".png", ".jpg", ".jpeg")):
+            if name.lower().endswith(image_formats):
                 images.append(
                     os.path.join("/media", "tmp", temp_name, zip_name, "images", name)
                 )

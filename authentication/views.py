@@ -143,11 +143,10 @@ def user(request):
 @permission_classes([IsAuthenticated]) 
 def user_modifications(request, usuario_id): 
 
-    user_to_modify = get_object_or_404(User, pk=usuario_id)
-    if request.user != user_to_modify and not request.user.has_perm('auth.change_user'):
-        return JsonResponse({'error': 'You do not have permission to modify this user.'}, status=status.HTTP_403_FORBIDDEN)
-
     if request.method == 'PUT':
+        user_to_modify = get_object_or_404(User, pk=usuario_id)
+        if request.user != user_to_modify and not request.user.has_perm('auth.change_user'):
+        return JsonResponse({'error': 'You do not have permission to modify this user.'}, status=status.HTTP_403_FORBIDDEN)
         try:
             value = request.data.get('value')
             field = request.query_params.get('field', '')
@@ -186,6 +185,8 @@ def user_modifications(request, usuario_id):
             return JsonResponse({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
     elif request.method == 'DELETE': 
+        if not request.user.has_perm('auth.delete_user'):
+        return JsonResponse({'error': 'You do not have permission to modify this user.'}, status=status.HTTP_403_FORBIDDEN)
         try:
             usuario = User.objects.get(pk=usuario_id)
             usuario.delete()

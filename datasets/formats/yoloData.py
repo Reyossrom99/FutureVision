@@ -12,7 +12,8 @@ import numpy as np
 import yaml
 
 class YoloData: 
-
+    image_formats = (".jpeg", ".jpg", ".png", ".bmp", ".tiff", ".tif", ".gif",  
+                 ".ppm", ".pgm", ".pbm", ".webp", ".ico", ".hdr", ".tga", ".icb", ".vda", ".vst")
     def __init__(self, name:str, type:str, zip_path:str) -> None:
         self.name = name
         self.type = type #determines if the dataset has splits
@@ -57,7 +58,7 @@ class YoloData:
         if split=="" and page_number not in self.extracted_pages:
             with zipfile.ZipFile(self.zip_path, 'r') as zip_ref:
 
-                file_list_no_splits = [file_name for file_name in self.file_list if file_name.lower().endswith(('.jpg', '.jpeg', '.png'))]
+                file_list_no_splits = [file_name for file_name in self.file_list if file_name.lower().endswith(image_formats)]
                 file_list_no_splits_txt = [file_name for file_name in self.file_list if file_name.lower().endswith('.txt')]
                 # Calcular el rango de archivos que se extraerán para la página actual
                 start_index = (page_number - 1) * page_size
@@ -77,7 +78,7 @@ class YoloData:
                
                 if self.modify == True:
                     
-                    file_list_train = [file_name for file_name in self.modify_splits["train"] if file_name.lower().endswith(('.jpg', '.jpeg', '.png')) ]
+                    file_list_train = [file_name for file_name in self.modify_splits["train"] if file_name.lower().endswith(image_formats) ]
                     file_list_train_txt = [file_name for file_name in self.modify_splits_labels["train"] if file_name.lower().endswith('.txt')]
                     
                     start_index = (page_number -1)*page_size
@@ -114,7 +115,7 @@ class YoloData:
                         except Exception as e: 
                             print("error: ", e)
                 else: 
-                    file_list_train = [file_name for file_name in self.file_list if 'train' in file_name and file_name.lower().endswith(('.jpg', '.jpeg', '.png'))]
+                    file_list_train = [file_name for file_name in self.file_list if 'train' in file_name and file_name.lower().endswith(image_formats)]
                     file_list_train_txt = [file_name for file_name in self.file_list if 'train' in file_name and file_name.lower().endswith('.txt')]
 
                     # Calcular el rango de archivos que se extraerán para la página actual
@@ -132,7 +133,7 @@ class YoloData:
         elif split == "val" and page_number not in self.extracted_val: 
             with zipfile.ZipFile(self.zip_path, 'r') as zip_ref:
                 if self.modify == True:
-                    file_list_val = [file_name for file_name in self.modify_splits["val"] if file_name.lower().endswith(('.jpg', '.jpeg', '.png')) ]
+                    file_list_val = [file_name for file_name in self.modify_splits["val"] if file_name.lower().endswith(image_formats) ]
                     file_list_val_txt = [file_name for file_name in self.modify_splits_labels["val"] if file_name.lower().endswith('.txt')]
                     
                     interchange_folder = os.path.join(settings.MEDIA_ROOT, self.tmp_dir, self.zip_name, "change")
@@ -171,7 +172,7 @@ class YoloData:
                             print("error: ", e) 
                 else: 
                     # Obtener lista de nombres de archivos en el zip
-                    file_list_val= [file_name for file_name in self.file_list if 'val' in file_name and file_name.lower().endswith(('.jpg', '.jpeg', '.png'))]
+                    file_list_val= [file_name for file_name in self.file_list if 'val' in file_name and file_name.lower().endswith(image_formats)]
                     file_list_val_txt = [file_name for file_name in self.file_list if 'val' in file_name and file_name.lower().endswith('.txt')]
                     # Calcular el rango de archivos que se extraerán para la página actual
                     start_index = (page_number - 1) * page_size
@@ -189,7 +190,7 @@ class YoloData:
             with zipfile.ZipFile(self.zip_path, 'r') as zip_ref:
                 # Obtener lista de nombres de archivos en el zip
                 if self.modify == True:
-                    file_list_test = [file_name for file_name in self.modify_splits["test"] if file_name.lower().endswith(('.jpg', '.jpeg', '.png')) ]
+                    file_list_test = [file_name for file_name in self.modify_splits["test"] if file_name.lower().endswith(image_formats) ]
                     file_list_test_txt = [file_name for file_name in self.modify_splits_labels["test"] if file_name.lower().endswith('.txt')]
                     
                     # Calcular el rango de archivos que se extraerán para la página actual
@@ -227,7 +228,7 @@ class YoloData:
                         except Exception as e: 
                             print("error: ", e)
                 else: 
-                    file_list_test = [file_name for file_name in self.file_list if 'test' in file_name and file_name.lower().endswith(('.jpg', '.jpeg', '.png'))]
+                    file_list_test = [file_name for file_name in self.file_list if 'test' in file_name and file_name.lower().endswith(image_formats)]
                     file_list_test_txt = [file_name for file_name in self.file_list if 'test' in file_name and file_name.lower().endswith('.txt')]
                 # Calcular el rango de archivos que se extraerán para la página actual
                 start_index = (page_number - 1) * page_size
@@ -267,7 +268,7 @@ class YoloData:
         print("image files: ", image_files)
         
         for name in image_files: 
-                if name.lower().endswith(('.png', '.jpg','.jpeg')): 
+                if name.lower().endswith(image_formats): 
                     print(self.type, self.modify)
                     if self.type == "no-splits" and self.modify ==False:
                         print("returning images from no-splits")
@@ -329,7 +330,7 @@ class YoloData:
         files = os.listdir(root_path)[start_index:end_index]
         
         for name in files: 
-                if name.lower().endswith(('.png', '.jpg','.jpeg')): 
+                if name.lower().endswith(image_formats): 
                     if self.type == "no-splits": 
                         labeled.append(os.path.join("/media", "tmp", self.tmp_name, self.zip_name, "labeled_images", name))
                         labeled_full.append(os.path.join(settings.TMP_ROOT, self.tmp_name, self.zip_name, 'labeled_images', name))
@@ -450,9 +451,9 @@ class YoloData:
             return False, "The number of images in the splits is not equal to the total number of images"
         
         print(self.file_list)
-        self.modify_splits["train"] = random.sample([x for x in self.file_list if x.lower().endswith(('.jpg', '.jpeg', '.png'))], train_number)
-        self.modify_splits["val"] = random.sample([x for x in self.file_list if x not in self.modify_splits["train"] and x.lower().endswith(('.jpg', '.jpeg', '.png'))], val_number)
-        self.modify_splits["test"] = [x for x in self.file_list if x not in self.modify_splits["train"] and x not in self.modify_splits["val"] and x.lower().endswith(('.jpg', '.jpeg', '.png'))]
+        self.modify_splits["train"] = random.sample([x for x in self.file_list if x.lower().endswith(image_formats)], train_number)
+        self.modify_splits["val"] = random.sample([x for x in self.file_list if x not in self.modify_splits["train"] and x.lower().endswith(image_formats)], val_number)
+        self.modify_splits["test"] = [x for x in self.file_list if x not in self.modify_splits["train"] and x not in self.modify_splits["val"] and x.lower().endswith(image_formats)]
         
         self.modify_splits_labels["train"] = random.sample([x for x in self.file_list if x.lower().endswith(('.txt'))], train)
         self.modify_splits_labels["val"] = random.sample([x for x in self.file_list if x not in self.modify_splits["train"] and x.lower().endswith(('.txt'))], val)
