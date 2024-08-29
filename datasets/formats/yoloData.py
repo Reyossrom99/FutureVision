@@ -389,16 +389,15 @@ class YoloData:
             with open(os.path.join(self.tmp_dir, self.zip_name, "data.yaml"), 'r') as yaml_file:
                 data = yaml.safe_load(yaml_file)
                 self.class_names = data['names']
-                random.seed(42)  # Semilla para reproducibilidad
+                random.seed(42) 
                 self.category_colors = {category_name: (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)) for category_name in self.class_names}
 
         for index in range(0, len(labels_files)): 
+
             image = cv2.imread(image_files[index], cv2.IMREAD_UNCHANGED)
 
             image_height, image_width, _ = image.shape
-          
-            #comprobar que efectivamente se leen en el mismo orden porque tienen el mismo nombre
-
+         
             with open(labels_files[index], 'r') as file: 
                 lines = file.readlines()
             file.close()
@@ -408,7 +407,6 @@ class YoloData:
                     class_id, x_center, y_center, width, height = map(float, line.strip().split())
 
                     # Convert YOLO format to OpenCV format (x, y, width, height)
-                
                     x = int((x_center - width / 2) * image_width)
                     y = int((y_center - height / 2) * image_height)
                     w = int(width * image_width)
@@ -416,16 +414,15 @@ class YoloData:
                 
                     color = self.category_colors[self.class_names[int(class_id)]]
                     # Draw bounding box on the image
-                    cv2.rectangle(image, (x, y), (x + w, y + h), color, 2)  # Green color, thickness=2
+                    cv2.rectangle(image, (x, y), (x + w, y + h), color, 2)
 
-                     # Obtener el nombre de la clase correspondiente
+                    # Get class name
                     class_name = self.class_names[int(class_id)]
 
-                    # Agregar el nombre de la clase a la imagen
+                    # Add class name to the image
                     cv2.putText(image, class_name, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, color, 2)
                 
                 except: 
-                    print("Error en la linea", line)
                     continue
                 name = os.path.basename(image_files[index])
                 cv2.imwrite(os.path.join(labeled_dir, name), image)

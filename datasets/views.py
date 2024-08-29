@@ -128,7 +128,6 @@ def datasets(request):
 @api_view(["GET", "DELETE", "PATCH"])
 @permission_classes([IsAuthenticated])
 def dataset(request, dataset_id):
-    print("dataset")
     global yolo_data_objects
     global coco_data_objects
 
@@ -138,8 +137,6 @@ def dataset(request, dataset_id):
         page_number = int(request.GET.get('page', 1))
         page_size = int(request.GET.get('page_size', 100))
         print(show_labels, requested_split, page_number, page_size)
-
-        
 
         dataset = Datasets.objects.get(dataset_id=dataset_id)
         #custom paginator 
@@ -302,7 +299,6 @@ def dataset(request, dataset_id):
                     dataset.save()
                    
                 elif fields[i] == 'splits': 
-                    print("Modifying splits")
                     #check if changes have been made 
                     if dataset.format == "coco": 
                         if dataset.dataset_id not in coco_data_objects:
@@ -326,7 +322,6 @@ def dataset(request, dataset_id):
                             return JsonResponse({'message': 'Dataset updated'}, status=status.HTTP_200_OK)
                         
                     elif dataset.format == "yolo":
-                        print("modifying splits yolo")
                         if dataset.dataset_id not in yolo_data_objects: 
                             yolo_data_objects[dataset.dataset_id] = YoloData(dataset.name, dataset.type, dataset.url)
                         yolo_data = yolo_data_objects[dataset.dataset_id]

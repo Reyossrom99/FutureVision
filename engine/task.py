@@ -25,15 +25,14 @@ def execute_command(training):
 
       if training.input.get("no_test"):
             command.append("--no_test")
-      print("command", command)
-
-
+    
       log_file = os.path.join(training.data_folder, "data_train.log")
       with open(log_file, 'w') as f:
         process = subprocess.Popen(command, stdout=f, stderr=f)
         process.communicate()
-
       f.close()
+
+      
       notify_url = "http://django-server:8000/projects/notify"  # URL de la vista de Django
       notify_data = {
         'training_id': training.training_id,
@@ -48,24 +47,3 @@ def execute_command(training):
       except requests.exceptions.RequestException as e:
         logging.info(f"Error sending notification for project {training.project_id}: {e}")
 
-def run_tensorboard(port=6006, log_dir="/app/media/train"): 
-    try:
-        # Construir el comando para iniciar TensorBoard
-        tensorboard_command = ["tensorboard", "--logdir", log_dir, "--port", str(port)]
-        
-        # Iniciar TensorBoard como un proceso independiente
-        process = subprocess.Popen(tensorboard_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        stdout, stderr = process.communicate()
-        returncode = process.returncode
-
-        if returncode == 0:
-            logging.info((f"Comando ejecutado correctamente: {stdout.decode()}"))
-            return {'status': 'success', 'output': stdout.decode()}
-        else:
-            logging.error(f"Error al ejecutar comando: {stderr.decode()}")
-            return {'status': 'error', 'error': stderr.decode()}
-
-
-    except Exception as e:
-        logging.error(f"Error al iniciar TensorBoard: {e}")
-        return False

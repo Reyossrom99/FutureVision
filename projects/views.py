@@ -34,11 +34,6 @@ trainingsPerPage = 10
 @api_view(["GET", "POST"])
 @permission_classes([IsAuthenticated]) 
 def projects(request): 
-    """
-        Gets all the projects that a user can view or creates a new project 
-        depeding on the type of request
-        Only for authenticated users
-    """
     if request.method == "GET": 
         page_number = int(request.GET.get('page', 1))
 
@@ -70,27 +65,40 @@ def projects(request):
         logging.info(paginated_data)
 
         return JsonResponse(paginated_data, safe=False)
-
        
         
     if request.method == "POST":
 
         data = request.data
-
         if request.user.is_authenticated:
-            
+            dataset_id = data.get('dataset_id')
+
+            # Obtener la instancia del dataset
+            try:
+                dataset_instance = Datasets.objects.get(id=dataset_id)
+            except Datasets.DoesNotExist:
+                return Response({"error": "No dataset found in the system"}, status=400)
+
+            # Verificar si el dataset es privado
+            if not dataset_instance.is_public and data.get('is_public', False):
+                return Response({"error": "Cannot create a public proyect with a private dataset"}, status=400)
+
+            # Crear la instancia del proyecto
             project_instance = Projects(
                 name=data.get('name'),
                 description=data.get('description'),
                 type="bbox",
-                is_public=data.get('is_public', False),  
-                dataset_id=data.get('dataset_id'),
-                user=request.user  
+                is_public=data.get('is_public', False),
+                dataset_id=dataset_id,  # Asignar la instancia del dataset, no el ID
+                user=request.user
             )
-            project_instance.save()
-            serializer = ProjectsSerializer(project_instance)
 
-            return JsonResponse(serializer.data, status=status.HTTP_201_CREATED)
+            # Guardar el proyecto
+            project_instance.save()
+
+            # Serializar y devolver la respuesta
+            serializer = ProjectsSerializer(project_instance)
+            return Response(serializer.data, status=201)
         else:
             return JsonResponse({'error': 'User is not authenticated.'}, status=status.HTTP_401_UNAUTHORIZED)
     else:
@@ -203,9 +211,13 @@ def project_queue(request, project_id):
             logging.info(f"enviando mensaje")
             if response.status_code != 200:
                 logging.info("okay")
+                training.current_status = "stopped"
+                training.save()
                 return JsonResponse({'error': 'Error initiating command on engine server'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except requests.exceptions.RequestException as e:
             logging.info("error")
+            training.current_status = "stopped"
+            training.save()
             logging.error(f"Error sending request to engine server: {e}")
             return JsonResponse({'error': 'Error connecting to engine server'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -265,14 +277,16 @@ def notify(request):
             training_id = data.get('training_id')
           
             training = Training.objects.get(training_id=training_id)
-
             training.current_status = data.get('status')
+
             training.save()
           
-            return JsonResponse({'status': 'success', 'message': f'Project {training_id} status updated to {status}'})
+            return JsonResponse({ 'message': f'Project {training_id} status updated to {status}'}, status=status.HTTP_200_OK)
+
         except json.JSONDecodeError:
-            return JsonResponse({'status': 'fail', 'message': 'Invalid JSON'}, status=400)
-    return JsonResponse({'status': 'fail', 'message': 'Invalid request method'}, status=405)
+            return JsonResponse({'error': 'error reciving training status update '}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    return JsonResponse({'error': 'Method not allowed.'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 
@@ -284,14 +298,12 @@ def log(request, training_id):
         log_file = os.path.join(training.data_folder, "data_train.log")
         
         if os.path.exists(log_file):
-            # Usa FileResponse para enviar el archivo
             response = FileResponse(open(log_file, 'rb'), as_attachment=True, filename='data_train.log')
             return response
         else:
-            return JsonResponse({'error': 'File not found.'}, status=404)
+            return JsonResponse({'error': 'File not found.'},status=status.HTTP_404_NOT_FOUND )
     else:
-        return JsonResponse({'error': 'Method not allowed.'}, status=405)
-
+        return JsonResponse({'error': 'Method not allowed.'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 @api_view(["GET"])
@@ -306,7 +318,7 @@ def weights(request, training_id):
             response = FileResponse(open(archived, 'rb'), as_attachment=True, filename='weights.zip')
             return response
         else:
-            return JsonResponse({'error': 'Weights folder not found.'}, status=404)
+            return JsonResponse({'error': 'Weights folder not found.'}, status=status.HTTP_404_NOT_FOUND)
     else:
-        return JsonResponse({'error': 'Method not allowed.'}, status=405)
+        return JsonResponse({'error': 'Method not allowed.'},status=status.HTTP_405_METHOD_NOT_ALLOWED )
 

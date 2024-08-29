@@ -4,7 +4,7 @@ from datasets.models import Datasets
 from src import settings
 
 class DatasetsSerializers(serializers.ModelSerializer):
-    cover_url = serializers.SerializerMethodField()
+   cover_url = serializers.SerializerMethodField()
    image_formats = (
     ".bmp", ".dib", ".jpeg", ".jpg", ".jpe", ".jp2", ".png", ".webp", 
     ".avif", ".pbm", ".pgm", ".ppm", ".pxm", ".pnm", ".pfm", ".sr", 

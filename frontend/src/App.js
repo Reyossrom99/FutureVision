@@ -40,12 +40,12 @@ function App() {
 						<Routes>
 							<Route path="/datasets" element={<PrivateRoute><Datasets /></PrivateRoute>} />
 							<Route path="/dataset/:id" element={<PrivateRoute><DatasetsDetails /></PrivateRoute>} />
-							<Route path="/login" element={<LoginPage />} />
-							<Route path="/signup" element={<SignupPage />} />
-							<Route path="/user" element={<PrivateRoute><Profile /></PrivateRoute>} />
-							<Route path="/user/add" element={<PrivateRoute><NewUser /></PrivateRoute>} />
-							<Route path="/users" element={<PrivateRoute><ViewUsers /></PrivateRoute>} />
-							<Route path="/projects" element={<PrivateRoute><Projects /></PrivateRoute>} />
+							<Route path="/login" element={<LoginPage/>} />
+							<Route path="/signup" element={<SignupPage/>} />
+							<Route path="/user" element={<PrivateRoute><Profile/></PrivateRoute>} />
+							<Route path="/user/add" element={<PrivateRoute><NewUser/></PrivateRoute>} />
+							<Route path="/users" element={<PrivateRoute><ViewUsers/></PrivateRoute>} />
+							<Route path="/projects" element={<PrivateRoute><Projects/></PrivateRoute>} />
 							<Route path="/project/:id" element={<PrivateRoute><ProjectDetails /></PrivateRoute>} />
 						</Routes>
 					</main>
