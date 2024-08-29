@@ -23,8 +23,6 @@ class RequestHandler(BaseHTTPRequestHandler):
                 training = Training(
                     project_id=data['project_id'],
                     input=data['input'],
-                    is_training=data['is_training'],
-                    is_trained=data['is_trained'],
                     data=data['data'],
                     data_folder=data['data_folder'], 
                     training_id = data['training_id']

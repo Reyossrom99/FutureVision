@@ -33,8 +33,6 @@ class Training(models.Model):
     project_id = models.ForeignKey(Projects, on_delete=models.CASCADE)
     input = JSONField(help_text="Save training input in json format")
     data = models.TextField(help_text="Save data.yaml for training purporses", blank=True)
-    is_training = models.BooleanField(default=False)
-    is_trained = models.BooleanField(default=False)
     data_folder = models.CharField(max_length=255, blank=True)
     created_at = models.DateTimeField(default=timezone.now)
     current_status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='pending')

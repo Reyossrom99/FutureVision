@@ -170,8 +170,6 @@ def project_queue(request, project_id):
         training = Training(
             project_id = project, 
             input = input_data, 
-            is_training = False, 
-            is_trained = False, 
             )
         
        
@@ -200,8 +198,6 @@ def project_queue(request, project_id):
         payload = {
             'project_id': training.project_id.project_id,
             'input': input_data,
-            'is_training': training.is_training,
-            'is_trained': training.is_trained,
             'data': training.data,
             'data_folder': training.data_folder,
             'training_id': training.training_id
