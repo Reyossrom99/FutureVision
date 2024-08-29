@@ -9,7 +9,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - yolo-network
-
+      
   engine: 
       image:  reyossrom/engine:latest
       command: ./entrypoint.sh
@@ -19,7 +19,7 @@ services:
       volumes:
         - media_volume:/app/media
       networks:
-        - app-network
+        - yolo-network
       deploy:
         resources:
           reservations:
@@ -75,6 +75,8 @@ services:
       - web
     networks:
       - yolo-network
+    ports: 
+      - "4004:4004"
 
 volumes:
   postgres_data:

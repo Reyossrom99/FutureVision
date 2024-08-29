@@ -9,6 +9,7 @@ from rest_framework import status
 from .serializers import user_serializer
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.contenttypes.models import ContentType
+from datasets.models import Datasets
 
 """
     singup 
@@ -146,7 +147,7 @@ def user_modifications(request, usuario_id):
     if request.method == 'PUT':
         user_to_modify = get_object_or_404(User, pk=usuario_id)
         if request.user != user_to_modify and not request.user.has_perm('auth.change_user'):
-        return JsonResponse({'error': 'You do not have permission to modify this user.'}, status=status.HTTP_403_FORBIDDEN)
+            return JsonResponse({'error': 'You do not have permission to modify this user.'}, status=status.HTTP_403_FORBIDDEN)
         try:
             value = request.data.get('value')
             field = request.query_params.get('field', '')
@@ -186,8 +187,17 @@ def user_modifications(request, usuario_id):
         
     elif request.method == 'DELETE': 
         if not request.user.has_perm('auth.delete_user'):
-        return JsonResponse({'error': 'You do not have permission to modify this user.'}, status=status.HTTP_403_FORBIDDEN)
+            return JsonResponse({'error': 'You do not have permission to modify this user.'}, status=status.HTTP_403_FORBIDDEN)
         try:
+
+            datasets = Datasets.objects.filter(user__id=usuario_id)
+
+            public_datasets = Datasets.objects.filter(is_public=True)
+
+            for dataset in  public_datasets: 
+                dataset.user = request.user
+                dataset.save()
+
             usuario = User.objects.get(pk=usuario_id)
             usuario.delete()
             return JsonResponse({'mensage': 'user deleted from the database'}, status=status.HTTP_200_OK)

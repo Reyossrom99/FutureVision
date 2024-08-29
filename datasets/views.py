@@ -55,7 +55,7 @@ def datasets(request):
         
         # Verificar si hay datasets
         if not datasets: 
-            return JsonResponse({"mensaje": "No datasets"}, status=status.HTTP_200_OK)
+            return JsonResponse({"mensage": "No datasets"}, status=status.HTTP_200_OK)
         
         # Serializar los datasets
         serializer = DatasetsSerializers(datasets, many=True)
@@ -545,6 +545,9 @@ def modify_temporal_folder(request, dataset_id):
                 yolo_data_objects[dataset.dataset_id] = YoloData(dataset.name, dataset.type, dataset.url)
             yolo_data = yolo_data_objects[dataset.dataset_id]
             check, err = yolo_data.delete_tmp()
+            if yolo_data.modify: 
+                dataset.num_images_train = dataset.num_images_train + dataset.num_images_val + dataset.num_images_test
+                dataset.save()
 
             if not check: 
                 return JsonResponse({'error': err}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -557,6 +560,8 @@ def modify_temporal_folder(request, dataset_id):
                 coco_data_objects[dataset.dataset_id] = CocoData(dataset.name, dataset.type, dataset.url)
             coco_data = coco_data_objects[dataset.dataset_id]
             check, err = coco_data.delete_tmp()
+                dataset.num_images_train = dataset.num_images_train + dataset.num_images_val + dataset.num_images_test
+                dataset.save()
             if not check: 
                 return JsonResponse({'error': err}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             else: 

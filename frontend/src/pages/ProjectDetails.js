@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext } from 'react';
 import axios, { HttpStatusCode } from 'axios';
-import { useParams } from 'react-router-dom';
+import { useParams , useNavigate} from 'react-router-dom';
 import styles from './datasets.module.css'
 import NewTrainForm from '../components/newTrainForm';
 import AuthContext from '../context/AuthContext';
@@ -11,6 +11,7 @@ import { ContentContainer, PageContainer } from '../elements/containers';
 import {CardContainerTraining, CardImage, CardTitle, CardLabel, CardDescription, CardLabels, CardGroup}from '../elements/card';
 import palette from '../palette';
 import Paginator from '../elements/paginator';
+import { useDeleteProjectContext } from '../context/deleteContext';
 
 function ProjectDetails() {
   const { id } = useParams();
@@ -20,6 +21,19 @@ function ProjectDetails() {
   const { authTokens, logoutUser } = useContext(AuthContext);
   const [currentPage, setCurrentPage] = useState(1); 
   const [total_pages, setTotalPages] = useState(1); 
+  const { askForConfirmationProject , deleteConfirmationProject} = useDeleteProjectContext();
+  const { confirmDeleteProject } = useDeleteProjectContext();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (confirmDeleteProject) {
+      if (window.confirm(`Do you want to delete this project?: ${id}`)) {
+        deleteProject(id);
+      }else{
+          deleteConfirmationProject(); 
+      }
+    }
+  },[confirmDeleteProject]); 
 
   useEffect(() => {
     getProject(id, currentPage); 
@@ -151,6 +165,30 @@ function formatDate(dateString) {
   const date = new Date(dateString);
   return date.toLocaleDateString(undefined, options);
   };
+
+
+  const deleteProject = async (projectId) => {
+    let url = `http://localhost:4004/projects/project/${projectId}`;
+    const response = await fetch(url, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + String(authTokens.access),
+      },
+    });
+    const data = await response.json();
+    if (response.ok) {
+      navigate('/projects');
+      deleteConfirmationProject(); 
+    }
+    else {
+      if (data && data.error) {
+        console.error('Error deleting dataset:', data.error);
+        deleteConfirmationProject(); 
+      }
+    }
+  };
+
   return (
     <PageContainer>
     <PageTitle>projects</PageTitle>

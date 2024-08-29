@@ -19,6 +19,6 @@ urlpatterns = [
     path('token/blacklist/', TokenBlacklistView.as_view(), name='token_blacklist'),
     path('signup', views.signup, name='signup'), 
     path('user', views.user, name="user"),
-    path('user/<int:usuario_id>', views.user_modifications, name"user_modifications"),
-    path('users', views.get_users, "get_users"),
+    path('user/<int:usuario_id>', views.user_modifications, name="user_modifications"),
+    path('users', views.get_users, name="get_users"),
 ]

@@ -70,7 +70,7 @@ class CocoData:
         if split == "" and page_number not in self.extracted_pages:
 
             with zipfile.ZipFile(self.zip_path, 'r') as zip_ref:
-                file_list_no_splits = [file_name for file_name in self.file_list if file_name.lower().endswith(image_formats)]
+                file_list_no_splits = [file_name for file_name in self.file_list if file_name.lower().endswith(self.image_formats)]
                 start_index = (page_number - 1) * page_size
                 end_index = min(start_index + page_size, len(self.file_list))
 
@@ -86,10 +86,10 @@ class CocoData:
                 if self.modify == True: 
                     file_list_train = [file_name.replace("/images/", "/train/") 
                         for file_name in self.modify_splits["train"] 
-                        if file_name.lower().endswith(image_formats)]
+                        if file_name.lower().endswith(self.image_formats)]
 
                 else: 
-                    file_list_train = [file_name for file_name in self.file_list if 'train' in file_name and file_name.lower().endswith(image_formats)]
+                    file_list_train = [file_name for file_name in self.file_list if 'train' in file_name and file_name.lower().endswith(self.image_formats)]
 
                 start_index = (page_number - 1) * page_size
                 end_index = min(start_index + page_size, len(self.file_list))
@@ -105,9 +105,9 @@ class CocoData:
                 if self.modify == True:
                     file_list_val = [file_name.replace("/images/", "/val/") 
                         for file_name in self.modify_splits["val"] 
-                        if file_name.lower().endswith(image_formats)]
+                        if file_name.lower().endswith(self.image_formats)]
                 else: 
-                    file_list_val = [file_name for file_name in self.file_list if 'val' in file_name and file_name.lower().endswith(image_formats)]
+                    file_list_val = [file_name for file_name in self.file_list if 'val' in file_name and file_name.lower().endswith(self.image_formats)]
                 start_index = (page_number - 1) * page_size
                 end_index = min(start_index + page_size, len(self.file_list))
 
@@ -121,9 +121,9 @@ class CocoData:
                 if self.modify == True:
                     file_list_test = [file_name.replace("/images/", "/test/") 
                         for file_name in self.modify_splits["test"] 
-                        if file_name.lower().endswith(image_formats)]
+                        if file_name.lower().endswith(self.image_formats)]
                 else: 
-                    file_list_test = [file_name for file_name in self.file_list if 'test' in file_name and file_name.lower().endswith(image_formats)]
+                    file_list_test = [file_name for file_name in self.file_list if 'test' in file_name and file_name.lower().endswith(self.image_formats)]
                 start_index = (page_number - 1) * page_size
                 end_index = min(start_index + page_size, len(self.file_list))
 
@@ -156,7 +156,7 @@ class CocoData:
 
         
         for name in image_files: 
-                if name.lower().endswith(image_formats): 
+                if name.lower().endswith(self.image_formats): 
                   
                     if self.type == "no-splits" and self.modify == False:
                         images_full.append(os.path.join(settings.TMP_ROOT, self.tmp_name, self.zip_name, 'images', name))
@@ -184,7 +184,7 @@ class CocoData:
         labeled_files = sorted(os.listdir(root_path))[start_index:end_index] 
      
         for name in labeled_files: 
-                if name.lower().endswith(image_formats): 
+                if name.lower().endswith(self.image_formats): 
                     if self.type == "no-splits" and self.modify == False:
                         labeled_full.append(os.path.join(settings.TMP_ROOT, self.tmp_name, self.zip_name, 'labeld_images', name))
                         labeled.append(os.path.join("/media", "tmp", self.tmp_name, self.zip_name, 'labeld_images', name))
@@ -259,7 +259,7 @@ class CocoData:
             print("image file: ", image_file)
             img_path = os.path.join(image_dir, image_file)
 
-            if not image_file.lower().endswith(image_formats):
+            if not image_file.lower().endswith(self.image_formats):
                 continue
 
             img = cv.imread(img_path)
@@ -325,9 +325,9 @@ class CocoData:
         if train_number + val_number + test_number != num_images: 
             return False, "The number of images in the splits is not equal to the total number of images"
         
-        self.modify_splits["train"] = random.sample([x for x in self.file_list if x.lower().endswith(image_formats)], train)
-        self.modify_spltis["val"] = random.sample([x for x in self.file_list if x not in self.modify_splits["train"] and x.lower().endswith(image_formats)], val)
-        self.modify_splits["test"] = [x for x in self.file_list if x not in self.modify_splits["train"] and x not in self.modify_splits["val"] and x.lower().endswith(image_formats)]
+        self.modify_splits["train"] = random.sample([x for x in self.file_list if x.lower().endswith(self.image_formats)], train)
+        self.modify_spltis["val"] = random.sample([x for x in self.file_list if x not in self.modify_splits["train"] and x.lower().endswith(self.image_formats)], val)
+        self.modify_splits["test"] = [x for x in self.file_list if x not in self.modify_splits["train"] and x not in self.modify_splits["val"] and x.lower().endswith(self.image_formats)]
 
         self.modify = True
         return self.modify, "The splits have been created", train_number, val_number, test_number

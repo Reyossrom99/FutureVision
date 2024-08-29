@@ -4,8 +4,8 @@ from datasets.models import Datasets
 from src import settings
 
 class DatasetsSerializers(serializers.ModelSerializer):
-   cover_url = serializers.SerializerMethodField()
-   image_formats = (
+    cover_url = serializers.SerializerMethodField()
+    image_formats = (
     ".bmp", ".dib", ".jpeg", ".jpg", ".jpe", ".jp2", ".png", ".webp", 
     ".avif", ".pbm", ".pgm", ".ppm", ".pxm", ".pnm", ".pfm", ".sr", 
     ".ras", ".tiff", ".tif", ".exr", ".hdr", ".pic"
@@ -16,7 +16,7 @@ class DatasetsSerializers(serializers.ModelSerializer):
 
     def get_cover_url(self, obj):
         cover_path = os.path.join(settings.MEDIA_ROOT,  "covers", str(obj.name))
-        cover_files = [file for file in os.listdir(cover_path) if file.lower().endswith(image_formats)]
+        cover_files = [file for file in os.listdir(cover_path) if file.lower().endswith(self.image_formats)]
         if cover_files:
             system_path =  os.path.join("/media", "covers", str(obj.name), cover_files[0])
             return "http://localhost:4004" +  system_path

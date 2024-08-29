@@ -14,13 +14,14 @@ const NewUser = () => {
         password: '',
         role: 'admin' // Default role value, change as needed
     });
-    const [error, setError] = useState('');
+    const [error, setError] = useState(null);  
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
     const handleSubmit = async (e) => {
+        setError(null); 
         e.preventDefault(); // Prevent the default form submission behavior
         try {
             const response = await fetch(`http://localhost:4004/auth/user`, {

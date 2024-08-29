@@ -7,6 +7,7 @@ const LoginPage = () => {
     const { loginUser, error, setError } = useContext(AuthContext); 
 
     const handleSubmit = (e) => {
+        setError(null); 
         e.preventDefault();
         loginUser(e);
     };

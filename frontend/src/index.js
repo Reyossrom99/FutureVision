@@ -6,7 +6,7 @@ import { CheckboxProvider } from './context/checkboxShowLabelContext';
 import { SplitProvider } from './context/selectSplitViewContext';
 import { CreateSplitProvider } from './context/createSplitsContext';
 import { CreateNewButtonProvider, CreateNewProjectProvider, CreateNewTrainProvider } from './context/createNewContext';
-import { DeleteDatasetProvider } from './context/deleteContext';
+import { DeleteDatasetProvider, DeleteProjectProvider } from './context/deleteContext';
 import { ModifyProvider } from './context/modifyContext';
 import { SaveDatasetProvider } from './context/saveContext';
 import { TypeProvider } from './context/typeContext';
@@ -22,6 +22,7 @@ root.render(
       <TypeProvider>	
            <SaveDatasetProvider>
       <ModifyProvider>
+        <DeleteProjectProvider>
         <DeleteDatasetProvider>
           <CreateNewButtonProvider>
             <CreateNewProjectProvider>
@@ -37,6 +38,7 @@ root.render(
             </CreateNewProjectProvider>
           </CreateNewButtonProvider>
         </DeleteDatasetProvider>
+        </DeleteProjectProvider>
       </ModifyProvider>
       </SaveDatasetProvider>
             </TypeProvider>

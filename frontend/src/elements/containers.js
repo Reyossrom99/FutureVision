@@ -65,6 +65,7 @@ display: flex;
 flex-direction: column;
 min-height: 100vh;
 `; 
+
 export const ContentContainerCenter = styled.div` 
 flex-grow: 1;
 padding-top: 40px; /* Altura de la barra superior */

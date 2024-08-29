@@ -11,6 +11,7 @@ import { PageTitle } from '../elements/title';
 import { ContentContainer, PageContainer } from '../elements/containers';
 import {CardContainerprojects, CardImage, CardTitle, CardLabel, CardDescription, CardLabels, CardGroup}from '../elements/card';
 import palette from '../palette';
+import { Message, Error } from '../elements/p'; 
 
 function Projects(){
     const [projects, setprojects] = useState([]); 
@@ -18,6 +19,7 @@ function Projects(){
     const { authTokens, logoutUser} = useContext(AuthContext);
     const [currentPage, setCurrentPage] = useState(1); 
     const [total_pages, setTotalPages] = useState(1); 
+    const [error, setError] = useState(null);  
 
     useEffect(() => {
                getprojects(currentPage); 
@@ -29,6 +31,7 @@ function Projects(){
      }, [currentPage, setOnCloseCallback]);
 
     const getprojects = async (page) => {
+        setError(null); 
         try {
             const response = await fetch(`http://localhost:4004/projects?page=${page}`, {
               method: 'GET',
@@ -38,12 +41,15 @@ function Projects(){
               }
             });
             if (response.ok) {
-              const data = await response.json(); 
-	      setprojects(data.projects);
-	      console.log(data.projects); 
-              setTotalPages(data.total_pages); 
-            } else if (response.status === 401) {
+                const data = await response.json(); 
+                setprojects(data.projects);
+                console.log(data.projects); 
+                setTotalPages(data.total_pages); 
+            } else if (response.status === 403) {
               logoutUser();
+            }else {
+                const data = await response.json(); 
+                setError(data.error); 
             }
           } catch (error) {
             console.error('Error fetching profile:', error);
@@ -53,46 +59,56 @@ function Projects(){
     setCurrentPage(newPage);
 
   }
-    return (
-<PageContainer>
-    <PageTitle> PROJECTS </PageTitle>
-    <ContentContainer>
-        <CardGroup>
-            {projects.length > 0 ? 
-                (projects.map(project => 
-                    (<Link to={`/project/${project.project_id}`} key={project.id}>
-                        <CardContainerprojects key={project.id}>
-                            <CardTitle>{project.name} </CardTitle>
-                            <CardLabels>
-                                {project.is_public ? (
-                                    <CardLabel style={{backgroundColor: palette.accent }}>Public</CardLabel>
-                                ) : (
-                                    <CardLabel style={{backgroundColor: palette.accent }}>Private</CardLabel>
-                                )}
-                                <CardLabel style={{backgroundColor: palette.secondary }}> {project.start_date} </CardLabel>
-                            </CardLabels>
-                        </CardContainerprojects>
-                    </Link>)
-                )
-            ) : (
-                <p> No projects available </p>
-            )}
-        </CardGroup>
-    </ContentContainer>
-    <Paginator>
-        <PaginatorButton onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
-            previous
-        </PaginatorButton>
-        <span>
-            page {currentPage} of {projects ? total_pages : 0}
-        </span>
-        <PaginatorButton onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === (projects ? total_pages : 0)}>
-            next
-        </PaginatorButton>
-    </Paginator>
-    <FormDialog isOpen={isDialogOpen} onRequestClose={handleCloseDialog}/>
-</PageContainer>
+  return (
+    <PageContainer>
 
-    );
+      {error && (
+        <Error style={{ color: 'red' }}>{error}</Error>
+      )}
+  
+     
+      {!error && (
+        <>
+          <PageTitle>PROJECTS</PageTitle>
+          <ContentContainer>
+            <CardGroup>
+              {projects.length > 0 ? (
+                projects.map(project => (
+                  <Link to={`/project/${project.project_id}`} key={project.project_id}>  {/* Cambiado de project.id a project.project_id */}
+                    <CardContainerprojects key={project.project_id}> {/* Cambiado de project.id a project.project_id */}
+                      <CardTitle>{project.name}</CardTitle>
+                      <CardLabels>
+                        {project.is_public ? (
+                          <CardLabel style={{ backgroundColor: palette.accent }}>Public</CardLabel>
+                        ) : (
+                          <CardLabel style={{ backgroundColor: palette.accent }}>Private</CardLabel>
+                        )}
+                        <CardLabel style={{ backgroundColor: palette.secondary }}>{project.start_date}</CardLabel>
+                      </CardLabels>
+                    </CardContainerprojects>
+                  </Link>
+                ))
+              ) : (
+                <p>No projects available</p>
+              )}
+            </CardGroup>
+          </ContentContainer>
+          <Paginator>
+            <PaginatorButton onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
+              previous
+            </PaginatorButton>
+            <span>
+              page {currentPage} of {projects ? total_pages : 0}
+            </span>
+            <PaginatorButton onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === (projects ? total_pages : 0)}>
+              next
+            </PaginatorButton>
+          </Paginator>
+          <FormDialog isOpen={isDialogOpen} onRequestClose={handleCloseDialog} />
+        </>
+      )}
+    </PageContainer>
+  );
+  
 }
 export default Projects; 

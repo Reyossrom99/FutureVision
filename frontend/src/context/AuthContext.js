@@ -48,6 +48,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     let logoutUser = async (e) => {
+        setError(null); 
         e.preventDefault();
         try {
             await fetch('http://localhost:4004/auth/token/blacklist/', {

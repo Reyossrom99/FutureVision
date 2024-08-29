@@ -9,3 +9,4 @@ export const PageTitle = styled.h2`
   transform: translate(-50%, -50%);
   margin-bottom: 20px;
 `;
+

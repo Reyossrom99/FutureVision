@@ -30,7 +30,7 @@ const ModifyDatasetDialog = ({ isOpen, onRequestClose, privacy, description, dat
             values.push(privacyModify === 'public') // 'privacy' es un booleano
         } 
         try {
-            const response = await fetch(`/datasets/${datasetId}`, {
+            const response = await fetch(`http://localhost:4004/datasets/${datasetId}`, {
                 method: 'PATCH', // Cambia 'POST' a 'PATCH'
                 headers: {
                     'Content-Type': 'application/json',

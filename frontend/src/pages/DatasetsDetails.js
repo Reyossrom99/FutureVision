@@ -19,7 +19,7 @@ import { useSaveDatasetContext } from '../context/saveContext';
 import { ImageContainer, StyledImage, ImageGallery} from '../elements/image';
 import { useLocation } from 'react-router-dom';
 import { useTypeContext } from '../context/typeContext';
-
+import {  Error } from '../elements/p';
 
 function DatasetsDetails() {
 
@@ -43,12 +43,13 @@ function DatasetsDetails() {
   const {isModifyDialogOpen, handleCloseModifyDialog} = useModifyContext();
   const {modify, setModify} = useModifyContext();
   const {privacy, setPrivacy} = useModifyContext();
- const {description, setDescription} = useModifyContext();
- const {isCreateSplitDialogOpen, handleCloseCreateSplitDialog, handleCreateSplitDialog} = useCreateSplitContext();
- const {confirmSaveDataset, saveConfirmationSaveDataset} = useSaveDatasetContext();
+  const {description, setDescription} = useModifyContext();
+  const {isCreateSplitDialogOpen, handleCloseCreateSplitDialog, handleCreateSplitDialog} = useCreateSplitContext();
+  const {confirmSaveDataset, saveConfirmationSaveDataset} = useSaveDatasetContext();
 
-const  {datasetName, setDatasetName} = useState("");
-const {setType} = useTypeContext();
+  const  {datasetName, setDatasetName} = useState("");
+  const {setType} = useTypeContext();
+  const [error, setError] = useState(null);  
 
    
   //dataset obtained from the last request 
@@ -59,6 +60,7 @@ const {setType} = useTypeContext();
 
   let last_request_split = "";
   const deleteTempFolder = async (datasetId) => {
+    setError(null); 
     let url = `http://localhost:4004/datasets/${datasetId}/tmp`;
     const response = await fetch(url, {
       method: 'DELETE',
@@ -74,12 +76,13 @@ const {setType} = useTypeContext();
     }
     else {
       if (data && data.error) {
-        console.error('Error deleting dataset:', data.error);
+        setError(data.error)
       }
     }
   };
 
   const deleteDataset = async (datasetId) => {
+    setError(null); 
     let url = `http://localhost:4004/datasets/${datasetId}`;
     const response = await fetch(url, {
       method: 'DELETE',
@@ -95,13 +98,14 @@ const {setType} = useTypeContext();
     }
     else {
       if (data && data.error) {
-        console.error('Error deleting dataset:', data.error);
+        setError(data.error)
         deleteConfirmation(); 
       }
     }
   };
 
   const saveDatasetChanges = async(datasetId, fields, values) => {
+    setError(null); 
     fields.length = 0
     values.length = 0
     fields.push('splits')
@@ -127,7 +131,7 @@ const {setType} = useTypeContext();
         navigate(`/datasets`);
       } else {
         const data = await response.json();
-        console.error('Error:', data);
+        setError(data.error)
         saveConfirmationSaveDataset();
       }
     }catch (error) {
@@ -137,44 +141,44 @@ const {setType} = useTypeContext();
 
   const getDataset = async (datasetId, shouldShowLabels, requestSplitView, page, last_request_split, setPrivacy, setDescription, setType) => {
       let currentPage = page;
-
+      setError(null); 
         //TODO CUANDO CAMBIE DE SPLIT VOLVER A LA PAGINA 1 -> TENER EN CUENTA EL CAMNIO DE SPLIT//TODO CUANDO CAMBIE DE SPLIT VOLVER A LA PAGINA 1 -> TENER EN CUENTA EL CAMNIO DE SPLIT
-	window.scrollTo(0, 0);
-	setIsLoading(true);
-       
-      try {
-        let url = `http://localhost:4004/datasets/${datasetId}?showLabels=${shouldShowLabels}&page=${currentPage}`;
+      window.scrollTo(0, 0);
+      setIsLoading(true);
+          
+          try {
+            let url = `http://localhost:4004/datasets/${datasetId}?showLabels=${shouldShowLabels}&page=${currentPage}`;
 
-	 if (requestSplitView !== "" ){
+      if (requestSplitView !== "" ){
 
-          url += `&request-split=${requestSplitView}`;
-	}
-        const response = await fetch(url, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: 'Bearer ' + String(authTokens.access),
-          },
-        });
-        if (response.ok) {
-          const data = await response.json();
-          setDataset(data);
-          setIsLoading(false);
-          setTotalPages(data.total_pages);
-          //for modify context dialog
-          setDescription(data.description);
-          setPrivacy(data.privacy);
-	 //set type in case of change	
-	  setType(data.type); 
-	  console.log('Dataset Type:', data.type);
-        } else if (response.status === 401) {
-          logoutUser();
-        }
-      } catch (error) {
-        console.error('Error fetching dataset:', error);
-        setIsLoading(false);
-	
+              url += `&request-split=${requestSplitView}`;
       }
+            const response = await fetch(url, {
+              method: 'GET',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: 'Bearer ' + String(authTokens.access),
+              },
+            });
+            if (response.ok) {
+              const data = await response.json();
+              setDataset(data);
+              setIsLoading(false);
+              setTotalPages(data.total_pages);
+              //for modify context dialog
+              setDescription(data.description);
+              setPrivacy(data.privacy);
+      //set type in case of change	
+        setType(data.type); 
+        console.log('Dataset Type:', data.type);
+            } else if (response.status === 401) {
+              logoutUser();
+            }
+          } catch (error) {
+            console.error('Error fetching dataset:', error);
+            setIsLoading(false);
+      
+          }
 
     };
 
@@ -224,42 +228,45 @@ const {setType} = useTypeContext();
 
   return (
     <PageContainer>
-
+      {/* Mostrar el mensaje de error si existe */}
+      {error && (
+        <Error style={{ color: 'red' }}>{error}</Error>
+      )}
+  
+      {/* Mostrar el spinner si se está cargando */}
       {isLoading ? (
-
         <ContentContainer>
-	<PageTitle className={styles.pageName}></PageTitle>
-	<SpinnerContainer>
-          <ClipLoader color="#7F5A83" loading={isLoading} size={35} />
-	  </SpinnerContainer>
+          <PageTitle className={styles.pageName}></PageTitle>
+          <SpinnerContainer>
+            <ClipLoader color="#7F5A83" loading={isLoading} size={35} />
+          </SpinnerContainer>
         </ContentContainer>
-
       ) : dataset && (
-	<>			
-	<PageTitle className={styles.pageName}>{dataset.name}</PageTitle>
-						
-        <ContentContainer>
-		<ImageGallery>
-                {dataset.images.map((imageUrl) => (
-		<ImageContainer key={imageUrl}>						
-                <StyledImage
-                  key={imageUrl}
-                  src={imageUrl}
-                  alt={imageUrl}
-                  className={`${styles.imageItem} ${expandedImage === imageUrl ? styles.expanded : ''}`}
-                  onClick={() => handleImageClick(imageUrl)}
-                />
-		</ImageContainer>
+        <>			
+          <PageTitle className={styles.pageName}>{dataset.name}</PageTitle>
+  
+          <ContentContainer>
+            <ImageGallery>
+              {dataset.images.map((imageUrl) => (
+                <ImageContainer key={imageUrl}>						
+                  <StyledImage
+                    src={imageUrl}
+                    alt={imageUrl}
+                    className={`${styles.imageItem} ${expandedImage === imageUrl ? styles.expanded : ''}`}
+                    onClick={() => handleImageClick(imageUrl)}
+                  />
+                </ImageContainer>
               ))}
-	      </ImageGallery>
-           
+            </ImageGallery>
+  
             {expandedImage && (
               <div className={styles.overlay} onClick={() => setExpandedImage(null)}>
                 <img src={expandedImage} alt={expandedImage} className={styles.expandedImage} />
               </div>
             )}
-        
-	 </ContentContainer>						
+  
+          </ContentContainer>
+  
           <Paginator>
             <PaginatorButton onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
               previous
@@ -271,15 +278,14 @@ const {setType} = useTypeContext();
               next
             </PaginatorButton>
           </Paginator>
-
-          <ModifyDatasetDialog isOpen={isModifyDialogOpen} onRequestClose={handleCloseModifyDialog} privacy={privacy} description={description} datasetId={id}/>
+  
+          <ModifyDatasetDialog isOpen={isModifyDialogOpen} onRequestClose={handleCloseModifyDialog} privacy={privacy} description={description} datasetId={id} />
           <CreateSplitsDialog isOpen={isCreateSplitDialogOpen} onRequestClose={handleCloseCreateSplitDialog} datasetId={id} />
-
-       
-	</>	
+        </>	
       )}
     </PageContainer>
   );
+  
 }
 
 export default DatasetsDetails;

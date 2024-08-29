@@ -20,6 +20,7 @@ from django.core.paginator import Paginator, EmptyPage
 import requests
 import shutil
 import tempfile
+from projects.utils import delete_training_folder
 
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s',
@@ -75,7 +76,7 @@ def projects(request):
 
             # Obtener la instancia del dataset
             try:
-                dataset_instance = Datasets.objects.get(id=dataset_id)
+                dataset_instance = Datasets.objects.get(dataset_id=dataset_id)
             except Datasets.DoesNotExist:
                 return Response({"error": "No dataset found in the system"}, status=400)
 
@@ -98,7 +99,8 @@ def projects(request):
 
             # Serializar y devolver la respuesta
             serializer = ProjectsSerializer(project_instance)
-            return Response(serializer.data, status=201)
+            return JsonResponse(serializer.data, status=status.HTTP_201_CREATED)
+
         else:
             return JsonResponse({'error': 'User is not authenticated.'}, status=status.HTTP_401_UNAUTHORIZED)
     else:
@@ -276,6 +278,9 @@ def notify(request):
             training.current_status = data.get('status')
 
             training.save()
+
+            #delete images from train folder
+            utils.delete_training_folder(training.data_folder)
           
             return JsonResponse({ 'message': f'Project {training_id} status updated to {status}'}, status=status.HTTP_200_OK)
 

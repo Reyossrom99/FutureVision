@@ -3,7 +3,7 @@ import { NavLink, useLocation, useParams } from 'react-router-dom';
 import { useCheckbox } from '../context/checkboxShowLabelContext';
 import { useSplitContext } from '../context/selectSplitViewContext';
 import { useCreateNewButtonContext, useCreateNewProjectContext, useCreateNewTrainContext } from '../context/createNewContext';
-import { useDeleteDatasetContext } from '../context/deleteContext';
+import { useDeleteDatasetContext, useDeleteProjectContext} from '../context/deleteContext';
 import { useModifyContext } from '../context/modifyContext';
 import AuthContext from '../context/AuthContext';
 import { navData } from '../lib/navData';
@@ -24,6 +24,7 @@ function TopNav() {
   const { handleNewProjectButtonClick } = useCreateNewProjectContext();
   const { handleNewTrainButtonClick } = useCreateNewTrainContext();
   const { handleDeleteButtonClick } = useDeleteDatasetContext();
+  const { handleDeleteProjectButtonClick } = useDeleteProjectContext();
   const [menuVisible, setMenuVisible] = useState(false);
   const {askForModify } = useModifyContext();
   const {handleCreateSplitDialog} = useCreateSplitContext(); 
@@ -36,9 +37,16 @@ function TopNav() {
   //delete dataset 
   const {askForConfirmation} = useDeleteDatasetContext();
 
+  const {askForConfirmationProject} = useDeleteProjectContext();
+
   const handleDeleteDataset = () => {
     askForConfirmation(true);
   }; 
+
+  const handleDeleteProject = () => {
+    askForConfirmationProject(true);
+  }; 
+
 
   const handleButtonClick = () => {
     handleNewButtonClick();
@@ -55,9 +63,6 @@ function TopNav() {
   };
   const handleCheckboxChange = () => {
     setShowLabels(!showLabels);
-  };
-  const handleDeleteProject = () => { 
-    handleDeleteButtonClick();
   };
   const handleModifyDataset = () => { 
     askForModify();
@@ -92,13 +97,17 @@ function TopNav() {
           }
         </TopNavItem>
 
-        <TopNavItem>
+        
           {location.pathname === '/datasets' && (
+            <>
+            <TopNavItem>
             <TopNavButton onClick={handleButtonClick}>
               new dataset
             </TopNavButton>
+            </TopNavItem>
+            </>
           )}
-        </TopNavItem>
+       
 
         {location.pathname.startsWith('/dataset/') && (
           <><TopNavItem>
@@ -145,25 +154,33 @@ function TopNav() {
             
             </>
         )}
-        <TopNavItem>
+        
         {location.pathname === '/projects' && (
-         
+          <>
+         <TopNavItem>
           <TopNavButton onClick={handleNewProject} >
             create new
           </TopNavButton>
-          
+          </TopNavItem>
+          </>
         )}
-        </TopNavItem>
+        
 
-        <TopNavItem>
         {location.pathname.startsWith('/project/') && (
-          
+          <>
+          <TopNavItem>
           <TopNavButton onClick={handleNewTrain}>
             train
           </TopNavButton>
-        
+          </TopNavItem>
+          <TopNavItem>
+          <TopNavButton onClick={handleDeleteProject}>
+            delete project
+          </TopNavButton>
+          </TopNavItem>
+        </>
         )}
-        </TopNavItem>
+       
      
         <LastItem>
         <SideNavButton onClick={logoutUser}>
