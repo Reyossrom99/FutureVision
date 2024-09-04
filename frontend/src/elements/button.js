@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled from 'styled-components'
 import palette from '../palette';
 
 export const Button = styled.button`

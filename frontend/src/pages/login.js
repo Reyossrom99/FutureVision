@@ -19,7 +19,7 @@ const LoginPage = () => {
                     <Title>Welcome back!</Title>
                     <Input type="text" name="username" placeholder="username" /> 
                     <Input type="password" name="password" placeholder="password" />
-                    <SubmitInput type="submit" value="login" /> 
+                    <SubmitInput type="submit" value="Login" /> 
                     <LinkForm to="/signup">Create a new account</LinkForm> 
                     {error && <ErrorMessage>{error}</ErrorMessage>}
                 </Form>

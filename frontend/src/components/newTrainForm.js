@@ -1,6 +1,5 @@
 import React, {useState, useEffect, useContext} from "react";
 import axios from 'axios'; 
-import styles from './newDatasetForm.module.css';
 import AuthContext from "../context/AuthContext";
 import { useNavigate } from 'react-router-dom';
 import {Form, Input, SubmitInput, Title, Label, Select, ButtonContainer, CustomModal, Checkbox} from '../elements/formSyles';

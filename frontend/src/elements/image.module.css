@@ -1,0 +1,29 @@
+
+  .overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.75); /* Fondo oscuro transparente */
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .expandedImage {
+    max-width: calc(100vw - 40px); /* Ancho máximo de la imagen, con margen de 20px en cada lado */
+    max-height: calc(100vh - 40px); /* Altura máxima de la imagen, con margen de 20px en la parte superior e inferior */
+    margin: 20px; /* Margen para que la imagen no toque los bordes de la pantalla */
+  }
+  
+
+.imageItem {
+  width: 100%; /* Ensure images take up 100% of the grid cell width */
+  height: auto; /* Maintain aspect ratio */
+  max-width: 100%; /* Prevent images from exceeding their natural size */
+  max-height: 200px; /* Limit the maximum height of images */
+  object-fit: cover; /* Ensure images cover the container without stretching */
+}
+

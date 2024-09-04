@@ -50,7 +50,7 @@ const SignupPage = () => {
 
                 <Input type="password" name="password" value={formData.password} onChange={handleChange} placeholder="password" />
 
-                <SubmitInput type="submit" value='signup' />
+                <SubmitInput type="submit" value='Sign up' />
                 <LinkForm to="/login">If you already have an account, log in.</LinkForm>
                 {error && <ErrorMessage>{error}</ErrorMessage>}
 

@@ -299,14 +299,14 @@ def dataset(request, dataset_id):
                     dataset.save()
                    
                 elif fields[i] == 'splits': 
-                    #check if changes have been made 
+                    
                     if dataset.format == "coco": 
                         if dataset.dataset_id not in coco_data_objects:
                             coco_data_objects[dataset.dataset_id] = CocoData(dataset.name, dataset.type, dataset.url)
                         coco_data = coco_data_objects[dataset.dataset_id]
                         check, err, train_imgs, val_imgs, test_imgs= coco_data.save_modifications()
                         if not check: 
-                            return JsonResponse({'error': err}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                            return JsonResponse({'error': err}, status=status.HTTP_400_BAD_REQUEST)
                         else: 
                             check, err = coco_data.delete_tmp()
                             if not check :
@@ -329,7 +329,7 @@ def dataset(request, dataset_id):
                         check, err, train_imgs, val_imgs, test_imgs= yolo_data.save_modifications()
                         
                         if not check: 
-                            return JsonResponse({'error': err}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                            return JsonResponse({'error': err}, status=status.HTTP_400_BAD_REQUEST)
                         
                         else: 
                             check, err = yolo_data.delete_tmp()
@@ -538,7 +538,6 @@ def modify_temporal_folder(request, dataset_id):
     global yolo_data_objects
     global coco_data_objects
     if request.method == "DELETE": 
-        logging.info("Borrando tmp")
         dataset = Datasets.objects.get(dataset_id=dataset_id)
         if dataset.format == "yolo": 
             if dataset.dataset_id not in yolo_data_objects: 
@@ -560,6 +559,7 @@ def modify_temporal_folder(request, dataset_id):
                 coco_data_objects[dataset.dataset_id] = CocoData(dataset.name, dataset.type, dataset.url)
             coco_data = coco_data_objects[dataset.dataset_id]
             check, err = coco_data.delete_tmp()
+            if coco_data.modify:
                 dataset.num_images_train = dataset.num_images_train + dataset.num_images_val + dataset.num_images_test
                 dataset.save()
             if not check: 

@@ -280,7 +280,7 @@ def notify(request):
             training.save()
 
             #delete images from train folder
-            utils.delete_training_folder(training.data_folder)
+            delete_training_folder(training.data_folder)
           
             return JsonResponse({ 'message': f'Project {training_id} status updated to {status}'}, status=status.HTTP_200_OK)
 

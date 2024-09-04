@@ -1,7 +1,6 @@
 import React, { useContext, useState } from "react";
 import Modal from 'react-modal';
 import axios, { HttpStatusCode } from 'axios';
-import styles from './newDatasetForm.module.css';
 import AuthContext from "../context/AuthContext";
 import { useNavigate } from 'react-router-dom';
 import {Form, Input, SubmitInput, Title, Label, Select, ButtonContainer, CustomModal} from '../elements/formSyles';
@@ -97,7 +96,7 @@ const CreateSplitsDialog = ({ isOpen, onRequestClose, datasetId}) => {
 		</Label>
                 <Input type="number" value={test} onChange={handleTestChange} min="0" max="100"/>
                 
-                <ButtonContainer class={styles.buttonContainer}>
+                <ButtonContainer>
                     <Button type="button" onClick={onRequestClose}>Close</Button>
                     <Button type="button" onClick={() => handleAccept()}>Accept</Button>
 

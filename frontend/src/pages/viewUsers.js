@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import AuthContext from '../context/AuthContext';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate} from 'react-router-dom';
 import { PageTitle } from '../elements/title';
 import {EditButton} from '../elements/button'; 
 import {StyledLink} from '../elements/link'; 
@@ -11,7 +11,7 @@ import GroupSelect from '../lib/groupSelect';
 const ViewUsers = () => {
   const [users, setUsers] = useState([]);
   const { authTokens, logoutUser } = useContext(AuthContext);
-
+  const navigate = useNavigate();
   useEffect(() => {
     fetchUsers();
   }, []);
@@ -55,8 +55,9 @@ const ViewUsers = () => {
         // Actualizar la lista de usuarios después de la eliminación
         const updatedUsers = users.filter(user => user.id !== userId);
         setUsers(updatedUsers);
-      } else {
-        // Manejar errores
+      } else if (response.status===401){
+        logoutUser();
+        navigate("/login"); 
       }
     } catch (error) {
       console.error('Error eliminando usuario:', error);
@@ -121,11 +122,11 @@ const ViewUsers = () => {
                     onChange={(event) => handleGroupChange(event, user.id)}
                   >
                     <option value="user">User</option>
-                    <option value="admin">Admin</option>
+                    <option value="admin">Administrator</option>
                   </Input>
                 </TableCell>
                 <TableCell>
-                  <EditButton onClick={() => confirmarEliminarUsuario(user.id)}>eliminar</EditButton>
+                  <EditButton onClick={() => confirmarEliminarUsuario(user.id)}>delete</EditButton>
                 </TableCell>
               </TableRow>
             ))

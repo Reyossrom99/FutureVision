@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useContext } from 'react';
 import axios, { HttpStatusCode } from 'axios';
 import { useParams , useNavigate} from 'react-router-dom';
-import styles from './datasets.module.css'
 import NewTrainForm from '../components/newTrainForm';
 import AuthContext from '../context/AuthContext';
 import {useCreateNewTrainContext } from '../context/createNewContext';
@@ -12,6 +11,7 @@ import {CardContainerTraining, CardImage, CardTitle, CardLabel, CardDescription,
 import palette from '../palette';
 import Paginator from '../elements/paginator';
 import { useDeleteProjectContext } from '../context/deleteContext';
+import { Message } from '../elements/p'; 
 
 function ProjectDetails() {
   const { id } = useParams();
@@ -191,7 +191,7 @@ function formatDate(dateString) {
 
   return (
     <PageContainer>
-    <PageTitle>projects</PageTitle>
+    <PageTitle>TRAININGS</PageTitle>
     <ContentContainer>
       <CardGroup>
         {trainings.length > 0 ? (
@@ -215,7 +215,7 @@ function formatDate(dateString) {
             </CardContainerTraining>
           ))
         ) : (
-          <p>This project has not been trained</p>
+          <Message>This project has not been trained</Message>
         )}
       </CardGroup>
     </ContentContainer>

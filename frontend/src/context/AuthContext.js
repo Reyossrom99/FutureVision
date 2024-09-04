@@ -113,7 +113,7 @@ export const AuthProvider = ({ children }) => {
         if (authTokens) {
             const intervalId = setInterval(() => {
                 updateToken();
-            }, 1000 * 60 * 4); // Actualiza el token cada 4 minutos
+            }, 1000 * 60 ); 
 
             return () => clearInterval(intervalId);
         }

@@ -1,7 +1,6 @@
 import React, {useEffect, useState, useContext} from 'react'; 
 import axios from 'axios'; 
-import styles from './projects.module.css'
-import { Link, Route, BrowserRouter as Router, Switch } from 'react-router-dom';
+import { Link, Route, BrowserRouter as Router, Switch, useNavigate } from 'react-router-dom';
 import { useCreateNewProjectContext } from '../context/createNewContext';
 import FormDialog from '../components/newProjectForm';
 import AuthContext from '../context/AuthContext';
@@ -20,6 +19,8 @@ function Projects(){
     const [currentPage, setCurrentPage] = useState(1); 
     const [total_pages, setTotalPages] = useState(1); 
     const [error, setError] = useState(null);  
+    const navigate = useNavigate();
+
 
     useEffect(() => {
                getprojects(currentPage); 
@@ -45,8 +46,9 @@ function Projects(){
                 setprojects(data.projects);
                 console.log(data.projects); 
                 setTotalPages(data.total_pages); 
-            } else if (response.status === 403) {
+            } else if (response.status === 401) {
               logoutUser();
+              navigate("/login"); 
             }else {
                 const data = await response.json(); 
                 setError(data.error); 
@@ -89,7 +91,7 @@ function Projects(){
                   </Link>
                 ))
               ) : (
-                <p>No projects available</p>
+                <Message>No projects available</Message>
               )}
             </CardGroup>
           </ContentContainer>

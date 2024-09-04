@@ -1,8 +1,6 @@
 import React, { useEffect, useState, useContext } from 'react';
-import axios from 'axios';
 import FormDialog from '../components/newDatasetForm';
-import styles from './datasets.module.css'
-import { Link, Route, BrowserRouter as Router, Switch } from 'react-router-dom';
+import { Link, Route, BrowserRouter as Router, Switch, useNavigate } from 'react-router-dom';
 import { useCreateNewButtonContext } from '../context/createNewContext';
 import Paginator from '../elements/paginator';
 import AuthContext from '../context/AuthContext';
@@ -24,6 +22,7 @@ function Datasets() {
   const [total_pages, setTotalPages] = useState(1);
   const {setType} = useTypeContext();
   const [error, setError] = useState(null);  
+  const navigate = useNavigate();
 
   useEffect(() => {
     getDatasets(currentPage);
@@ -51,8 +50,9 @@ function Datasets() {
         setTotalPages(data.total_pages);
         window.scrollTo(0, 0);
         setType(data.type); 
-      } else if (response.status === 403) {
+      } else if (response.status === 401) {
         logoutUser();
+        navigate("/login"); 
       }else {
         const data = await response.json();
         setError(data.error)
@@ -83,13 +83,13 @@ function Datasets() {
                       to={{ 
                         pathname: `/dataset/${dataset.dataset_id}`
                       }} 
-                      key={dataset.dataset_id}  // Cambiado de dataset.id a dataset.dataset_id
+                      key={dataset.dataset_id} 
+                      style={{textDecoration: 'none'}} // Cambiado de dataset.id a dataset.dataset_id
                     >
                       <CardContainer key={dataset.dataset_id}>  {/* Cambiado de dataset.id a dataset.dataset_id */}
                         <CardImage
                           src={dataset.cover_url}
                           alt={dataset.name}
-                          className={styles.datasetImage}
                         />
                         <div>
                           <CardTitle>{dataset.name}</CardTitle>

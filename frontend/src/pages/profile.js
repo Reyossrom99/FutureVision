@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import AuthContext from '../context/AuthContext';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate} from 'react-router-dom';
 import { PageTitle } from '../elements/title';
 import {EditButton} from '../elements/button'; 
 import {StyledLink} from '../elements/link'; 
@@ -15,6 +15,7 @@ const Profile = () => {
     const [isEditingPassword, setIsEditingPassword] = useState(false);
     const [newValue, setNewValue] = useState('');
     const [error, setError] = useState('');
+    const navigate = useNavigate();
 
     useEffect(() => {
         getProfile();
@@ -75,7 +76,10 @@ const Profile = () => {
                 setIsEditingEmail(false);
                 setIsEditingPassword(false);
                 setError('');
-            } else {
+            } else if (response.status === 401){
+              logoutUser();
+              navigate("/login"); 
+            }else {
                 const data = await response.json();
                 setError(data.error);
             }
@@ -170,8 +174,8 @@ const Profile = () => {
             </TableRow>
 
             <TableRow>
-              <TableCell>Rol:</TableCell>
-              <TableCell>{profile.grupo}</TableCell>
+              <TableCell>Group:</TableCell>
+              <TableCell>{profile.grupo === "admin" ? "Administrator" : profile.grupo}</TableCell>
             </TableRow>
           </TableBody>
         </StyledTable>

@@ -1,7 +1,6 @@
 import React, { useContext, useState } from "react";
 import Modal from 'react-modal';
 import axios, { HttpStatusCode } from 'axios';
-import styles from './newDatasetForm.module.css';
 import AuthContext from "../context/AuthContext";
 import { useNavigate } from 'react-router-dom';
 import {Form, Input, SubmitInput, ErrorMessage, LinkForm, Title, Label, CustomModal, Select, ButtonContainer} from '../elements/formSyles';
@@ -69,7 +68,7 @@ const ModifyDatasetDialog = ({ isOpen, onRequestClose, privacy, description, dat
             contentLabel="Form Modal"
                    >
 
-            <Form classname={styles.formElements}>
+            <Form>
 		<Title>Modify Dataset</Title>
                 <Label htmlFor="description" >Description</Label>       
 		<Input type="text" name="description" value={setDescription} onChange={(e) => setDescriptionModify(e.target.value)} />

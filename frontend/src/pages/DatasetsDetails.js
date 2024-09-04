@@ -4,7 +4,7 @@ import { useCheckbox } from '../context/checkboxShowLabelContext';
 import { useSplitContext } from '../context/selectSplitViewContext';
 import { useCreateSplitContext } from '../context/createSplitsContext';
 import { useDeleteDatasetContext } from '../context/deleteContext';
-import styles from './datasets.module.css';
+import styles from '../elements/image.module.css';
 import AuthContext from '../context/AuthContext';
 import { PaginatorButton } from '../elements/button';
 import { PageTitle } from '../elements/title';
@@ -123,7 +123,7 @@ function DatasetsDetails() {
           values: values,
         }),
       });
-	setIsLoading(true);
+	    setIsLoading(true);
       if (response.ok) {
         fields.length = 0
         values.length = 0
@@ -169,10 +169,11 @@ function DatasetsDetails() {
               setDescription(data.description);
               setPrivacy(data.privacy);
       //set type in case of change	
-        setType(data.type); 
-        console.log('Dataset Type:', data.type);
+              setType(data.type); 
+              console.log('Dataset Type:', data.type);
             } else if (response.status === 401) {
               logoutUser();
+              navigate("/login"); 
             }
           } catch (error) {
             console.error('Error fetching dataset:', error);
