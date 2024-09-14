@@ -183,8 +183,8 @@ const Profile = () => {
       <BottomLinkContainer>
         {profile.grupo === 'admin' && (
           <>
-            <StyledLink to="/user/add">Create new user</StyledLink>
-            <StyledLink to="/users">View all users</StyledLink>
+            <StyledLink to="/user/add" style={{textDecoration: 'none'}}>Create new user</StyledLink>
+            <StyledLink to="/users" style={{textDecoration: 'none'}}>View all users</StyledLink>
           </>
         )}
       </BottomLinkContainer>

@@ -1,10 +1,10 @@
 import React, { useContext, useState } from "react";
-import Modal from 'react-modal';
-import axios, { HttpStatusCode } from 'axios';
+import  { HttpStatusCode } from 'axios';
 import AuthContext from "../context/AuthContext";
 import { useNavigate } from 'react-router-dom';
-import {Form, Input, SubmitInput, ErrorMessage, LinkForm, Title, Label, CustomModal, Select, ButtonContainer} from '../elements/formSyles';
+import {Form, Input, Title, Label, CustomModal, Select, ButtonContainer} from '../elements/formSyles';
 import {Button} from '../elements/button';
+import { Error } from '../elements/p';
 
 const ModifyDatasetDialog = ({ isOpen, onRequestClose, privacy, description, datasetId}) => {
 
@@ -14,8 +14,10 @@ const ModifyDatasetDialog = ({ isOpen, onRequestClose, privacy, description, dat
     const values = []
     const authContext = useContext(AuthContext);
     const navigate = useNavigate();
+    const [error, setError] = useState(null); 
 
     const handleAccept = async () => {
+        setError(null); 
         fields.length = 0
         values.length = 0
         if (description !== setDescription) {
@@ -26,11 +28,11 @@ const ModifyDatasetDialog = ({ isOpen, onRequestClose, privacy, description, dat
         if (privacy !== privacyModify) {
            
             fields.push('privacy')
-            values.push(privacyModify === 'public') // 'privacy' es un booleano
+            values.push(privacyModify === 'public') 
         } 
         try {
             const response = await fetch(`http://localhost:4004/datasets/${datasetId}`, {
-                method: 'PATCH', // Cambia 'POST' a 'PATCH'
+                method: 'PATCH', 
                 headers: {
                     'Content-Type': 'application/json',
                     // FormData establece el encabezado 'Content-Type' a 'multipart/form-data' automáticamente
@@ -50,10 +52,10 @@ const ModifyDatasetDialog = ({ isOpen, onRequestClose, privacy, description, dat
             } else {
                
                 const data = await response.json();
-                console.log('Error:', data);
+                setError(data.error); 
             }
         } catch (error) {
-            console.log('Error creating dataset:', error);
+            setError(error); 
         }
     };
 
@@ -84,6 +86,13 @@ const ModifyDatasetDialog = ({ isOpen, onRequestClose, privacy, description, dat
 
                 </ButtonContainer>
             </Form>
+            <div>
+            {error ? (
+                            <Error style={{ color: 'red' }}>{error}</Error> 
+
+                            ) : <div><p></p></div>
+                        }
+            </div>
         </CustomModal>
     );
 };

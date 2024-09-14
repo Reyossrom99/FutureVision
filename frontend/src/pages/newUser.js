@@ -65,7 +65,7 @@ const NewUser = () => {
 
                 <SubmitInput type="submit" value='create user' />
                 {error && <ErrorMessage>{error}</ErrorMessage>}
-		<StyledLink to="/user"> Return </StyledLink>
+		<StyledLink to="/user" style={{textDecoration: 'none'}}> Return </StyledLink>
             </Form>
         </NewUserContainer>
     );

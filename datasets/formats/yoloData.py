@@ -452,7 +452,7 @@ class YoloData:
         if train_number + val_number + test_number != num_images: 
             return False, "The number of images in the splits is not equal to the total number of images"
         
-        print(self.file_list)
+       
         self.modify_splits["train"] = random.sample([x for x in self.file_list if x.lower().endswith(self.image_formats)], train_number)
         self.modify_splits["val"] = random.sample([x for x in self.file_list if x not in self.modify_splits["train"] and x.lower().endswith(self.image_formats)], val_number)
         self.modify_splits["test"] = [x for x in self.file_list if x not in self.modify_splits["train"] and x not in self.modify_splits["val"] and x.lower().endswith(self.image_formats)]

@@ -78,11 +78,11 @@ def projects(request):
             try:
                 dataset_instance = Datasets.objects.get(dataset_id=dataset_id)
             except Datasets.DoesNotExist:
-                return Response({"error": "No dataset found in the system"}, status=400)
+                return JsonResponse({"error": "No dataset found in the system"}, status=status.HTTP_404_NOT_FOUND)
 
             # Verificar si el dataset es privado
             if not dataset_instance.is_public and data.get('is_public', False):
-                return Response({"error": "Cannot create a public proyect with a private dataset"}, status=400)
+                return JsonResponse({"error": "Cannot create a public proyect with a private dataset"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
             # Crear la instancia del proyecto
             project_instance = Projects(
@@ -176,10 +176,11 @@ def project_queue(request, project_id):
         
        
         training.full_clean()  # Validar el modelo
-        training.save() 
+        
         data_file, err = create_data_file(project.dataset.dataset_id, str(training.training_id))
         if err is not None: 
             return JsonResponse({'error': 'Error creating data file'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            
         print("created data file") 
         training.data = data_file
         print("id", training.training_id)

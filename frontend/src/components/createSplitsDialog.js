@@ -7,7 +7,7 @@ import {Form, Input, SubmitInput, Title, Label, Select, ButtonContainer, CustomM
 import {Button} from '../elements/button'; 
 import {useCreateSplitContext} from '../context/createSplitsContext';
 import {useTypeContext} from '../context/typeContext';
-
+import { Error } from '../elements/p';
 
 const CreateSplitsDialog = ({ isOpen, onRequestClose, datasetId}) => {
 
@@ -16,12 +16,12 @@ const CreateSplitsDialog = ({ isOpen, onRequestClose, datasetId}) => {
     const [test, setTest] = useState(10);
     const {setReloadDataset} = useCreateSplitContext();
     const {setType} = useTypeContext();
-
+    const [error, setError] = useState(null);  
     const authContext = useContext(AuthContext);
     const navigate = useNavigate();
 
     const handleAccept = async () => {
-        
+      
         if (train + validation + test !== 100) {
             alert("The sum of the splits must be 100");
             return;
@@ -44,17 +44,17 @@ const CreateSplitsDialog = ({ isOpen, onRequestClose, datasetId}) => {
     
             if (response.status == HttpStatusCode.Ok) {
                 onRequestClose();
-		//navigate(`/dataset/${datasetId}`)
-		setReloadDataset(true);
-		setType("splits");
-                            
+                //navigate(`/dataset/${datasetId}`)
+                setReloadDataset(true);
+                setType("splits");
+                setError(null);      
             } else {
                
                 const data = await response.json();
-                console.log('Error:', data);
+                setError(data.error)
             }
         } catch (error) {
-            console.log('Error creating dataset:', error);
+            setError(error); 
         }
     };
 
@@ -101,7 +101,15 @@ const CreateSplitsDialog = ({ isOpen, onRequestClose, datasetId}) => {
                     <Button type="button" onClick={() => handleAccept()}>Accept</Button>
 
                 </ButtonContainer>
+                <div>
+            {error ? (
+                            <Error style={{ color: 'red' }}>{error}</Error> 
+
+                            ) : <div><p></p></div>
+                        }
+            </div>
             </Form>
+            
         </CustomModal>
     );
 };

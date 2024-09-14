@@ -32,17 +32,14 @@ export const AuthProvider = ({ children }) => {
                 setUser(jwtDecode(data.access));
                 navigate('/datasets');
             } else {
-                // Si hay un error en la respuesta, manejar el JSON devuelto por el backend
-                // Verificar si el JSON contiene la clave 'error' y mostrar su valor en caso afirmativo
                 if (data && data.error) {
                     setError(data.error); 
                 } else {
-                    // Si no hay una clave 'error' en el JSON, mostrar un mensaje genérico
+
                     setError('Error login in. Please try again.'); 
                 }
             }
         } catch (error) {
-            // Manejar errores de red u otros errores inesperados
             setError('Network error occurred.'); 
         }
     };

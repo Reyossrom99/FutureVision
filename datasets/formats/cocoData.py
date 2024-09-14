@@ -1,4 +1,3 @@
-
 import json
 import math
 import os
@@ -10,6 +9,7 @@ from django.conf import settings
 import cv2 as cv 
 import pycocotools.coco as coco
 import yaml
+import logging
 
 class CocoData:
     image_formats = (
@@ -45,7 +45,7 @@ class CocoData:
         self.category_colors = None
         #modifications 
         self.modify = False
-        self.modify_spltis = {"train": [], "val": [], "test": []}
+        self.modify_splits = {"train": [], "val": [], "test": []}
         self.summary = None
         #is there are test labels
         self.has_test = True
@@ -314,6 +314,7 @@ class CocoData:
         Creates temporal splits for the dataset
     """
     def create_splits(self, train:int, val:int, test:int, num_images:int=0): 
+        logging.info("aqui")
         if self.modify == True: 
             return False, "The dataset has already been modified", 0, 0, 0
         
@@ -326,7 +327,7 @@ class CocoData:
             return False, "The number of images in the splits is not equal to the total number of images"
         
         self.modify_splits["train"] = random.sample([x for x in self.file_list if x.lower().endswith(self.image_formats)], train)
-        self.modify_spltis["val"] = random.sample([x for x in self.file_list if x not in self.modify_splits["train"] and x.lower().endswith(self.image_formats)], val)
+        self.modify_splits["val"] = random.sample([x for x in self.file_list if x not in self.modify_splits["train"] and x.lower().endswith(self.image_formats)], val)
         self.modify_splits["test"] = [x for x in self.file_list if x not in self.modify_splits["train"] and x not in self.modify_splits["val"] and x.lower().endswith(self.image_formats)]
 
         self.modify = True
@@ -520,7 +521,7 @@ class CocoData:
         shutil.rmtree(os.path.join(self.tmp_dir, self.zip_name, "test"))
         
         #delete the modifications
-        self.modify_spltis = {"train": [], "val": [], "test": []}
+        self.modify_splits = {"train": [], "val": [], "test": []}
         self.modify = False
 
         

@@ -1,10 +1,9 @@
-import React, {useState, useEffect, useContext} from "react";
-import axios from 'axios'; 
+import React, {useState, useContext} from "react";
 import AuthContext from "../context/AuthContext";
 import { useNavigate } from 'react-router-dom';
-import {Form, Input, SubmitInput, Title, Label, Select, ButtonContainer, CustomModal, Checkbox} from '../elements/formSyles';
+import {Form, Input,  Title, Label, Select, ButtonContainer, CustomModal, Checkbox} from '../elements/formSyles';
 import {Button} from '../elements/button';
-
+import { Error } from '../elements/p';
 
 const NewTrainForm = ({isOpen, onRequestClose, projectId}) => {
     const navigate = useNavigate();
@@ -16,12 +15,13 @@ const NewTrainForm = ({isOpen, onRequestClose, projectId}) => {
     const [batch, setBatch] = useState(16); 
     const [workers, setWorkers] = useState(8); 
     const [cfg, setCfg] = useState("yolov7"); 
-  
+    const [error, setError] = useState(null);  
     
     const { authTokens, logoutUser } = useContext(AuthContext);
   
 
     const handleAccept = async () => {
+        setError(null); 
         const requestData = {
            imgSizeTrain: imgSizeTrain, 
 	   imgSizeTest: imgSizeTest,
@@ -48,16 +48,16 @@ const NewTrainForm = ({isOpen, onRequestClose, projectId}) => {
                 navigate(`/project/${projectId}`);
             } else {
                 const data = await response.json();
-                console.log('Error:', data); // Manejar el error si es necesario
+                setError(data.error)
             }
         } catch(error) {
-            console.error('Error creating project:', error);
+            setError(error)
+
         }
     };
 
     const handleNoTestChange = (e) => {
 	if (e.target.value === "false"){
- console.log('Error:', "false"); 
 		setNoTest(false); 
 	}
 	else {
@@ -121,6 +121,13 @@ const NewTrainForm = ({isOpen, onRequestClose, projectId}) => {
             <Button type="button" onClick={onRequestClose}>Close</Button>
             <Button type="button" onClick={() => handleAccept()}>Accept</Button>
             </ButtonContainer>
+            <div>
+            {error ? (
+                            <Error style={{ color: 'red' }}>{error}</Error> 
+
+                            ) : <div><p></p></div>
+                        }
+            </div>
             </Form>
         </CustomModal>
     ); 

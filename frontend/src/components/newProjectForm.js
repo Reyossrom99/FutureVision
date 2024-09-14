@@ -5,7 +5,7 @@ import AuthContext from "../context/AuthContext";
 import { useNavigate } from 'react-router-dom';
 import {Form, Input, SubmitInput, Title, Label, Select, ButtonContainer, CustomModal} from '../elements/formSyles';
 import {Button} from '../elements/button';
-
+import { Error } from '../elements/p';
 
 const FormDialog = ({isOpen, onRequestClose}) => {
     const navigate = useNavigate();
@@ -16,7 +16,7 @@ const FormDialog = ({isOpen, onRequestClose}) => {
     const [datasets, setDatasets] = useState([]);
     const [SelectDataset, setSelectDataset] = useState(null);
     const [privacy, setSelectPrivacy] = useState("public"); 
-
+    const [error, setError] = useState(null);  
     
     const { authTokens, logoutUser } = useContext(AuthContext);
     //request fro the avariable datasets to the backend
@@ -39,10 +39,11 @@ const FormDialog = ({isOpen, onRequestClose}) => {
         logoutUser();
       }
     } catch (error) {
-      console.error('Error fetching profile:', error);
+        setError(error); 
     }
   };
     const handleAccept = async () => {
+        setError(null); 
         const requestData = {
             name: name,
             description: description,
@@ -66,10 +67,10 @@ const FormDialog = ({isOpen, onRequestClose}) => {
                 navigate('/projects');
             } else {
                 const data = await response.json();
-                console.log('Error:', data); // Manejar el error si es necesario
+                setError(data.error); 
             }
         } catch(error) {
-            console.error('Error creating project:', error);
+           setError(error);
         }
     };
 
@@ -126,6 +127,13 @@ const FormDialog = ({isOpen, onRequestClose}) => {
             <Button type="button" onClick={() => handleAccept()}>Accept</Button>
             </ButtonContainer>
             </Form>
+            <div>
+            {error ? (
+                            <Error style={{ color: 'red' }}>{error}</Error> 
+
+                            ) : <div><p></p></div>
+                        }
+            </div>
         </CustomModal>
     ); 
 };

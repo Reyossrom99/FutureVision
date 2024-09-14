@@ -1,26 +1,27 @@
 import React, { useContext, useState } from "react";
-import Modal from 'react-modal';
-import axios, { HttpStatusCode } from 'axios';
+import { HttpStatusCode } from 'axios';
 import AuthContext from "../context/AuthContext";
 import { useNavigate } from 'react-router-dom';
 import {Form, Input, SubmitInput, Title, Label, Select, ButtonContainer, CustomModal} from '../elements/formSyles';
 import {Button} from '../elements/button';
+import { Error } from '../elements/p';
 
 const FormDialog = ({ isOpen, onRequestClose }) => {
     const navigate = useNavigate();
 
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
-    // const [cover, setCover] = useState(); 
-    const [dir, setDir] = useState(); //set the url directory of the dataset
+    const [dir, setDir] = useState(); 
     const [type, setType] = useState("splits");
     const [format, setFormat] = useState("yolo");
     const [privacy, setPrivacy] = useState("private");
     const [isLoaded, setIsLoaded] = useState(true);
+    const [error, setError] = useState(null);  
 
     const authContext = useContext(AuthContext);
 
     const handleAccept = async () => {
+        setError(null); 
         setIsLoaded(false);
         const uploadData = new FormData();
         uploadData.append('name', name);
@@ -34,8 +35,6 @@ const FormDialog = ({ isOpen, onRequestClose }) => {
             const response = await fetch('http://localhost:4004/datasets/', {
                 method: 'POST',
                 headers: {
-                    // No establecer 'Content-Type': 'application/json' aquí
-                    // FormData establece el encabezado 'Content-Type' a 'multipart/form-data' automáticamente
                     'Authorization': 'Bearer ' + String(authContext.authTokens.access)
                 },
                 body: uploadData
@@ -47,20 +46,17 @@ const FormDialog = ({ isOpen, onRequestClose }) => {
             } else {
                 setIsLoaded(true);
                 const data = await response.json();
-                console.log('Error:', data);
+                setError(data.error)
             }
         } catch (error) {
             setIsLoaded(true);
-            console.log('Error creating dataset:', error);
+            setError(error)
         }
     };
 
     const handleDirectoryInput = (e) => {
         const directoryUrl = e.target.files[0];
         if (directoryUrl) {
-            console.log(directoryUrl);
-            //set the cover
-            //DEBUG
             setDir(directoryUrl);
 
         }
@@ -91,42 +87,52 @@ const FormDialog = ({ isOpen, onRequestClose }) => {
             <Form >
                 <Title> Create new dataset </Title> 
 
-		<Label htmlFor="name" >Name</Label>               
-		<Input type="text" name="name" value={name} onChange={(e) => setName(e.target.value)} />
+                <Label htmlFor="name" >Name</Label>               
+                <Input type="text" name="name" value={name} onChange={(e) => setName(e.target.value)} />
 
                 <Label htmlFor="description" >Description</Label> 
-		<Input type="text" name="description" value={description} onChange={(e) => setDescription(e.target.value)} />
 
-                <Label htmlFor='type' >Select the type of the dataset</Label>
-                <Select htmlFor='type-select'  onChange={handleTypeChange}>
-                    <option value="splits"> splits created</option>
-                    <option value="no-splits"> no splits</option>
-                </Select> 
+                <Input type="text" name="description" value={description} onChange={(e) => setDescription(e.target.value)} />
 
-                <Label htmlFor="format">Select the format of the dataset</Label>
-                <Select htmlFor="format-select" onChange={handleFormatChange}>
-                    <option value="yolo"> Yolo </option>
-                    <option value="coco"> CoCo</option>
-                </Select>
+                        <Label htmlFor='type' >Select the type of the dataset</Label>
+                        <Select htmlFor='type-select'  onChange={handleTypeChange}>
+                            <option value="splits"> splits created</option>
+                            <option value="no-splits"> no splits</option>
+                        </Select> 
 
-                <Label htmlFor="privacy" >Select how you want to share the dataset</Label>
-                <Select htmlFor="privacy-select"  onChange={handlePrivacyChange}>
-                    <option value="private"> Private </option>
-                    <option value="public"> Public</option>
-                </Select>
+                        <Label htmlFor="format">Select the format of the dataset</Label>
+                        <Select htmlFor="format-select" onChange={handleFormatChange}>
+                            <option value="yolo"> Yolo </option>
+                            <option value="coco"> CoCo</option>
+                        </Select>
 
-                <Label htmlFor="dir">Select the dataset directory</Label> 
-		<Input type="file" name="dir" accept=".zip" onChange={handleDirectoryInput} />
+                        <Label htmlFor="privacy" >Select how you want to share the dataset</Label>
+                        <Select htmlFor="privacy-select"  onChange={handlePrivacyChange}>
+                            <option value="private"> Private </option>
+                            <option value="public"> Public</option>
+                        </Select>
 
-                {isLoaded ? (
-                    <ButtonContainer>
-                        <Button type="button" onClick={onRequestClose}>Close</Button>
-                        <Button type="button" onClick={() => handleAccept()}>Accept</Button>
-			</ButtonContainer>
+                        <Label htmlFor="dir">Select the dataset directory</Label> 
+                <Input type="file" name="dir" accept=".zip" onChange={handleDirectoryInput} />
+                        {isLoaded ? (
+                            <ButtonContainer>
+                                <Button type="button" onClick={onRequestClose}>Close</Button>
+                                <Button type="button" onClick={() => handleAccept()}>Accept</Button>
+                    </ButtonContainer>
 
-                    ) : <div><p>Loading data</p></div>
-                }
+                            ) : <div><p>Loading data</p></div>
+                        }
+
+
+                        
             </Form>
+            <div>
+            {error ? (
+                            <Error style={{ color: 'red' }}>{error}</Error> 
+
+                            ) : <div><p></p></div>
+                        }
+            </div>
         </CustomModal>
     );
 };

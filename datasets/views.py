@@ -232,7 +232,7 @@ def dataset(request, dataset_id):
 
     elif request.method == "DELETE":
     
-        #borrar el dataset de la base de datos 
+        
         dataset = Datasets.objects.get(dataset_id=dataset_id)
         if dataset.user != request.user and dataset.is_public: 
             return JsonResponse({'error': 'Cannot delete a public dataset if does not belong to you'}, status=status.HTTP_401_UNAUTHORIZED)
@@ -248,7 +248,7 @@ def dataset(request, dataset_id):
 
             if not check :
                     return JsonResponse({'error': err}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-            #borrar el dataset de la base de datos
+            
            
             del yolo_data_objects[dataset.dataset_id]
 
@@ -299,29 +299,8 @@ def dataset(request, dataset_id):
                     dataset.save()
                    
                 elif fields[i] == 'splits': 
-                    
-                    if dataset.format == "coco": 
-                        if dataset.dataset_id not in coco_data_objects:
-                            coco_data_objects[dataset.dataset_id] = CocoData(dataset.name, dataset.type, dataset.url)
-                        coco_data = coco_data_objects[dataset.dataset_id]
-                        check, err, train_imgs, val_imgs, test_imgs= coco_data.save_modifications()
-                        if not check: 
-                            return JsonResponse({'error': err}, status=status.HTTP_400_BAD_REQUEST)
-                        else: 
-                            check, err = coco_data.delete_tmp()
-                            if not check :
-                                return JsonResponse({'error': err}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-                            #delete from the dictionary
-                            del coco_data_objects[dataset.dataset_id]
-                            #change status in database 
-                            dataset.type = "splits"
-                            dataset.num_images_train = train_imgs
-                            dataset.num_images_val = val_imgs
-                            dataset.num_images_test = test_imgs
-                            dataset.save()
-                            return JsonResponse({'message': 'Dataset updated'}, status=status.HTTP_200_OK)
-                        
-                    elif dataset.format == "yolo":
+
+                    if dataset.format == "yolo":
                         if dataset.dataset_id not in yolo_data_objects: 
                             yolo_data_objects[dataset.dataset_id] = YoloData(dataset.name, dataset.type, dataset.url)
                         yolo_data = yolo_data_objects[dataset.dataset_id]
@@ -376,13 +355,11 @@ def split_dataset(request, dataset_id):
     global yolo_data_objects
     global coco_data_objects
     if request.method == "PATCH":
-        print("method patch")
         try:
             dataset = Datasets.objects.get(dataset_id=dataset_id)
             if dataset.type == 'splits':
-                return JsonResponse({'error': 'Dataset is not splittable'}, status=status.HTTP_400_BAD_REQUEST)
+                return JsonResponse({'error': 'Dataset already has splits'}, status=status.HTTP_400_BAD_REQUEST)
             elif dataset.type == 'no-splits':
-                print("no splits")
                 #get the values form the post request 
                 train = request.data.get('trainNumber', 70)
                 val = request.data.get('valNumber', 20)
@@ -407,27 +384,13 @@ def split_dataset(request, dataset_id):
                     dataset.num_images_test = test_num
                     dataset.save()
                     return JsonResponse({'message': 'Dataset splitted'}, status=status.HTTP_200_OK)
-
-                elif dataset.format == "coco":
-                    if dataset.dataset_id not in coco_data_objects:
-                        coco_data_objects[dataset.dataset_id] = CocoData(dataset.name, dataset.type, dataset.url)
-                    coco_data = coco_data_objects[dataset.dataset_id]
-                    #split the dataset
-                    check, err, train_num, val_num, test_num = coco_data.create_splits(train, val, test)
-                    if not check: 
-                        return JsonResponse({'error': err}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-                    dataset.num_images_train = train
-                    dataset.num_images_val = val
-                    dataset.num_images_test = test
-                    dataset.save()
-                    return JsonResponse({'message': 'Dataset splitted'}, status=status.HTTP_200_OK)
                 else: 
-                    return JsonResponse({'error': 'Invalid dataset format'}, status=status.HTTP_400_BAD_REQUEST)
+                    return JsonResponse({'error': 'Cannot split dataset in this format'}, status=status.HTTP_400_BAD_REQUEST)
 
                 return JsonResponse({'message': 'Dataset splitted'}, status=status.HTTP_200_OK)
         except Exception as e:
-            print("error", e)
-            return JsonResponse({'error': 'Cannot split dataset'}, status=status.HTTP_404_NOT_FOUND)
+            logging.info(e)
+            return JsonResponse({'error': e}, status=status.HTTP_404_NOT_FOUND)
 
     elif request.method == "DELETE": 
         dataset = Datasets.objects.get(dataset_id=dataset_id)
@@ -546,6 +509,8 @@ def modify_temporal_folder(request, dataset_id):
             check, err = yolo_data.delete_tmp()
             if yolo_data.modify: 
                 dataset.num_images_train = dataset.num_images_train + dataset.num_images_val + dataset.num_images_test
+                dataset.num_images_val = 0
+                dataset.num_images_test = 0 
                 dataset.save()
 
             if not check: 
