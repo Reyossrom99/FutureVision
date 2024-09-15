@@ -12,15 +12,13 @@ from django.db.models import Q
 from rest_framework import status
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 import yaml
-from datasets.utils import create_data_file, create_train_folder
-#from projects.tasks import train_model, start_tensorboard
 import logging
 from django.shortcuts import get_object_or_404
 from django.core.paginator import Paginator, EmptyPage
 import requests
 import shutil
 import tempfile
-from projects.utils import delete_training_folder
+from projects.utils import delete_training_folder, create_data_file, create_train_folder
 
 
 projectsPerPage = 10
