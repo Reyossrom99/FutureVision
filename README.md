@@ -32,7 +32,7 @@ Future Vision is a web-based application designed to facilitate the training of 
 ### Installation
 1. **Clone the Repository**:
     ```bash
-    git clone https://github.com/reyossrom/FutureVision.git
+    git clone https://github.com/reyossrom99/FutureVision.git
     ```
 
 2. **Set Up Environment Variables**:
