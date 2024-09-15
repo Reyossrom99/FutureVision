@@ -33,46 +33,56 @@ datasetsPerPage = 10
 def datasets(request):
     global yolo_data_objects
     global coco_data_objects
+    
     if request.method == "GET":
         page_number = int(request.GET.get('page', 1))
-        if page_number ==0: 
-             datasets = Datasets.objects.filter(
-            (Q(user=request.user) | Q(is_public=True)) & Q(format='yolo') & Q(type='splits'))
-             page_number = 1
-        else: 
-            # Obtener los datasets
-            datasets = Datasets.objects.filter(Q(user=request.user) | Q(is_public=True))
-       
-        if datasets.count() < datasetsPerPage:
-            page_size = datasets.count()
+
+        # Filtrar datasets de acuerdo a los parámetros del request
+        if page_number == 0:
+            datasets = Datasets.objects.filter(
+                (Q(user=request.user) | Q(is_public=True)) & Q(format='yolo') & Q(type='splits')
+            )
+            page_number = 1
         else:
-            page_size = datasetsPerPage
-        #todo division de 0 control 
-        
-        # Calcular el número total de páginas
-        total_pages = math.ceil(datasets.count() / page_size)
-        # puedo tener 10 datasets por pagina 
-        
-        # Verificar si hay datasets
-        if not datasets: 
-            return JsonResponse({"mensage": "No datasets"}, status=status.HTTP_200_OK)
-        
-        # Serializar los datasets
+            datasets = Datasets.objects.filter(Q(user=request.user) | Q(is_public=True))
+
+        datasets_count = datasets.count()
+
+        # Si no hay datasets, devuelve un mensaje o array vacío
+        if datasets_count == 0:
+            return JsonResponse({
+                "datasets": [],
+                "total_pages": 1
+            }, status=status.HTTP_200_OK)
+
+        try:
+            # Asegurar que page_size sea mayor que 0
+            if datasets_count < datasetsPerPage:
+                page_size = datasets_count
+            else:
+                page_size = datasetsPerPage
+
+            # Calcular el número de páginas
+            total_pages = math.ceil(datasets_count / page_size)
+
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        # Serializar los datos
         serializer = DatasetsSerializers(datasets, many=True)
-        
-        # Paginar los datasets
+
+        # Paginar los datos
         paginator = Paginator(serializer.data, page_size)
         try:
             datasets_page = paginator.page(page_number)
         except EmptyPage:
             return JsonResponse({'error': 'No more pages'}, status=status.HTTP_404_NOT_FOUND)
-        
-        # Preparar los datos paginados
+
         paginated_data = {
             'datasets': list(datasets_page),
             'total_pages': total_pages
         }
-        logging.info(paginated_data)
+
         return JsonResponse(paginated_data, safe=False)
     
     elif request.method == "POST": 
@@ -85,10 +95,10 @@ def datasets(request):
         format = request.POST.get('format')
         privacy = request.POST.get('privacy') == 'true'
         
-        print(name, description, uploaded_file, type, format, privacy)
+        
         #todo esta funcion tarda horrores en ejecutarse
         control_structure = utils.extract_and_verify_zip(uploaded_file, format, type)
-        print("verficacion de estructura", control_structure)
+        
         if control_structure: 
            #contamos el numero de imagenes que hay en el dataset 
             num_images_train, num_images_val, num_images_test = utils.count_files_in_zip(uploaded_file, type)
@@ -107,11 +117,11 @@ def datasets(request):
                     num_images_test = num_images_test
                 )
                 dataset.save()
-                print("dataset guardado")
+
                 #obtebemos la cover del dataset, solo cuando la estructura de control es correcta 
                 #todo esta funcion tarda mucho
                 if (utils.extract_cover(uploaded_file, name, format, type)):
-                    print("cover extraida")
+                    
                     return JsonResponse({"id": dataset.dataset_id}
                                         , status= status.HTTP_201_CREATED)
                 else: 
@@ -136,7 +146,7 @@ def dataset(request, dataset_id):
         requested_split = request.GET.get('request-split', "")
         page_number = int(request.GET.get('page', 1))
         page_size = int(request.GET.get('page_size', 100))
-        print(show_labels, requested_split, page_number, page_size)
+        
 
         dataset = Datasets.objects.get(dataset_id=dataset_id)
         #custom paginator 
@@ -152,7 +162,7 @@ def dataset(request, dataset_id):
         #     page_number = num_pages
         
         if dataset.format == 'yolo' :
-            print("yolo")
+            
             # Comprueba si el objeto YoloData ya existe para este dataset
             if dataset.dataset_id not in yolo_data_objects: 
                 yolo_data_objects[dataset.dataset_id] = YoloData(dataset.name, dataset.type, dataset.url)
@@ -166,14 +176,14 @@ def dataset(request, dataset_id):
             elif dataset.type == 'splits' and requested_split == "" and yolo_data.modify == False:
                 requested_split = "train"
 
-            print("requested split", requested_split)    
+               
             #Extraer los datos pedidos en la carpeta temporal    
             yolo_data.extract_data_in_tmp(page_number, page_size, requested_split)
 
             image_files, image_files_full = yolo_data.get_images(requested_split, page_number, page_size)
 
             if show_labels == 'true':
-                print("show labels")
+                
                 _, labels_files_full = yolo_data.get_labels(requested_split, page_number, page_size)
                 yolo_data.save_labels_in_image(image_files_full, labels_files_full, requested_split, page_number)
                 images, _ = yolo_data.get_labeled_images(requested_split, page_number, page_size)
@@ -203,7 +213,7 @@ def dataset(request, dataset_id):
             coco_data.extract_data_in_tmp(page_number, page_size, requested_split)
 
             image_files, _ = coco_data.get_images(requested_split,page_number, page_size)
-            print("numero de imagenes extraidas", len(image_files))
+            
             
             if show_labels == 'true':
                 
@@ -255,7 +265,6 @@ def dataset(request, dataset_id):
             try: 
                 dataset.delete()
             except Exception as e:
-                print(e)
                 return JsonResponse({'error': 'Cannot delete dataset'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             return JsonResponse({'message': 'Dataset deleted'}, status=status.HTTP_200_OK)
 
@@ -344,7 +353,6 @@ def dataset(request, dataset_id):
             
             return JsonResponse({'message': 'Dataset updated'}, status=status.HTTP_200_OK)
         except Exception as e:
-            print("error", e)
             return JsonResponse({'error': 'Cannot update dataset'}, status=status.HTTP_404_NOT_FOUND)    
     else: 
         return JsonResponse({'error': 'Method not allowed'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
@@ -364,18 +372,18 @@ def split_dataset(request, dataset_id):
                 train = request.data.get('trainNumber', 70)
                 val = request.data.get('valNumber', 20)
                 test = request.data.get('testNumber', 30)
-                print("train", train, "val", val, "test", test)
+                
                 #test that the values are correct 
                 if train + val + test != 100:
                     return JsonResponse({'error': 'Invalid split values'}, status=status.HTTP_400_BAD_REQUEST)
                 #get the dataset format
                 if dataset.format == "yolo": 
-                    print("yolo")
+                   
                     if dataset.dataset_id not in yolo_data_objects: 
                         yolo_data_objects[dataset.dataset_id] = YoloData(dataset.name, dataset.type, dataset.url)
                     yolo_data = yolo_data_objects[dataset.dataset_id]
                     #split the dataset
-                    print("splitting")
+                    
                     check, err, train_num, val_num, test_num = yolo_data.create_splits(train, val, test, dataset.num_images_train)
                     if not check: 
                         return JsonResponse({'error': err}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -389,7 +397,7 @@ def split_dataset(request, dataset_id):
 
                 return JsonResponse({'message': 'Dataset splitted'}, status=status.HTTP_200_OK)
         except Exception as e:
-            logging.info(e)
+            
             return JsonResponse({'error': e}, status=status.HTTP_404_NOT_FOUND)
 
     elif request.method == "DELETE": 

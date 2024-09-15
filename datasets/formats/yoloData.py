@@ -110,7 +110,7 @@ class YoloData:
                        
                             shutil.move(os.path.join(interchange_folder, self.zip_name, "images", base_name), os.path.join(images_train, base_name) )
                         except Exception as e: 
-                            print("error: ", e)
+                           pass
 
                     for file_name in file_list_train_txt[start_index:end_index]: 
                         try: 
@@ -118,7 +118,7 @@ class YoloData:
                             base_name = os.path.basename(file_name)
                             shutil.move(os.path.join(interchange_folder, self.zip_name, "labels", base_name), os.path.join(labels_train, base_name) )
                         except Exception as e: 
-                            print("error: ", e)
+                            pass
                 else: 
                     file_list_train = [file_name for file_name in self.file_list if 'train' in file_name and file_name.lower().endswith(self.image_formats)]
                     file_list_train_txt = [file_name for file_name in self.file_list if 'train' in file_name and file_name.lower().endswith('.txt')]
@@ -166,7 +166,7 @@ class YoloData:
                        
                             shutil.move(os.path.join(interchange_folder, self.zip_name, "images", base_name), os.path.join(images_val, base_name) )
                         except Exception as e: 
-                            print("error: ", e)
+                            pass
 
                     for file_name in file_list_val_txt[start_index:end_index]: 
                         try: 
@@ -174,7 +174,7 @@ class YoloData:
                             base_name = os.path.basename(file_name)
                             shutil.move(os.path.join(interchange_folder, self.zip_name, "labels", base_name), os.path.join(labels_val, base_name) )
                         except Exception as e: 
-                            print("error: ", e) 
+                            pass
                 else: 
                     # Obtener lista de nombres de archivos en el zip
                     file_list_val= [file_name for file_name in self.file_list if 'val' in file_name and file_name.lower().endswith(self.image_formats)]
@@ -223,7 +223,7 @@ class YoloData:
                        
                             shutil.move(os.path.join(interchange_folder, self.zip_name, "images", base_name), os.path.join(images_test, base_name) )
                         except Exception as e: 
-                            print("error: ", e)
+                            pass
 
                     for file_name in file_list_test_txt[start_index:end_index]: 
                         try: 
@@ -231,7 +231,7 @@ class YoloData:
                             base_name = os.path.basename(file_name)
                             shutil.move(os.path.join(interchange_folder, self.zip_name, "labels", base_name), os.path.join(labels_test, base_name) )
                         except Exception as e: 
-                            print("error: ", e)
+                            pass
                 else: 
                     file_list_test = [file_name for file_name in self.file_list if 'test' in file_name and file_name.lower().endswith(self.image_formats)]
                     file_list_test_txt = [file_name for file_name in self.file_list if 'test' in file_name and file_name.lower().endswith('.txt')]
@@ -249,7 +249,7 @@ class YoloData:
 
     #obtiene una list que contiene las rutas de todas las imagenes de la carpeta
     def get_images(self, requested_split:str, page_number:int, page_size:int) -> list: 
-        print("getting images")
+        
         
         images = []  #ruta relativa de las imagenes para mandarlas al front
         images_full = [] #ruta completa de las imagenes que necesita el back
@@ -263,29 +263,26 @@ class YoloData:
         if self.type == "no-splits" and self.modify == False: 
             root_path = os.path.join(self.tmp_dir, self.zip_name, "images")
         else: 
-            print("getting split")
-            print("requested : ", requested_split)
             #get the images by split 
             root_path = os.path.join(self.tmp_dir, self.zip_name, requested_split, "images")
 
         image_files = sorted(os.listdir(root_path))[start_index:end_index]
 
-        print("image files: ", image_files)
+        
         
         for name in image_files: 
                 if name.lower().endswith(self.image_formats): 
-                    print(self.type, self.modify)
+                    (self.type, self.modify)
                     if self.type == "no-splits" and self.modify ==False:
-                        print("returning images from no-splits")
+                       
                         images_full.append(os.path.join(settings.TMP_ROOT, self.tmp_name, self.zip_name, 'images', name))
                         images.append(os.path.join("/media", "tmp", self.tmp_name, self.zip_name,'images',name))
                     else: 
-                        print("returning images")
+                       
                         images.append(os.path.join("/media", "tmp", self.tmp_name, self.zip_name, requested_split,'images',name))
                         images_full.append(os.path.join(settings.TMP_ROOT, self.tmp_name, self.zip_name, requested_split ,'images', name))
-                else: 
-                    print("no image found")
-        print("images returned:", images)
+                
+        
         return images, images_full
     
     
@@ -311,10 +308,10 @@ class YoloData:
                         labels.append(os.path.join("/media", "tmp", self.tmp_name, self.zip_name, "labels", name))
                         labels_full.append(os.path.join(settings.TMP_ROOT, self.tmp_name, self.zip_name, 'labels', name))
                     else: 
-                        print("labels split")
+                        
                         labels.append(os.path.join("/media", "tmp", self.tmp_name, self.zip_name,requested_split, "labels", name))
                         labels_full.append(os.path.join(settings.TMP_ROOT, self.tmp_name, self.zip_name, requested_split,'labels', name))
-        print("return labels")           
+              
         return labels, labels_full
     
     def get_labeled_images(self, requested_split:str, page_number:int, page_size:int) -> list: 
@@ -350,9 +347,7 @@ class YoloData:
         # necesito el page_number para saber si ya he guardado o no las imagenes
         if not image_files or not labels_files: 
             return 
-        print(len(labels_files))
-        print(len(image_files))
-
+ 
         if self.type=='no-splits' and self.modify==False: 
             ##already saved images
             if page_number in self.labeled_images: 
@@ -362,20 +357,20 @@ class YoloData:
                 os.makedirs(labeled_dir, exist_ok=False) #raises an error if the directory already exists
             self.labeled_images.append(page_number)
         else:
-                print("este log")
+                
                 #already saved images
                 if (page_number in self.labeled_images_train and requested_split=="train")or (page_number in self.labeled_images_val and requested_split=="val") or (page_number in self.labeled_images_test and requested_split=="test"): 
-                    print("returning")
+                    
                     return
 
                 labeled_dir = os.path.join(self.tmp_dir, self.zip_name, 'labeled_images', requested_split)
-                print("dir: "+ labeled_dir)
+                
                 #solo creamos el archivo la primera vez
                 if not os.path.exists(labeled_dir):
                     os.makedirs(labeled_dir, exist_ok=False)
             
                 if requested_split == "train": 
-                    print("train")
+                   
                     self.labeled_images_train.append(page_number)
                 elif requested_split == "val": 
                     self.labeled_images_val.append(page_number)
@@ -441,13 +436,13 @@ class YoloData:
         if self.file_list is None:
             self.file_list = zipfile.ZipFile(self.zip_path, 'r').namelist()
         
-        print(self.modify)
+        
         #seleccionamos los elementos que van a ir a cada split de manera aletoria 
         train_number = math.ceil((train/100)*num_images)
         val_number = math.ceil((val/100)*num_images)
         test_number = num_images - train_number - val_number
         
-        print(train_number, val_number, test_number)
+       
 
         if train_number + val_number + test_number != num_images: 
             return False, "The number of images in the splits is not equal to the total number of images"
@@ -492,11 +487,9 @@ class YoloData:
                     elif item.filename in self.modify_splits_labels["test"]:
                         new_path = os.path.join(self.zip_name.split(".zip")[0], "test", "labels", os.path.basename(item.filename))
                     elif item.filename.endswith("data.yaml"): 
-                        print("aqui")
+                       
                         new_path = os.path.join(item.filename)
                     else: 
-                        print("ERROR: file not found")
-                        print(item.filename)
                         continue
 
 

@@ -98,7 +98,7 @@ def extract_cover(zip_path, dataset_name, format, type):
 
     finally:
         t2 = int(time.time() * 1000)
-        print(f"Tiempo total en extraer la cover: {str(t2 - t1)}")
+        
         shutil.rmtree(temp_dir)
     return False
 
@@ -154,10 +154,7 @@ def count_files_in_zip(zip_path, type):
 
 def extract_data_values(zip_path, dataset_name):
     temp_dir = tempfile.mkdtemp(dir=os.path.join(settings.MEDIA_ROOT, "tmp"))
-    logging.info(temp_dir)
-    logging.info(zip_path)
     zip_name = zip_path.name.split("/")[-1].split(".zip")[0]
-    logging.info(zip_name)
     try:
         t1 = int(time.time() * 1000)
         with zipfile.ZipFile(os.path.join(settings.MEDIA_ROOT, str(zip_path)), "r") as zip_ref:
@@ -166,8 +163,7 @@ def extract_data_values(zip_path, dataset_name):
 
         root_path = temp_dir + "/" + zip_name + "/" + "data.yaml"
         root_path= os.path.join(settings.MEDIA_ROOT, temp_dir, zip_name, "data.yaml")
-        logging.info(settings.MEDIA_ROOT)
-        logging.info(root_path)
+
         with open(root_path, "r") as dataFile:
             datos = yaml.safe_load(dataFile)
         try:
@@ -177,7 +173,6 @@ def extract_data_values(zip_path, dataset_name):
 
     finally:
         t2 = int(time.time() * 1000)
-        logging.info(f"Tiempo total en obtener los valores del archivo data: {str(t2 - t1)}")
         shutil.rmtree(temp_dir)
 
 
@@ -187,8 +182,7 @@ def read_images_from_tmp_folder(zip_path, type):
     dir_root = os.path.join(settings.MEDIA_ROOT, "tmp")
     temp_dir = tempfile.mkdtemp(dir=dir_root)
     temp_name = os.path.basename(temp_dir)
-    print(temp_name)
-    print(f"Ruta del destino temporal: {temp_dir}")
+ 
     images = []
     with zipfile.ZipFile(zip_path, "r") as zip_ref:
         zip_ref.extractall(temp_dir)
@@ -199,9 +193,9 @@ def read_images_from_tmp_folder(zip_path, type):
     else:
         return images
 
-    print(f"Directorio de lectura temporal: {root_path}")
+    
     for root, directories, files in os.walk(root_path):
-        print("Obteniendo las imagenes de la carpeta......")
+     
         for name in files:
             if name.lower().endswith(image_formats):
                 images.append(
@@ -230,13 +224,13 @@ def create_data_file(datasetId, id):
         dataset = Datasets.objects.get(dataset_id=datasetId)
     except KeyError as e:
         return None, e
-    logging.info("getting objects") 
+   
     # check the format of the dataset is correct for training
     if dataset.format != "yolo" or dataset.type != "splits":
         return None, log.INCORRECT_FORMAT
    
     nc, names, err = extract_data_values(dataset.url, dataset.name)
-    logging.info("extraing values") 
+   
     if err != None:
         return None, err
     
@@ -245,7 +239,7 @@ def create_data_file(datasetId, id):
         names_order.append(name)
 
     zip_name = os.path.basename(dataset.url.name).split(".zip")[0]
-    logging.info("zip name: ")
+    
     data = {
         "train": settings.TRAIN_ROOT
         + "/"
@@ -278,7 +272,7 @@ def create_data_file(datasetId, id):
     yaml_str = yaml.dump(data)
     names_str = "names: " + str(names_order)
     yaml_str = yaml_str + names_str
-    logging.info("final")
+    
     return yaml_str, None
 
 
@@ -325,9 +319,9 @@ def delete_dataset_files(datasetUrl) -> str:
         return e.__str__
 
 def oposite_value(dataset): 
-    print("oposite value")
+    
     if dataset.modify:
-            print("modify")
+            
             if dataset.type == "splits":
                 return "no-splits"
             else:

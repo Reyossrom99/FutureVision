@@ -22,12 +22,7 @@ import shutil
 import tempfile
 from projects.utils import delete_training_folder
 
-logging.basicConfig(level=logging.INFO,
-                    format='%(asctime)s - %(levelname)s - %(message)s',
-                    handlers=[
-                        logging.FileHandler("server.log"),
-                        logging.StreamHandler()
-                    ])
+
 projectsPerPage = 10
 trainingsPerPage = 10
 
@@ -35,40 +30,51 @@ trainingsPerPage = 10
 @api_view(["GET", "POST"])
 @permission_classes([IsAuthenticated]) 
 def projects(request): 
-    if request.method == "GET": 
+    if request.method == "GET":
         page_number = int(request.GET.get('page', 1))
 
+        # Filtrar proyectos que sean públicos o pertenecientes al usuario
         projects = Projects.objects.filter(Q(user=request.user) | Q(is_public=True))
+        projects_count = projects.count()
+
+        # Si no hay proyectos, devuelve un array vacío y total_pages = 1
+        if projects_count == 0:
+            return JsonResponse({
+                'projects': [],
+                'total_pages': 1
+            }, status=status.HTTP_200_OK)
+
+        try:
+            # Asegurar que page_size sea mayor que 0
+            if projects_count < projectsPerPage:
+                page_size = projects_count
+            else:
+                page_size = projectsPerPage
+
+            # Calcular el número de páginas
+            total_pages = math.ceil(projects_count / page_size)
+
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        # Serializar los datos
         serializer = ProjectsSerializer(projects, many=True)
 
-        
-        if projects.count() < projectsPerPage: 
-            page_size = projects.count()
-        else: 
-            page_size = projectsPerPage
-        
-        if projects.count() == 0: 
-            total_pages = 1
-        else: 
-            total_pages = math.ceil(projects.count() / page_size)
-        
+        # Paginar los datos
         paginator = Paginator(serializer.data, page_size)
-
-        try: 
+        try:
             projects_page = paginator.page(page_number)
         except EmptyPage:
             return JsonResponse({'error': 'No more pages'}, status=status.HTTP_404_NOT_FOUND)
-        
-        paginated_data = {
-                'projects': list(projects_page),
-                'total_pages': total_pages
-                }
-        logging.info(paginated_data)
 
-        return JsonResponse(paginated_data, safe=False)
-       
+        paginated_data = {
+            'projects': list(projects_page),
+            'total_pages': total_pages
+        }
         
-    if request.method == "POST":
+        return JsonResponse(paginated_data, safe=False)
+            
+    elif request.method == "POST":
 
         data = request.data
         if request.user.is_authenticated:
@@ -155,7 +161,7 @@ def project_queue(request, project_id):
             "workers": int(data.get("workers")), 
             "cfg": data.get("cfg"), 
             }
-            logging.info("input data: %s", input_data)
+           
         except json.JSONDecodeError as e:
             JsonResponse({'error': 'Missing request parameters'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -181,15 +187,15 @@ def project_queue(request, project_id):
         if err is not None: 
             return JsonResponse({'error': 'Error creating data file'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             
-        print("created data file") 
+        
         training.data = data_file
-        print("id", training.training_id)
+        
         train_folder, err = create_train_folder(project.dataset.dataset_id, str(training.training_id))
         training.data_folder= train_folder
         if err is not None: 
-            print(err)
+           
             return JsonResponse({'error': "error creando carpeta de entrenamiento"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        print("created train folder") 
+         
         training.save()
         train_data = os.path.join(train_folder, "data_train.yaml")
 
@@ -207,14 +213,14 @@ def project_queue(request, project_id):
         }
         try:
             response = requests.post(engine_url, json=payload)
-            logging.info(f"enviando mensaje")
+            
             if response.status_code != 200:
-                logging.info("okay")
+              
                 training.current_status = "stopped"
                 training.save()
                 return JsonResponse({'error': 'Error initiating command on engine server'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except requests.exceptions.RequestException as e:
-            logging.info("error")
+            
             training.current_status = "stopped"
             training.save()
             logging.error(f"Error sending request to engine server: {e}")
@@ -222,7 +228,7 @@ def project_queue(request, project_id):
 
         training.current_status = "running"
         training.save()
-        logging.info(training.current_status)
+        
         return JsonResponse({"error": False, "message": "Added project to training queue"}, status=status.HTTP_200_OK)
 
     else : 
@@ -235,37 +241,52 @@ def trainings(request, project_id):
     """
         Add a project to the training queue
     """
-    if request.method == "GET": 
+    if request.method == "GET":
         page_number = int(request.GET.get('page', 1))
 
         project = get_object_or_404(Projects, pk=project_id)
 
         trainings = Training.objects.filter(project_id=project)
+        trainings_count = trainings.count()
 
-        if trainings.count() < trainingsPerPage:
-            page_size = trainings.count()
-        else: 
-            page_size = trainingsPerPage
-        
-        if trainings.count() == 0: 
-            total_pages = 1
-        else: 
-            total_pages = math.ceil(trainings.count() /page_size)
+        # Si no hay trainings, devuelve un array vacío y total_pages = 1
+        if trainings_count == 0:
+            return JsonResponse({
+                'trainings': [],
+                'total_pages': 1
+            }, status=status.HTTP_200_OK)
 
+        try:
+            # Asegurar que page_size sea siempre mayor que 0
+            if trainings_count < trainingsPerPage:
+                page_size = trainings_count
+            else:
+                page_size = trainingsPerPage
+
+            # Calcular el número de páginas
+            total_pages = math.ceil(trainings_count / page_size)
+
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        # Serializar los datos
         serializer = TrainingSerializer(trainings, many=True)
         
+        # Paginar los datos
         paginator = Paginator(serializer.data, page_size)
-        try: 
+        try:
             trainings_page = paginator.page(page_number)
-        except EmptyPage: 
-               return JsonResponse({'error': 'No more pages'}, status=status.HTTP_404_NOT_FOUND)
+        except EmptyPage:
+            return JsonResponse({'error': 'No more pages'}, status=status.HTTP_404_NOT_FOUND)
+
         paginated_data = {
-                'trainings': list(trainings_page),
-                'total_pages': total_pages
-                }
+            'trainings': list(trainings_page),
+            'total_pages': total_pages
+        }
+        
         return JsonResponse(paginated_data, safe=False)
 
-    else : 
+    else:
         return JsonResponse({'error': 'Method not allowed.'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 @api_view(["POST"])

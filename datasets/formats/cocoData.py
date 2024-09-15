@@ -256,7 +256,6 @@ class CocoData:
         
         # Procesar cada imagen
         for image_file in images_to_process:
-            print("image file: ", image_file)
             img_path = os.path.join(image_dir, image_file)
 
             if not image_file.lower().endswith(self.image_formats):
@@ -264,13 +263,11 @@ class CocoData:
 
             img = cv.imread(img_path)
             if img is None:
-                print("image not found", img_path)
                 continue
 
             # Obtener el ID de imagen para el archivo de imagen actual
             img_id = self.image_name_to_id.get(image_file)
             if img_id is None:
-                print("Image ID not found for:", image_file)
                 continue
 
             # Obtener las anotaciones de la imagen actual
@@ -290,7 +287,6 @@ class CocoData:
 
             # Guardar la imagen con las anotaciones en el directorio de labeld_images
             cv.imwrite(os.path.join(images_label_dir, image_file), img)
-            print("saved path: ", os.path.join(images_label_dir, image_file))
         
             
         return True
@@ -314,7 +310,7 @@ class CocoData:
         Creates temporal splits for the dataset
     """
     def create_splits(self, train:int, val:int, test:int, num_images:int=0): 
-        logging.info("aqui")
+        
         if self.modify == True: 
             return False, "The dataset has already been modified", 0, 0, 0
         
@@ -413,7 +409,6 @@ class CocoData:
         Deletes the tmp directory
     """
     def delete_tmp_data(self): 
-         print(self.tmp_dir)
          if not os.path.exists(self.tmp_dir):
             return False, "The temporary directory does not exist"
          else : 
@@ -528,7 +523,6 @@ class CocoData:
         return True, "The splits have been deleted"
     
     def delete_zip(self): 
-        print(os.path.join(settings.MEDIA_ROOT, self.zip_path.name))
         if os.path.exists(os.path.join(settings.MEDIA_ROOT, self.zip_path.name)): 
             os.remove(os.path.join(settings.MEDIA_ROOT, self.zip_path.name))
             return True, "The zip file has been deleted"
@@ -536,7 +530,6 @@ class CocoData:
             return False, "The zip file does not exist"
 
     def delete_cover(self): 
-        print(os.path.join(settings.MEDIA_ROOT, "covers", self.name))
         if not os.path.exists(os.path.join(settings.MEDIA_ROOT, "covers", self.name)):
             return False, "The temporary directory does not exist"
         else : 

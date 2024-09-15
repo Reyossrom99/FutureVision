@@ -76,8 +76,8 @@ function Projects(){
             <CardGroup>
               {projects.length > 0 ? (
                 projects.map(project => (
-                  <Link to={`/project/${project.project_id}`} key={project.project_id}>  {/* Cambiado de project.id a project.project_id */}
-                    <CardContainerprojects key={project.project_id}> {/* Cambiado de project.id a project.project_id */}
+                  <Link to={`/project/${project.project_id}`} key={project.project_id} style={{textDecoration: 'none'}}>  {/* Cambiado de project.id a project.project_id */}
+                    <CardContainerprojects key={project.project_id} style={{textDecoration: 'none'}}> {/* Cambiado de project.id a project.project_id */}
                       <CardTitle>{project.name}</CardTitle>
                       <CardLabels>
                         {project.is_public ? (
